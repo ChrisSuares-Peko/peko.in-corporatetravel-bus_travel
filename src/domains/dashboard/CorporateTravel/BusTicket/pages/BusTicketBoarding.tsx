@@ -1,12 +1,389 @@
-import { Flex, Typography } from 'antd';
+import { useState } from 'react';
 
-// Placeholder — boarding point selection will be built in a later step.
-const BusTicketBoarding = () => (
-    <Flex align="center" justify="center" className="min-h-[40vh]">
-        <Typography.Text className="text-gray-500 text-base">
-            Boarding Point Selection coming soon
-        </Typography.Text>
-    </Flex>
+import { Button, Col, Divider, Flex, Radio, Row, Typography, message } from 'antd';
+import { useLocation, useNavigate } from 'react-router-dom';
+
+const { Text, Title } = Typography;
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface StopPoint {
+    id: string;
+    name: string;
+    time: string;
+    date: string;
+    landmark: string;
+}
+
+// ─── Mock Data ────────────────────────────────────────────────────────────────
+
+const BOARDING_POINTS: StopPoint[] = [
+    {
+        id: 'B1',
+        name: 'Nayandahalli',
+        time: '05:00 AM',
+        date: '04 Jun',
+        landmark: 'In Front Of Nayandahalli Metro Station, Opposite To Global Mall',
+    },
+    {
+        id: 'B2',
+        name: 'Majestic Bus Station',
+        time: '05:25 AM',
+        date: '04 Jun',
+        landmark:
+            'Sri Krishna Tours & Travels, 19 Hotel Mayura Cmplx, Tank Bund Rd, Subash Nagar, Opp Majestic Bus Stand',
+    },
+    {
+        id: 'B3',
+        name: 'Anand Rao Circle',
+        time: '05:30 AM',
+        date: '04 Jun',
+        landmark: 'SRE Travels (Kalpana Tourist)',
+    },
+    {
+        id: 'B4',
+        name: 'Corporation Circle',
+        time: '05:40 AM',
+        date: '04 Jun',
+        landmark: 'Infront of City Bus Stop',
+    },
+    {
+        id: 'B5',
+        name: 'Shanthi Nagar(C)',
+        time: '05:50 AM',
+        date: '04 Jun',
+        landmark: 'Infront of SRS Logistics',
+    },
+    {
+        id: 'B6',
+        name: 'Koramangala',
+        time: '06:05 AM',
+        date: '04 Jun',
+        landmark: 'Nexus Mall back gate, next to Christ University',
+    },
+    {
+        id: 'B7',
+        name: 'St. Johns Hospital',
+        time: '06:10 AM',
+        date: '04 Jun',
+        landmark: 'Infront of HP Petroleum Pump',
+    },
+    {
+        id: 'B8',
+        name: 'Madiwala',
+        time: '06:15 AM',
+        date: '04 Jun',
+        landmark: 'Near Happiest Mind Technologies',
+    },
+    {
+        id: 'B9',
+        name: 'Silk Board (Flyover End)',
+        time: '06:20 AM',
+        date: '04 Jun',
+        landmark: 'Flyover End, Opp to Metro Station',
+    },
+];
+
+const DROP_POINTS: StopPoint[] = [
+    {
+        id: 'D1',
+        name: 'Sri Perumbudur',
+        time: '12:40 PM',
+        date: '04 Jun',
+        landmark: 'Near Sriperumbudur Toll Plaza (Towards Poonamalle)',
+    },
+    {
+        id: 'D2',
+        name: 'Poonamallee Bypass',
+        time: '12:55 PM',
+        date: '04 Jun',
+        landmark: 'Near BSNL Telephone Exchange',
+    },
+    {
+        id: 'D3',
+        name: 'Velappanchavadi',
+        time: '01:00 PM',
+        date: '04 Jun',
+        landmark: 'Infront of Velappanchavadi Bus Stop',
+    },
+    {
+        id: 'D4',
+        name: 'Maduravoyal',
+        time: '01:10 PM',
+        date: '04 Jun',
+        landmark: 'Maduravoyal Erikarai Bus Stop',
+    },
+    {
+        id: 'D5',
+        name: 'Koyambedu',
+        time: '01:15 PM',
+        date: '04 Jun',
+        landmark: 'Opp to CMBT',
+    },
+    {
+        id: 'D6',
+        name: 'Vadapalani',
+        time: '01:35 PM',
+        date: '04 Jun',
+        landmark: 'Opp to Murugan Idli Restaurant',
+    },
+    {
+        id: 'D7',
+        name: 'Ashok Nagar',
+        time: '01:45 PM',
+        date: '04 Jun',
+        landmark: 'Infront of Sree Mithai Store',
+    },
+    {
+        id: 'D8',
+        name: 'Guindy',
+        time: '01:50 PM',
+        date: '04 Jun',
+        landmark: 'Opp to Olympia Tech Park',
+    },
+    {
+        id: 'D9',
+        name: 'Anna University',
+        time: '02:00 PM',
+        date: '04 Jun',
+        landmark: 'Infront of Anna University Bus Stop',
+    },
+    {
+        id: 'D10',
+        name: 'Madhya Kailash',
+        time: '02:05 PM',
+        date: '04 Jun',
+        landmark: '',
+    },
+];
+
+// ─── Stop Point List ──────────────────────────────────────────────────────────
+
+const StopList = ({
+    title,
+    points,
+    selected,
+    onSelect,
+}: {
+    title: string;
+    points: StopPoint[];
+    selected: string | null;
+    onSelect: (id: string) => void;
+}) => (
+    <div
+        className="border border-gray-100 rounded-2xl bg-white overflow-hidden"
+        style={{ boxShadow: '0px 1px 8px rgba(0,0,0,0.05)' }}
+    >
+        {/* Column header */}
+        <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
+            <Text className="font-bold text-sm text-gray-700">{title}</Text>
+        </div>
+
+        {/* Scrollable list */}
+        <div className="md:max-h-[520px] md:overflow-y-auto">
+            {points.map((point, idx) => (
+                <div key={point.id}>
+                    <div
+                        onClick={() => onSelect(point.id)}
+                        className={`flex items-start gap-3 px-4 py-4 cursor-pointer transition-colors ${
+                            selected === point.id
+                                ? 'bg-amber-50'
+                                : 'hover:bg-gray-50'
+                        }`}
+                    >
+                        {/* Radio indicator */}
+                        <Radio
+                            checked={selected === point.id}
+                            className="mt-0.5 flex-shrink-0 pointer-events-none"
+                        />
+
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                            <Text
+                                className={`text-sm block leading-tight ${
+                                    selected === point.id
+                                        ? 'font-bold text-gray-800'
+                                        : 'font-semibold text-gray-700'
+                                }`}
+                            >
+                                {point.name}
+                            </Text>
+                            <Text className="text-gray-500 text-xs block mt-1">
+                                {point.time}, {point.date}
+                            </Text>
+                            {point.landmark && (
+                                <Text className="text-gray-400 text-xs block mt-0.5 leading-relaxed">
+                                    {point.landmark}
+                                </Text>
+                            )}
+                        </div>
+                    </div>
+                    {idx < points.length - 1 && <Divider className="my-0" />}
+                </div>
+            ))}
+        </div>
+    </div>
 );
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+
+const BusTicketBoarding = () => {
+    const location = useLocation();
+    const navigate = useNavigate();
+    const rs = (location.state ?? {}) as Record<string, any>;
+
+    // ── Route state ──
+    const source        = rs.source        ?? 'Bengaluru';
+    const destination   = rs.destination   ?? 'Chennai';
+    const selectedSeats = Array.isArray(rs.selectedSeats) ? rs.selectedSeats : [];
+    const totalAmount   = typeof rs.totalAmount === 'number' ? rs.totalAmount : 0;
+
+    // ── Selection state ──
+    const [selectedBoarding, setSelectedBoarding] = useState<string | null>(null);
+    const [selectedDrop, setSelectedDrop]         = useState<string | null>(null);
+
+    // ── Derived: seat labels for summary ──
+    const seatLabels = selectedSeats.length > 0
+        ? selectedSeats
+              .slice()
+              .sort((a: any, b: any) =>
+                  a.deck === b.deck ? a.row - b.row : a.deck.localeCompare(b.deck)
+              )
+              .map((s: any) => `${s.deck === 'lower' ? 'L' : 'U'}${s.label}`)
+              .join(', ')
+        : '—';
+
+    const proceedEnabled = selectedBoarding !== null && selectedDrop !== null;
+
+    // ── Navigate to traveller selection ──
+    const handleProceed = () => {
+        if (!proceedEnabled) {
+            message.warning('Please select a boarding point and a drop point to continue');
+            return;
+        }
+
+        const boardingPoint = BOARDING_POINTS.find(p => p.id === selectedBoarding)!;
+        const dropPoint     = DROP_POINTS.find(p => p.id === selectedDrop)!;
+
+        navigate('/corporate-travel/bus-ticket/traveller', {
+            state: {
+                ...rs,
+                boardingPoint: boardingPoint.name,
+                boardingTime:  boardingPoint.time,
+                boardingDate:  boardingPoint.date,
+                boardingLandmark: boardingPoint.landmark,
+                dropPoint:     dropPoint.name,
+                dropTime:      dropPoint.time,
+                dropDate:      dropPoint.date,
+                dropLandmark:  dropPoint.landmark,
+            },
+        });
+    };
+
+    // ── Booking summary panel ──
+    const SummaryPanel = ({ compact = false }: { compact?: boolean }) => (
+        <div
+            className={`border border-gray-100 rounded-2xl bg-white ${compact ? 'p-4' : 'p-5'}`}
+            style={{ boxShadow: '0px 2px 12px rgba(0,0,0,0.06)' }}
+        >
+            {/* Total */}
+            <Flex vertical gap={2} className="mb-4">
+                <Text className="text-xs text-gray-400 uppercase tracking-wide">
+                    Total Amount
+                </Text>
+                <Text
+                    className="font-black leading-none"
+                    style={{
+                        fontSize: compact ? 22 : 28,
+                        color: totalAmount > 0 ? '#FFA827' : '#9CA3AF',
+                    }}
+                >
+                    {totalAmount > 0 ? `₹${totalAmount.toLocaleString()}` : '₹0'}
+                </Text>
+            </Flex>
+
+            {!compact && (
+                <>
+                    <Divider className="my-3" />
+                    <Flex vertical gap={2} className="mb-5">
+                        <Text className="text-xs text-gray-500">Seat No.</Text>
+                        <Text className="text-sm font-medium text-gray-700">{seatLabels}</Text>
+                    </Flex>
+                </>
+            )}
+
+            <Button
+                block
+                size="large"
+                disabled={!proceedEnabled}
+                onClick={handleProceed}
+                className="rounded-md font-semibold"
+                style={
+                    proceedEnabled
+                        ? { backgroundColor: '#FFA827', borderColor: '#FFA827', color: '#fff' }
+                        : undefined
+                }
+            >
+                Proceed to Traveller Selection
+            </Button>
+
+            {!proceedEnabled && (
+                <Text className="text-xs text-gray-400 mt-3 block text-center">
+                    {!selectedBoarding && !selectedDrop
+                        ? 'Select a boarding point and a drop point'
+                        : !selectedBoarding
+                        ? 'Select a boarding point to continue'
+                        : 'Select a drop point to continue'}
+                </Text>
+            )}
+        </div>
+    );
+
+    return (
+        <Flex vertical gap={20}>
+
+            {/* ── Page Header ── */}
+            <Title level={4} className="m-0">
+                {source} to {destination}
+            </Title>
+
+            {/* ── Three-Column Layout ── */}
+            <Row gutter={[16, 16]} align="top">
+
+                {/* Left — Boarding Points */}
+                <Col xs={24} md={9}>
+                    <StopList
+                        title="Boarding Point"
+                        points={BOARDING_POINTS}
+                        selected={selectedBoarding}
+                        onSelect={setSelectedBoarding}
+                    />
+                </Col>
+
+                {/* Middle — Drop Points */}
+                <Col xs={24} md={9}>
+                    <StopList
+                        title="Drop Point"
+                        points={DROP_POINTS}
+                        selected={selectedDrop}
+                        onSelect={setSelectedDrop}
+                    />
+                </Col>
+
+                {/* Right — Booking Summary (desktop) */}
+                <Col xs={0} md={6}>
+                    <div className="sticky top-4">
+                        <SummaryPanel />
+                    </div>
+                </Col>
+            </Row>
+
+            {/* Mobile Booking Summary */}
+            <div className="md:hidden">
+                <SummaryPanel compact />
+            </div>
+        </Flex>
+    );
+};
 
 export default BusTicketBoarding;
