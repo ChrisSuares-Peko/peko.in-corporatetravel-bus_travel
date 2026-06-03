@@ -1,0 +1,3 @@
+.card-style:where(.css-dev-only-do-not-override-9hcf67).ant-card .ant-card-body {
+    padding: 10px;
+}

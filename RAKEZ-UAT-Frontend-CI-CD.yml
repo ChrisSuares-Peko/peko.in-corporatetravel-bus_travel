@@ -1,0 +1,39 @@
+trigger:
+  branches:
+    include:
+      - rakez      # Trigger pipeline on changes to the mazeed branch
+
+pool:
+  vmImage: 'ubuntu-latest'  # Use Ubuntu agent
+
+variables:
+  - group: firebase-secrets  # Reference the variable group containing FIREBASE_TOKEN
+  - name: FIREBASE_PROJECT_ID
+    value: 'rakez-caf07'  # Replace with your Firebase project ID
+
+steps:
+  # Install Node.js
+  - task: UseNode@1
+    inputs:
+      version: '20.12.2'  # Use Node.js 20.12.2
+
+  # Install dependencies using Yarn
+  - script: |
+      yarn install
+    displayName: 'Install Yarn dependencies'
+
+  # Build the React app
+  - script: |
+      yarn build
+    displayName: 'Build React app'
+
+  # Install Firebase CLI
+  - script: |
+      yarn global add firebase-tools
+    displayName: 'Install Firebase CLI'
+
+  # Deploy to Firebase with projectId
+  - script: |
+      firebase use $(FIREBASE_PROJECT_ID) --token $(FIREBASE_TOKEN)
+      firebase deploy --only hosting --token $(FIREBASE_TOKEN)
+    displayName: 'Deploy to Firebase'

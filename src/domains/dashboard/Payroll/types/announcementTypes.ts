@@ -1,0 +1,59 @@
+export interface IPayload {
+    userId: number;
+    userType: string;
+}
+
+export interface IAnnouncementsPayload {
+    userId: number;
+    userType: string;
+    page: number;
+    limit: number;
+    search: string;
+    month: number | string;
+    year: number;
+}
+
+export type IAnnouncement = {
+    corporateUser: string;
+    subject: string;
+    details: string;
+    status: 'PENDING' | 'MAILED';
+    excludedEmployees: string[];
+    createdAt: string;
+    updatedAt: string;
+    id: string;
+};
+
+export type IAnnouncementData = {
+    count: number;
+    rows: IAnnouncement[];
+};
+
+export type IModalData = {
+    key: number;
+    date: string;
+    subject: string;
+    status: string;
+    details: string;
+    excludedEmployees: [fullName: string, id: string];
+};
+
+export type IEmployeeList = {
+    employees: [
+        {
+            fullName: string;
+            id: string;
+        },
+    ];
+};
+
+export type IAnnouncementPostData = {
+    details: string;
+    subject: string;
+};
+
+export interface ICreateAnnouncementPayload {
+    userId: number;
+    userType: string;
+    postData: IAnnouncementPostData;
+}

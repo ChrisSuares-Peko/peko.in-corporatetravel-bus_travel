@@ -1,0 +1,33 @@
+import { Flex, Typography } from 'antd';
+// import CountUp from 'react-countup';
+import { ReactSVG } from 'react-svg';
+
+import { FleetInfoCardProps } from '../../types/fleetManagement';
+
+const FleetInfoCard = ({ icon, title, value, bgColor }: FleetInfoCardProps) => (
+    <Flex
+        className={`${bgColor} rounded-2xl py-4 lg:py-7 pl-2 md:pl-7 pr-1 md:pr-3 flex-1 `}
+        gap={10}
+    >
+        <Flex
+            className="w-9 h-9 xs:bg-white md:bg-white rounded-full"
+            align="center"
+            justify="center"
+        >
+            <ReactSVG src={icon} />
+        </Flex>
+        <Flex vertical className="p-0 m-0">
+            <Typography.Text
+                className={` text-base font-semibold sm:text-sm md:text-lg whitespace-nowrap sm:min-w-28 p-0 m-0`}
+            >
+                {value}
+            </Typography.Text>
+
+            <Typography.Text className=" text-xs font-normal  text-nowrap sm:min-w-28">
+                {title}
+            </Typography.Text>
+        </Flex>
+    </Flex>
+);
+
+export default FleetInfoCard;

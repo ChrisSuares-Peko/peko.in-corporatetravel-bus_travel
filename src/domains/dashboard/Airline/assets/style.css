@@ -1,0 +1,27 @@
+.custom_autocomplete .ant-select-selector .ant-select-selection-search-input {
+    font-size: 22px;
+}
+
+.custom_datepicker .ant-picker .ant-picker-input {
+    font-size: 18px !important;
+}
+
+.selected-svg path {
+    fill: #ff4f4f;
+}
+
+.default-svg path {
+    fill: #000000;
+}
+
+.search-result-card {
+    transition: transform 0.2s;
+}
+.search-result-card:hover {
+    box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.12);
+    transform: scale(1.01);
+}
+
+.custon_select_bold .ant-select-selection-item {
+    font-weight: 700;
+}

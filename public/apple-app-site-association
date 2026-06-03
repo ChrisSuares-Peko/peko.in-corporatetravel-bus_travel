@@ -1,0 +1,12 @@
+{
+ 	"applinks": {
+ 		"apps": [],
+ 		"details": [{
+ 			"appID": "3NW34YF2D9.com.app.peko.payment",
+ 			"paths": ["/auth/register/*", "/auth/*", "/register/*"]
+ 		}]
+ 	}
+ }
+
+
+
