@@ -67,7 +67,7 @@ const persistConfig = {
     key: 'root',
     storage,
     whitelist: [
-        'auth',
+        // 'auth' intentionally excluded — prototype uses mock initial state, not persisted auth.
         'payment',
         'cart',
         'logistics',

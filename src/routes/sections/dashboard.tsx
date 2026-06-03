@@ -44,6 +44,7 @@ import { WhatsappForBusinessRoutes } from './whatsappForBusiness';
 import { workRoutes } from './works';
 import { paths } from '../paths';
 // Lazy-loaded components
+const ComingSoon = lazy(() => import('@src/domains/dashboard/comingSoon/pages/ComingSoon'));
 const CorporateCard = lazy(
     () => import('@src/domains/dashboard/CorporateCard/pages/CorporateCard')
 );
@@ -210,6 +211,9 @@ export const dashboardRoutes = [
                 path: paths.dashboard.einvoicing,
                 children: eInvoicingRoutes,
             },
+            // Coming Soon placeholder for unbuilt services
+            { element: <ComingSoon />, path: 'coming-soon' },
+
             // Notifications routes
             { element: <ServiceNotFound />, path: '503' },
             { element: <ServiceNotAvailable />, path: paths.dashboard.serviceNotAvailable },

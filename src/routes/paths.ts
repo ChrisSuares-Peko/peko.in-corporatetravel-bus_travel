@@ -301,6 +301,14 @@ export const paths = {
         topup: 'top-up-package-details',
         howEsim: 'how-it-works',
     },
+    visa: {
+        index: 'visa',
+    },
+    busTicket: {
+        index: 'bus-ticket',
+        searching: 'searching',
+        results: 'results',
+    },
     eSign: {
         index: 'eSign',
         uploadPage: 'upload',

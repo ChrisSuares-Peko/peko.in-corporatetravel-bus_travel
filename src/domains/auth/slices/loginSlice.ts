@@ -16,19 +16,21 @@ interface LoginState {
     subCorporateId?: number;
 }
 
+// Prototype: initialState seeds a mock authenticated corporate user so the
+// app opens directly on the dashboard without a backend login flow.
 const initialState: LoginState = {
-    token: '',
-    refreshToken: '',
-    sessionId: '',
-    isAuthenticated: false,
-    role: '',
-    id: 0,
-    username: '',
-    roleName: '',
+    token: 'mock-token',
+    refreshToken: 'mock-refresh-token',
+    sessionId: 'mock-session',
+    isAuthenticated: true,
+    role: 'corporate',
+    id: 1,
+    username: 'demo@peko.one',
+    roleName: 'corporate',
     redirectUrl: '',
-    packageName: '',
+    packageName: 'Business',
     acs_user_id: '',
-    corporateId: 0,
+    corporateId: 1,
     subCorporateId: 0,
 };
 
