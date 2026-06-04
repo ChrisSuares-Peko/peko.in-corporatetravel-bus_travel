@@ -149,3 +149,47 @@ export const ClockIcon = ({ size = 16, color = 'currentColor', className }: Icon
         <polyline points="12 6 12 12 16 14" />
     </svg>
 );
+
+export const MoneyIcon = ({ size = 20, color = 'currentColor', className }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}
+        strokeWidth={S} strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 6v12M9 9.5c0-1.1 1.3-2 3-2s3 .9 3 2-1.3 2-3 2-3 .9-3 2 1.3 2 3 2 3-.9 3-2" />
+    </svg>
+);
+
+export const ArrowRightIcon = ({ size = 20, color = 'currentColor', className }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}
+        strokeWidth={S} strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <line x1="5" y1="12" x2="19" y2="12" />
+        <polyline points="12 5 19 12 12 19" />
+    </svg>
+);
+
+export const LightningIcon = ({ size = 20, color = 'currentColor', className }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}
+        strokeWidth={S} strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+    </svg>
+);
+
+export const CloudIcon = ({ size = 20, color = 'currentColor', className }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}
+        strokeWidth={S} strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z" />
+    </svg>
+);
+
+export const BusOutlineIcon = ({ size = 24, color = 'currentColor', className }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}
+        strokeWidth={S} strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <rect x="3" y="5" width="18" height="13" rx="2" />
+        <line x1="3" y1="10" x2="21" y2="10" />
+        <circle cx="8" cy="19" r="1.5" />
+        <circle cx="16" cy="19" r="1.5" />
+        <line x1="3" y1="15" x2="21" y2="15" />
+        <line x1="7" y1="5" x2="7" y2="10" />
+        <line x1="12" y1="5" x2="12" y2="10" />
+        <line x1="17" y1="5" x2="17" y2="10" />
+    </svg>
+);

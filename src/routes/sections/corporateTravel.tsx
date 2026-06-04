@@ -12,6 +12,10 @@ const CorporateTravel = lazy(
 const VisaSearch = lazy(
     () => import('@domains/dashboard/CorporateTravel/pages/VisaSearch')
 );
+// Layout wrapper that shows the service tab selector on all Bus Ticket sub-pages
+const BusTicketLayout = lazy(
+    () => import('@domains/dashboard/CorporateTravel/BusTicket/pages/BusTicketLayout')
+);
 
 export const corporateTravelRoutes = [
     {
@@ -35,6 +39,8 @@ export const corporateTravelRoutes = [
         path: paths.visa.index,
     },
     {
+        // BusTicketLayout renders the tab selector above every Bus Ticket page
+        element: <BusTicketLayout />,
         path: paths.busTicket.index,
         children: busTicketRoutes,
     },
