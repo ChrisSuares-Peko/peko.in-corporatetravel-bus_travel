@@ -282,10 +282,19 @@ const DeckSection = ({
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 type RouteState = {
-    bus?: BusEntry;
+    // bus can be the old BusEntry (departure/arrival as strings) or the new
+    // BusResultEntry (departure/arrival as objects with a .time property).
+    bus?: any;
     source?: string;
     destination?: string;
     date?: string;
+};
+
+// Safely extract a display time string from either format.
+const busTime = (v: unknown): string | undefined => {
+    if (v == null) return undefined;
+    if (typeof v === 'object' && 'time' in (v as object)) return (v as { time: string }).time;
+    return v as string;
 };
 
 const BusTicketSeatSelection = () => {
@@ -462,7 +471,7 @@ const BusTicketSeatSelection = () => {
                                 {source} → {destination}
                             </Text>
                             <Text className="text-gray-400 text-sm">
-                                {date} • {bus?.departure ?? '10:30 PM'} – {bus?.arrival ?? '05:20 AM'}
+                                {date} • {busTime(bus?.departure) ?? '10:30 PM'} – {busTime(bus?.arrival) ?? '05:20 AM'}
                             </Text>
                         </Flex>
                     </Col>

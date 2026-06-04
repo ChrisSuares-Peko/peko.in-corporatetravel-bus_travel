@@ -18,6 +18,14 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 const { Text, Title, Paragraph } = Typography;
 
+// Safely extract a display time string from either the old string format
+// (BusEntry) or the new object format (BusResultEntry { time, city, ... }).
+const busTime = (v: unknown): string | undefined => {
+    if (v == null) return undefined;
+    if (typeof v === 'object' && v !== null && 'time' in v) return (v as { time: string }).time;
+    return v as string;
+};
+
 // ─── Shared Policy Data (mirrors PoliciesDrawer) ──────────────────────────────
 
 const TRAVEL_POLICIES = [
@@ -298,7 +306,7 @@ const BusTicketReview = () => {
                                         className="font-black leading-none tabular-nums"
                                         style={{ fontSize: 22 }}
                                     >
-                                        {bus.departure}
+                                        {busTime(bus.departure) ?? bus.departure}
                                     </Text>
                                     <Text className="text-gray-400 text-xs">
                                         • {boardingDate}
@@ -337,7 +345,7 @@ const BusTicketReview = () => {
                                         className="font-black leading-none tabular-nums"
                                         style={{ fontSize: 22 }}
                                     >
-                                        {bus.arrival}
+                                        {busTime(bus.arrival) ?? bus.arrival}
                                     </Text>
                                     <Text className="text-gray-400 text-xs">
                                         • {dropDate}
