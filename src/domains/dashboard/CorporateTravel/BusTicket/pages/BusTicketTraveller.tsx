@@ -305,8 +305,9 @@ const SeatCard = ({
                             className="cursor-pointer select-none"
                         >
                             <RightOutlined
-                                className="text-xs transition-transform" style={{ color: '#FF4F4F' }}
+                                className="text-xs transition-transform"
                                 style={{
+                                    color: '#FF4F4F',
                                     transform: state.addNewOpen ? 'rotate(90deg)' : 'rotate(0deg)',
                                 }}
                             />
