@@ -111,7 +111,7 @@ interface PoliciesDrawerProps {
 
 const PoliciesDrawer = ({ open, onClose }: PoliciesDrawerProps) => (
     <Drawer
-        title="Policies"
+        title={<Text style={{ fontSize: 16, fontWeight: 600, color: '#171717' }}>Policies</Text>}
         placement="right"
         onClose={onClose}
         open={open}
@@ -119,9 +119,17 @@ const PoliciesDrawer = ({ open, onClose }: PoliciesDrawerProps) => (
         styles={{ body: { paddingBottom: 80 } }}
         footer={
             <Flex justify="flex-end">
+                {/* Secondary button */}
                 <Button
                     onClick={onClose}
-                    style={{ backgroundColor: '#FFA827', borderColor: '#FFA827', color: '#fff' }}
+                    style={{
+                        backgroundColor: '#FFFFFF',
+                        borderColor: '#D9D9D9',
+                        color: '#171717',
+                        borderRadius: 6,
+                        fontWeight: 400,
+                        fontSize: 14,
+                    }}
                 >
                     Dismiss
                 </Button>
@@ -132,23 +140,18 @@ const PoliciesDrawer = ({ open, onClose }: PoliciesDrawerProps) => (
 
             {/* ── Section 1: Travel Policy ── */}
             <div>
-                <Title level={5} className="text-gray-700 mb-4">
+                <Text style={{ fontSize: 14, fontWeight: 600, color: '#171717' }} className="block mb-4">
                     Travel Policy
-                </Title>
+                </Text>
                 <Flex vertical gap={12}>
                     {TRAVEL_POLICIES.map(policy => (
                         <Flex key={policy.label} gap={10} align="flex-start">
-                            {/* Amber bullet */}
                             <div
                                 className="mt-1.5 flex-shrink-0 rounded-full"
-                                style={{
-                                    width: 6,
-                                    height: 6,
-                                    backgroundColor: '#FFA827',
-                                }}
+                                style={{ width: 6, height: 6, backgroundColor: '#FF4F4F' }}
                             />
-                            <Paragraph className="text-sm text-gray-600 mb-0">
-                                <Text className="font-semibold text-gray-700 text-sm">
+                            <Paragraph style={{ fontSize: 13, color: '#171717', marginBottom: 0 }}>
+                                <Text style={{ fontWeight: 600, fontSize: 13 }}>
                                     {policy.label}:{' '}
                                 </Text>
                                 {policy.value}
@@ -158,13 +161,13 @@ const PoliciesDrawer = ({ open, onClose }: PoliciesDrawerProps) => (
                 </Flex>
             </div>
 
-            <Divider className="my-0" />
+            <Divider className="my-0" style={{ borderColor: '#F0F0F0' }} />
 
             {/* ── Section 2: Cancellation Policy ── */}
             <div>
-                <Title level={5} className="text-gray-700 mb-4">
+                <Text style={{ fontSize: 14, fontWeight: 600, color: '#171717' }} className="block mb-4">
                     Cancellation Policy
-                </Title>
+                </Text>
 
                 <Table
                     dataSource={CANCELLATION_DATA}
@@ -176,13 +179,11 @@ const PoliciesDrawer = ({ open, onClose }: PoliciesDrawerProps) => (
                 />
 
                 {/* Disclaimer notes */}
-                <Flex vertical gap={6}>
+                <Flex vertical gap={5}>
                     {DISCLAIMERS.map((note, i) => (
-                        <Flex key={i} gap={6} align="flex-start">
-                            <Text className="text-gray-400 text-xs flex-shrink-0 leading-relaxed">
-                                *
-                            </Text>
-                            <Text className="text-gray-400 text-xs leading-relaxed">{note}</Text>
+                        <Flex key={i} gap={5} align="flex-start">
+                            <Text style={{ fontSize: 11, color: '#8C8C8C', flexShrink: 0, lineHeight: 1.6 }}>*</Text>
+                            <Text style={{ fontSize: 11, fontWeight: 300, color: '#8C8C8C', lineHeight: 1.6 }}>{note}</Text>
                         </Flex>
                     ))}
                 </Flex>

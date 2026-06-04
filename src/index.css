@@ -8,8 +8,23 @@
    Ant Design 5's :where()-wrapped styles (zero specificity). These rules restore
    primary and default button backgrounds so they are visible without hover. */
 .ant-btn.ant-btn-primary {
-	background-color: #FF3A3A;
+	background-color: #FF4F4F;
 	color: #fff;
+}
+.ant-btn.ant-btn-primary:hover:not(:disabled) {
+	background-color: #E63E3E !important;
+}
+/* Bus Ticket: Ant Design Radio active colour */
+.bus-ticket-radio .ant-radio-checked .ant-radio-inner {
+	border-color: #FF4F4F !important;
+	background-color: #FF4F4F !important;
+}
+/* Bus Ticket: Ant Design Tabs active underline */
+.bus-ticket-tabs .ant-tabs-ink-bar {
+	background-color: #FF4F4F !important;
+}
+.bus-ticket-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+	color: #FF4F4F !important;
 }
 .ant-btn.ant-btn-primary:disabled,
 .ant-btn.ant-btn-primary.ant-btn-disabled {

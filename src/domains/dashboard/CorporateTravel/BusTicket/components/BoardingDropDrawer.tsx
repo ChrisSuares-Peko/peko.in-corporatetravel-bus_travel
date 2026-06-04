@@ -2,7 +2,12 @@ import { Button, Divider, Drawer, Flex, Tabs, Typography } from 'antd';
 
 const { Text } = Typography;
 
-// ─── Mock Data ────────────────────────────────────────────────────────────────
+// ─── Design tokens ─────────────────────────────────────────────────────────────
+const P   = '#FF4F4F';
+const TXT = '#171717';
+const HLP = '#8C8C8C';
+
+// ─── Mock Data ─────────────────────────────────────────────────────────────────
 // Shared across all buses in the prototype — replace with per-bus data from API.
 
 type StopPoint = { time: string; location: string };
@@ -34,12 +39,20 @@ const PointsList = ({ points }: { points: StopPoint[] }) => (
         {points.map((point, i) => (
             <div key={point.location}>
                 <Flex justify="space-between" align="center" className="py-3 px-1">
-                    <Text className="font-bold text-sm text-gray-800 tabular-nums">
+                    <Text
+                        className="tabular-nums"
+                        style={{ fontSize: 13, fontWeight: 600, color: P }}
+                    >
                         {point.time}
                     </Text>
-                    <Text className="text-sm text-gray-600 text-right">{point.location}</Text>
+                    <Text
+                        className="text-right"
+                        style={{ fontSize: 14, fontWeight: 600, color: TXT }}
+                    >
+                        {point.location}
+                    </Text>
                 </Flex>
-                {i < points.length - 1 && <Divider className="my-0" />}
+                {i < points.length - 1 && <Divider className="my-0" style={{ borderColor: '#F0F0F0' }} />}
             </div>
         ))}
     </div>
@@ -54,16 +67,28 @@ interface BoardingDropDrawerProps {
 
 const BoardingDropDrawer = ({ open, onClose }: BoardingDropDrawerProps) => (
     <Drawer
-        title="Boarding &amp; Drop Points"
+        title={
+            <Text style={{ fontSize: 16, fontWeight: 600, color: TXT }}>
+                Boarding &amp; Drop Points
+            </Text>
+        }
         placement="right"
         onClose={onClose}
         open={open}
         width={380}
         footer={
             <Flex justify="flex-end">
+                {/* Secondary button style */}
                 <Button
                     onClick={onClose}
-                    style={{ backgroundColor: '#FFA827', borderColor: '#FFA827', color: '#fff' }}
+                    style={{
+                        backgroundColor: '#FFFFFF',
+                        borderColor: '#D9D9D9',
+                        color: TXT,
+                        borderRadius: 6,
+                        fontWeight: 400,
+                        fontSize: 14,
+                    }}
                 >
                     Dismiss
                 </Button>
@@ -72,15 +97,16 @@ const BoardingDropDrawer = ({ open, onClose }: BoardingDropDrawerProps) => (
     >
         <Tabs
             defaultActiveKey="boarding"
+            className="bus-ticket-tabs"
             items={[
                 {
                     key: 'boarding',
-                    label: 'Boarding Points',
+                    label: <Text style={{ fontSize: 14, color: 'inherit' }}>Boarding Points</Text>,
                     children: <PointsList points={BOARDING_POINTS} />,
                 },
                 {
                     key: 'drop',
-                    label: 'Drop Points',
+                    label: <Text style={{ fontSize: 14, color: 'inherit' }}>Drop Points</Text>,
                     children: <PointsList points={DROP_POINTS} />,
                 },
             ]}

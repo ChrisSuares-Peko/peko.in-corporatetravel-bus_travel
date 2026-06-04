@@ -22,17 +22,24 @@ import {
     Typography,
 } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
-import { FaBed, FaChair, FaFilm, FaSnowflake, FaWifi } from 'react-icons/fa';
-import { BsMoonStars, BsSun, BsSunrise, BsSunset } from 'react-icons/bs';
-import { MdLocalDrink, MdLocalPhone, MdPower } from 'react-icons/md';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { BusEntry, BusType, mockBuses } from '@src/mock/data';
 
 import BoardingDropDrawer from '../components/BoardingDropDrawer';
 import PoliciesDrawer from '../components/PoliciesDrawer';
+import {
+    BedIcon, ChairIcon, ChargingIcon, FilmIcon, MoonIcon,
+    PhoneIcon, SnowflakeIcon, SunIcon, SunriseIcon, SunsetIcon, WaterIcon, WifiIcon,
+} from '../components/SolarIcons';
 
 const { Text, Paragraph } = Typography;
+
+// ─── Design tokens ────────────────────────────────────────────────────────────
+const P   = '#FF4F4F';   // primary
+const TXT = '#171717';   // primary text
+const HLP = '#8C8C8C';   // helper text
+const BDR = '#E8E8E8';   // card border
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -42,26 +49,26 @@ const CITIES = [
 ];
 
 const BUS_TYPE_OPTIONS: { key: BusType; label: string; icon: React.ReactNode }[] = [
-    { key: 'AC',      label: 'AC',      icon: <FaSnowflake className="text-sky-500 text-base" /> },
-    { key: 'NonAC',   label: 'Non AC',  icon: <FaSnowflake className="text-gray-300 text-base" /> },
-    { key: 'Sleeper', label: 'Sleeper', icon: <FaBed className="text-purple-500 text-base" /> },
-    { key: 'Seater',  label: 'Seater',  icon: <FaChair className="text-indigo-500 text-base" /> },
+    { key: 'AC',      label: 'AC',      icon: <SnowflakeIcon color={P}         size={18} /> },
+    { key: 'NonAC',   label: 'Non AC',  icon: <SnowflakeIcon color={HLP}       size={18} /> },
+    { key: 'Sleeper', label: 'Sleeper', icon: <BedIcon       color="#7C3AED"   size={18} /> },
+    { key: 'Seater',  label: 'Seater',  icon: <ChairIcon     color="#4F46E5"   size={18} /> },
 ];
 
-const DEPARTURE_OPTIONS: { key: string; label: string; sub: string; icon: React.ReactNode }[] = [
-    { key: '6AM-12PM',  label: '6AM – 12PM',  sub: 'Morning',   icon: <BsSunrise className="text-orange-400 text-xl" /> },
-    { key: '12PM-6PM',  label: '12PM – 6PM',  sub: 'Afternoon', icon: <BsSun className="text-yellow-500 text-xl" /> },
-    { key: '6PM-12AM',  label: '6PM – 12AM',  sub: 'Evening',   icon: <BsSunset className="text-orange-500 text-xl" /> },
-    { key: '12AM-6AM',  label: '12AM – 6AM',  sub: 'Night',     icon: <BsMoonStars className="text-indigo-500 text-xl" /> },
+const DEPARTURE_OPTIONS: { key: string; sub: string; icon: React.ReactNode }[] = [
+    { key: '6AM-12PM', sub: 'Morning',   icon: <SunriseIcon color="#EA580C" /> },
+    { key: '12PM-6PM', sub: 'Afternoon', icon: <SunIcon     color="#D97706" /> },
+    { key: '6PM-12AM', sub: 'Evening',   icon: <SunsetIcon  color="#EA580C" /> },
+    { key: '12AM-6AM', sub: 'Night',     icon: <MoonIcon    color="#4F46E5" /> },
 ];
 
 const AMENITY_OPTIONS: { key: string; label: string; icon: React.ReactNode }[] = [
-    { key: 'Blankets',                label: 'Blankets',          icon: <FaBed className="text-gray-400 text-sm" /> },
-    { key: 'Charging Point',          label: 'Charging Point',    icon: <MdPower className="text-gray-400 text-sm" /> },
-    { key: 'Emergency Contact Number',label: 'Emergency Contact', icon: <MdLocalPhone className="text-gray-400 text-sm" /> },
-    { key: 'Movie',                   label: 'Movie',             icon: <FaFilm className="text-gray-400 text-sm" /> },
-    { key: 'Wifi',                    label: 'Wifi',              icon: <FaWifi className="text-gray-400 text-sm" /> },
-    { key: 'Water Bottle',            label: 'Water Bottle',      icon: <MdLocalDrink className="text-gray-400 text-sm" /> },
+    { key: 'Blankets',                  label: 'Blankets',          icon: <BedIcon      color={HLP} /> },
+    { key: 'Charging Point',            label: 'Charging Point',    icon: <ChargingIcon color={HLP} /> },
+    { key: 'Emergency Contact Number',  label: 'Emergency Contact', icon: <PhoneIcon    color={HLP} /> },
+    { key: 'Movie',                     label: 'Movie',             icon: <FilmIcon     color={HLP} /> },
+    { key: 'Wifi',                      label: 'Wifi',              icon: <WifiIcon     color={HLP} /> },
+    { key: 'Water Bottle',              label: 'Water Bottle',      icon: <WaterIcon    color={HLP} /> },
 ];
 
 type SortKey = 'rating' | 'departure' | 'duration' | 'arrival' | 'price' | 'seats';
@@ -92,7 +99,7 @@ const parseDurationToMinutes = (duration: string): number => {
     return (hMatch ? parseInt(hMatch[1]) : 0) * 60 + (mMatch ? parseInt(mMatch[1]) : 0);
 };
 
-// ─── Toggle Button ─────────────────────────────────────────────────────────────
+// ─── Filter Toggle Button ─────────────────────────────────────────────────────
 
 const ToggleBtn = ({
     icon, label, active, onClick,
@@ -101,12 +108,21 @@ const ToggleBtn = ({
 }) => (
     <div
         onClick={onClick}
-        className={`flex flex-col items-center justify-center gap-1 p-3 rounded-xl border cursor-pointer transition-all select-none ${
-            active ? 'border-amber-400 bg-amber-50' : 'border-gray-200 bg-white hover:border-gray-300'
-        }`}
+        className="flex flex-col items-center justify-center gap-1.5 p-3 cursor-pointer transition-all select-none"
+        style={{
+            borderRadius: 6,
+            border: active ? `1px solid ${P}` : '1px solid #D9D9D9',
+            backgroundColor: active ? '#FFF1F0' : '#FFFFFF',
+        }}
     >
         {icon}
-        <Text className={`text-xs font-medium leading-none text-center ${active ? 'text-amber-600' : 'text-gray-600'}`}>
+        <Text
+            className="text-xs leading-none text-center"
+            style={{
+                color: active ? P : TXT,
+                fontWeight: active ? 600 : 400,
+            }}
+        >
             {label}
         </Text>
     </div>
@@ -137,18 +153,30 @@ const FilterContent = ({
         setter(list.includes(item) ? list.filter(x => x !== item) : [...list, item]);
 
     return (
-        <Flex vertical gap={20} className="pb-4">
+        <Flex vertical gap={16} className="pb-4">
+            {/* Panel header */}
             <Flex justify="space-between" align="center">
-                <Text className="font-semibold text-gray-700 text-sm uppercase tracking-wide">Filters</Text>
-                <Text onClick={onClearAll} className="text-xs text-amber-500 cursor-pointer hover:text-amber-600 font-medium">
+                <Text
+                    style={{
+                        fontSize: 12, fontWeight: 600, color: HLP,
+                        textTransform: 'uppercase', letterSpacing: '0.5px',
+                    }}
+                >
+                    FILTERS
+                </Text>
+                <Text
+                    onClick={onClearAll}
+                    style={{ fontSize: 14, color: P, cursor: 'pointer', fontWeight: 400 }}
+                >
                     Clear All
                 </Text>
             </Flex>
 
-            <Divider className="my-0" />
+            <Divider className="my-0" style={{ borderColor: '#F0F0F0' }} />
 
+            {/* Bus Type */}
             <Flex vertical gap={10}>
-                <Text className="text-sm font-medium text-gray-700">Bus Type</Text>
+                <Text style={{ fontSize: 14, fontWeight: 600, color: TXT }}>Bus Type</Text>
                 <div className="grid grid-cols-2 gap-2">
                     {BUS_TYPE_OPTIONS.map(opt => (
                         <ToggleBtn
@@ -160,10 +188,11 @@ const FilterContent = ({
                 </div>
             </Flex>
 
-            <Divider className="my-0" />
+            <Divider className="my-0" style={{ borderColor: '#F0F0F0' }} />
 
+            {/* Departure Time */}
             <Flex vertical gap={10}>
-                <Text className="text-sm font-medium text-gray-700">Departure Time</Text>
+                <Text style={{ fontSize: 14, fontWeight: 600, color: TXT }}>Departure Time</Text>
                 <div className="grid grid-cols-2 gap-2">
                     {DEPARTURE_OPTIONS.map(opt => (
                         <ToggleBtn
@@ -175,18 +204,20 @@ const FilterContent = ({
                 </div>
             </Flex>
 
-            <Divider className="my-0" />
+            <Divider className="my-0" style={{ borderColor: '#F0F0F0' }} />
 
-            <Flex vertical gap={8}>
-                <Checkbox checked={liveTrackable} onChange={e => setLiveTrackable(e.target.checked)}>
-                    <Text className="text-sm text-gray-700">Live Trackable Buses Only</Text>
-                </Checkbox>
-            </Flex>
+            <Checkbox
+                checked={liveTrackable}
+                onChange={e => setLiveTrackable(e.target.checked)}
+            >
+                <Text style={{ fontSize: 14, color: TXT }}>Live Trackable Buses Only</Text>
+            </Checkbox>
 
-            <Divider className="my-0" />
+            <Divider className="my-0" style={{ borderColor: '#F0F0F0' }} />
 
+            {/* Amenities */}
             <Flex vertical gap={10}>
-                <Text className="text-sm font-medium text-gray-700">Amenities</Text>
+                <Text style={{ fontSize: 14, fontWeight: 600, color: TXT }}>Amenities</Text>
                 <Flex vertical gap={8}>
                     {AMENITY_OPTIONS.map(opt => (
                         <Checkbox
@@ -199,7 +230,7 @@ const FilterContent = ({
                         >
                             <Flex align="center" gap={6}>
                                 {opt.icon}
-                                <Text className="text-sm text-gray-600">{opt.label}</Text>
+                                <Text style={{ fontSize: 14, color: TXT }}>{opt.label}</Text>
                             </Flex>
                         </Checkbox>
                     ))}
@@ -210,91 +241,103 @@ const FilterContent = ({
 };
 
 // ─── Bus Card ─────────────────────────────────────────────────────────────────
-// Each card owns its own drawer open/close state — no lifting needed.
 
 const BusCard = ({
-    bus,
-    source,
-    destination,
-    onSelectSeats,
+    bus, source, destination, onSelectSeats,
 }: {
-    bus: BusEntry;
-    source: string;
-    destination: string;
-    onSelectSeats: (bus: BusEntry) => void;
+    bus: BusEntry; source: string; destination: string; onSelectSeats: (bus: BusEntry) => void;
 }) => {
     const [boardingOpen, setBoardingOpen] = useState(false);
     const [policiesOpen, setPoliciesOpen] = useState(false);
 
     return (
         <>
-            <div className="border border-gray-100 rounded-2xl p-4 sm:p-5 bg-white shadow-sm hover:shadow-md transition-shadow">
+            <div
+                className="bg-white p-5 transition-shadow hover:shadow-md"
+                style={{ border: `1px solid ${BDR}`, borderRadius: 8 }}
+            >
                 <Row gutter={[12, 16]} align="middle">
 
-                    {/* ── Left: Operator + Rating ── */}
-                    <Col xs={24} sm={24} md={7}>
+                    {/* Left: Operator + Rating */}
+                    <Col xs={24} md={7}>
                         <Flex vertical gap={6}>
-                            <Text className="font-bold text-base leading-tight">{bus.operator}</Text>
-                            <Text className="text-gray-400 text-xs leading-tight">{bus.busType}</Text>
+                            <Text style={{ fontSize: 16, fontWeight: 600, color: TXT }}>
+                                {bus.operator}
+                            </Text>
+                            <Text style={{ fontSize: 13, color: HLP }}>
+                                {bus.busType}
+                            </Text>
                             <Flex align="center" gap={6} className="mt-1">
-                                <span
-                                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-white text-xs font-semibold"
-                                    style={{
-                                        backgroundColor:
-                                            bus.rating >= 4 ? '#22C55E' : bus.rating >= 3 ? '#F59E0B' : '#EF4444',
-                                    }}
+                                <Tag
+                                    color={bus.rating >= 4 ? 'success' : bus.rating >= 3 ? 'warning' : 'error'}
+                                    style={{ fontWeight: 600 }}
                                 >
-                                    <StarFilled className="text-[10px]" />
-                                    {bus.rating.toFixed(1)}
-                                </span>
-                                <Text className="text-gray-400 text-xs">
+                                    ★ {bus.rating.toFixed(1)}
+                                </Tag>
+                                <Text style={{ fontSize: 12, color: HLP }}>
                                     ({bus.totalRatings.toLocaleString()} ratings)
                                 </Text>
                             </Flex>
                             {bus.isLiveTrackable && (
-                                <Tag icon={<EnvironmentFilled />} color="green" className="w-fit mt-1 text-xs">
+                                <Tag
+                                    icon={<EnvironmentFilled />}
+                                    color="success"
+                                    className="w-fit mt-1"
+                                    style={{ fontSize: 12 }}
+                                >
                                     Live Tracking
                                 </Tag>
                             )}
                         </Flex>
                     </Col>
 
-                    {/* ── Centre: Times ── */}
-                    <Col xs={24} sm={24} md={10}>
+                    {/* Centre: Times */}
+                    <Col xs={24} md={10}>
                         <Flex align="center" justify="space-between" gap={8}>
                             <Flex vertical align="flex-start" gap={2}>
-                                <Text className="text-2xl font-black leading-none">{bus.departure}</Text>
-                                <Text className="text-gray-400 text-xs">{source}</Text>
+                                <Text style={{ fontSize: 22, fontWeight: 600, color: TXT, lineHeight: 1 }}>
+                                    {bus.departure}
+                                </Text>
+                                <Text style={{ fontSize: 12, color: HLP }}>{source}</Text>
                             </Flex>
                             <Flex vertical align="center" gap={2} className="flex-1">
-                                <Text className="text-gray-400 text-xs font-medium">{bus.duration}</Text>
+                                <Text style={{ fontSize: 13, color: HLP }}>{bus.duration}</Text>
                                 <div className="w-full flex items-center gap-1">
-                                    <div className="flex-1 border-t border-dashed border-gray-300" />
-                                    <Text className="text-gray-300 text-xs">→</Text>
+                                    <div className="flex-1 border-t border-dashed border-gray-200" />
+                                    <Text style={{ color: '#D9D9D9', fontSize: 12 }}>→</Text>
                                 </div>
                             </Flex>
                             <Flex vertical align="flex-end" gap={2}>
-                                <Text className="text-2xl font-black leading-none">{bus.arrival}</Text>
-                                <Text className="text-gray-400 text-xs">{destination}</Text>
+                                <Text style={{ fontSize: 22, fontWeight: 600, color: TXT, lineHeight: 1 }}>
+                                    {bus.arrival}
+                                </Text>
+                                <Text style={{ fontSize: 12, color: HLP }}>{destination}</Text>
                             </Flex>
                         </Flex>
                     </Col>
 
-                    {/* ── Right: Price + Button ── */}
-                    <Col xs={24} sm={24} md={7}>
+                    {/* Right: Price + Button */}
+                    <Col xs={24} md={7}>
                         <Flex vertical align="flex-end" gap={4} className="xs:items-start sm:items-start md:items-end">
-                            <Text className="text-gray-400 text-xs line-through">
+                            <Text style={{ fontSize: 13, color: HLP, textDecoration: 'line-through' }}>
                                 ₹{bus.originalPrice.toLocaleString()}
                             </Text>
-                            <Text className="text-red-500 text-2xl font-black leading-none">
+                            <Text style={{ fontSize: 18, fontWeight: 600, color: P, lineHeight: 1 }}>
                                 ₹{bus.price.toLocaleString()}
                             </Text>
-                            <Text className="text-gray-400 text-xs">{bus.seatsLeft} seats left</Text>
+                            <Text style={{ fontSize: 12, color: HLP }}>{bus.seatsLeft} seats left</Text>
                             <Button
                                 size="middle"
                                 onClick={() => onSelectSeats(bus)}
-                                className="mt-2 font-semibold"
-                                style={{ backgroundColor: '#FFA827', borderColor: '#FFA827', color: '#fff' }}
+                                className="mt-2"
+                                style={{
+                                    backgroundColor: P,
+                                    borderColor: P,
+                                    color: '#fff',
+                                    borderRadius: 6,
+                                    fontWeight: 600,
+                                    fontSize: 14,
+                                }}
                             >
                                 Select Seats
                             </Button>
@@ -302,27 +345,26 @@ const BusCard = ({
                     </Col>
                 </Row>
 
-                {/* ── Bottom row: links ── */}
-                <Divider className="my-3" />
+                {/* Bottom row */}
+                <Divider className="my-3" style={{ borderColor: '#F0F0F0' }} />
                 <Flex justify="flex-end" gap={16}>
                     <Text
                         onClick={() => setBoardingOpen(true)}
-                        className="text-xs text-amber-500 cursor-pointer hover:text-amber-600 hover:underline"
+                        style={{ fontSize: 13, color: P, cursor: 'pointer' }}
                     >
                         Boarding &amp; Drop Points
                     </Text>
                     <Text
                         onClick={() => setPoliciesOpen(true)}
-                        className="text-xs text-amber-500 cursor-pointer hover:text-amber-600 hover:underline"
+                        style={{ fontSize: 13, color: P, cursor: 'pointer' }}
                     >
                         Policies
                     </Text>
                 </Flex>
             </div>
 
-            {/* Drawers are co-located with the card that owns them */}
             <BoardingDropDrawer open={boardingOpen} onClose={() => setBoardingOpen(false)} />
-            <PoliciesDrawer open={policiesOpen} onClose={() => setPoliciesOpen(false)} />
+            <PoliciesDrawer     open={policiesOpen} onClose={() => setPoliciesOpen(false)} />
         </>
     );
 };
@@ -333,11 +375,10 @@ type SearchState = { source?: string; destination?: string; date?: string };
 type Errors = { source: string; destination: string; date: string };
 
 const BusTicketResults = () => {
-    const location = useLocation();
-    const navigate = useNavigate();
+    const location  = useLocation();
+    const navigate  = useNavigate();
     const routeState = location.state as SearchState | null;
 
-    // ── Search bar state (pre-filled from route state) ──
     const [source, setSource] = useState(routeState?.source ?? 'Bangalore');
     const [destination, setDestination] = useState(routeState?.destination ?? 'Mumbai');
     const [date, setDate] = useState<Dayjs>(() => {
@@ -349,52 +390,36 @@ const BusTicketResults = () => {
     });
     const [searchErrors, setSearchErrors] = useState<Errors>({ source: '', destination: '', date: '' });
 
-    // ── Filter state ──
-    const [busTypeFilter, setBusTypeFilter] = useState<string[]>([]);
+    const [busTypeFilter, setBusTypeFilter]     = useState<string[]>([]);
     const [departureFilter, setDepartureFilter] = useState<string[]>([]);
-    const [liveTrackable, setLiveTrackable] = useState(false);
-    const [amenityFilter, setAmenityFilter] = useState<string[]>([]);
-
-    // ── Sort + mobile filter drawer ──
-    const [sortKey, setSortKey] = useState<SortKey>('rating');
+    const [liveTrackable, setLiveTrackable]     = useState(false);
+    const [amenityFilter, setAmenityFilter]     = useState<string[]>([]);
+    const [sortKey, setSortKey]                 = useState<SortKey>('rating');
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-    // ── Helpers ──
     const handleClearAll = () => {
-        setBusTypeFilter([]);
-        setDepartureFilter([]);
-        setLiveTrackable(false);
-        setAmenityFilter([]);
+        setBusTypeFilter([]); setDepartureFilter([]); setLiveTrackable(false); setAmenityFilter([]);
     };
 
     const handleSwap = () => {
-        setSource(destination);
-        setDestination(source);
+        setSource(destination); setDestination(source);
         setSearchErrors(prev => ({ ...prev, destination: '' }));
     };
 
     const handleSearch = () => {
         const errs: Errors = { source: '', destination: '', date: '' };
         let bad = false;
-        if (!source) { errs.source = 'Required'; bad = true; }
-        if (!destination) { errs.destination = 'Required'; bad = true; }
-        else if (source === destination) { errs.destination = 'Same as source'; bad = true; }
-        if (!date) { errs.date = 'Required'; bad = true; }
+        if (!source) { errs.source = 'Please select a valid source city'; bad = true; }
+        if (!destination) { errs.destination = 'Please select a valid destination city'; bad = true; }
+        else if (source === destination) { errs.destination = 'Source and destination cannot be the same'; bad = true; }
+        if (!date) { errs.date = 'Please select a travel date'; bad = true; }
         setSearchErrors(errs);
-        if (!bad) {
-            navigate('/corporate-travel/bus-ticket/searching', {
-                state: { source, destination, date: date.format('DD MMM') },
-            });
-        }
+        if (!bad) navigate('/corporate-travel/bus-ticket/searching', { state: { source, destination, date: date.format('DD MMM') } });
     };
 
-    const handleSelectSeats = (bus: BusEntry) => {
-        navigate('/corporate-travel/bus-ticket/seats', {
-            state: { bus, source, destination, date: date.format('DD MMM') },
-        });
-    };
+    const handleSelectSeats = (bus: BusEntry) =>
+        navigate('/corporate-travel/bus-ticket/seats', { state: { bus, source, destination, date: date.format('DD MMM') } });
 
-    // ── Filtered + sorted buses ──
     const filteredBuses = useMemo(() => {
         let result = mockBuses.filter(bus => {
             if (busTypeFilter.length > 0 && !busTypeFilter.includes(bus.type)) return false;
@@ -403,7 +428,6 @@ const BusTicketResults = () => {
             if (amenityFilter.length > 0 && !amenityFilter.every(a => bus.amenities.includes(a))) return false;
             return true;
         });
-
         result = [...result].sort((a, b) => {
             switch (sortKey) {
                 case 'rating':    return b.rating - a.rating;
@@ -415,91 +439,79 @@ const BusTicketResults = () => {
                 default:          return 0;
             }
         });
-
         return result;
     }, [busTypeFilter, departureFilter, liveTrackable, amenityFilter, sortKey]);
 
     const sourceOptions = CITIES.filter(c => c !== destination).map(c => ({ label: c, value: c }));
     const destOptions   = CITIES.filter(c => c !== source).map(c => ({ label: c, value: c }));
-
     const filterProps: FilterProps = {
-        busTypeFilter, setBusTypeFilter,
-        departureFilter, setDepartureFilter,
-        liveTrackable, setLiveTrackable,
-        amenityFilter, setAmenityFilter,
-        onClearAll: handleClearAll,
+        busTypeFilter, setBusTypeFilter, departureFilter, setDepartureFilter,
+        liveTrackable, setLiveTrackable, amenityFilter, setAmenityFilter, onClearAll: handleClearAll,
     };
-
-    const activeFilterCount =
-        busTypeFilter.length + departureFilter.length + amenityFilter.length + (liveTrackable ? 1 : 0);
+    const activeFilterCount = busTypeFilter.length + departureFilter.length + amenityFilter.length + (liveTrackable ? 1 : 0);
+    const fieldBorder = { borderColor: '#D9D9D9', borderRadius: 6 };
 
     return (
         <Flex vertical gap={16}>
 
             {/* ══ SEARCH BAR ══ */}
-            <Row className="w-full m-0" gutter={[10, 10]} align="bottom">
-
-                <Col xs={24} md={6} className="pt-3">
-                    <Paragraph className="text-sm text-gray-500 ms-3 mb-1">From</Paragraph>
-                    <Flex align="center" className="ms-2 gap-1">
-                        <EnvironmentOutlined className="text-gray-400" />
-                        <Select
-                            showSearch value={source}
+            <Row className="w-full m-0" gutter={[12, 12]} align="top">
+                <Col xs={24} md={6} className="pt-1">
+                    <Text className="block mb-1 text-xs font-semibold" style={{ color: TXT }}>From</Text>
+                    <div className="border bg-white px-3 py-1 flex items-center gap-2 rounded-md">
+                        <EnvironmentOutlined style={{ color: HLP }} />
+                        <Select showSearch value={source}
                             onChange={v => { setSource(v); setSearchErrors(p => ({ ...p, source: '' })); }}
                             options={sourceOptions} variant="borderless" size="large" className="w-full"
                             filterOption={(i, o) => (o?.label ?? '').toLowerCase().includes(i.toLowerCase())}
+                            style={fieldBorder}
                         />
-                    </Flex>
-                    {searchErrors.source && <Text className="text-red-500 text-xs ms-3">{searchErrors.source}</Text>}
-                    <Col className="border-b-2 ms-3 mt-2" />
+                    </div>
+                    {searchErrors.source && <Text style={{ fontSize: 12, color: P }} className="mt-1 block">{searchErrors.source}</Text>}
                 </Col>
 
-                <Col xs={24} md={1} className="flex justify-center items-center xs:py-2 md:pb-4">
-                    <div
-                        onClick={handleSwap}
-                        className="w-8 h-8 rounded-full border border-gray-300 bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 shadow-sm transition-colors"
+                <Col xs={24} md={1} className="flex xs:justify-center items-end pb-1">
+                    <div onClick={handleSwap}
+                        className="w-9 h-9 rounded-full bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50"
+                        style={{ border: '1px solid #D9D9D9' }}
                     >
-                        <SwapOutlined className="text-gray-500 text-sm" />
+                        <SwapOutlined style={{ color: HLP, fontSize: 14 }} />
                     </div>
                 </Col>
 
-                <Col xs={24} md={6} className="pt-3">
-                    <Paragraph className="text-sm text-gray-500 ms-3 mb-1">To</Paragraph>
-                    <Flex align="center" className="ms-2 gap-1">
-                        <EnvironmentOutlined className="text-gray-400" />
-                        <Select
-                            showSearch value={destination}
+                <Col xs={24} md={6} className="pt-1">
+                    <Text className="block mb-1 text-xs font-semibold" style={{ color: TXT }}>To</Text>
+                    <div className="border bg-white px-3 py-1 flex items-center gap-2 rounded-md">
+                        <EnvironmentOutlined style={{ color: HLP }} />
+                        <Select showSearch value={destination}
                             onChange={v => { setDestination(v); setSearchErrors(p => ({ ...p, destination: '' })); }}
                             options={destOptions} variant="borderless" size="large" className="w-full"
                             filterOption={(i, o) => (o?.label ?? '').toLowerCase().includes(i.toLowerCase())}
+                            style={fieldBorder}
                         />
-                    </Flex>
-                    {searchErrors.destination && <Text className="text-red-500 text-xs ms-3">{searchErrors.destination}</Text>}
-                    <Col className="border-b-2 ms-3 mt-2" />
+                    </div>
+                    {searchErrors.destination && <Text style={{ fontSize: 12, color: P }} className="mt-1 block">{searchErrors.destination}</Text>}
                 </Col>
 
-                <Col xs={24} md={6} lg={5} className="pt-3">
-                    <Paragraph className="text-sm text-gray-500 ms-3 mb-1">Date</Paragraph>
-                    <Flex align="center" className="ms-2 gap-1">
-                        <CalendarOutlined className="text-gray-400" />
-                        <DatePicker
-                            value={date}
+                <Col xs={24} md={5} lg={5} className="pt-1">
+                    <Text className="block mb-1 text-xs font-semibold" style={{ color: TXT }}>Date</Text>
+                    <div className="border bg-white px-3 py-1 flex items-center gap-2 rounded-md">
+                        <CalendarOutlined style={{ color: HLP }} />
+                        <DatePicker value={date}
                             onChange={v => { if (v) { setDate(v); setSearchErrors(p => ({ ...p, date: '' })); } }}
                             format={(v: Dayjs) => v.isSame(dayjs(), 'day') ? 'Today' : v.format('DD MMM')}
                             disabledDate={c => c && c < dayjs().startOf('day')}
                             variant="borderless" size="large" className="w-full"
                             inputReadOnly allowClear={false} suffixIcon={null}
                         />
-                    </Flex>
-                    {searchErrors.date && <Text className="text-red-500 text-xs ms-3">{searchErrors.date}</Text>}
-                    <Col className="border-b-2 ms-3 mt-2" />
+                    </div>
+                    {searchErrors.date && <Text style={{ fontSize: 12, color: P }} className="mt-1 block">{searchErrors.date}</Text>}
                 </Col>
 
-                <Col xs={24} md={5} lg={6} className="xs:pt-4 md:pt-0 md:pb-2">
-                    <Button
-                        size="large" onClick={handleSearch}
-                        className="xs:w-full md:w-44 h-12 flex justify-center items-center rounded-md font-semibold"
-                        style={{ backgroundColor: '#FFA827', borderColor: '#FFA827', color: '#fff' }}
+                <Col xs={24} md={5} lg={6} className="flex items-end pt-1">
+                    <Button block size="large" onClick={handleSearch}
+                        className="h-11 font-semibold"
+                        style={{ backgroundColor: P, borderColor: P, color: '#fff', borderRadius: 6, fontSize: 14, fontWeight: 600 }}
                     >
                         Find Buses
                     </Button>
@@ -507,27 +519,28 @@ const BusTicketResults = () => {
             </Row>
 
             {/* ══ SUMMARY ROW ══ */}
-            <Flex justify="space-between" align="center" className="py-1 px-1 flex-wrap gap-2">
-                <Text className="font-medium text-gray-700">
+            <Flex justify="space-between" align="center" className="flex-wrap gap-2">
+                <Text style={{ fontWeight: 600, color: TXT }}>
                     {source} – {destination},{' '}
-                    <span className="text-gray-500">{date.format('DD MMM')}</span>
+                    <span style={{ color: HLP }}>{date.format('DD MMM')}</span>
                 </Text>
-                <Text className="text-gray-500 text-sm">
-                    <span className="font-semibold text-gray-700">{filteredBuses.length}</span>{' '}
+                <Text style={{ fontSize: 14, color: HLP }}>
+                    <span style={{ fontWeight: 600, color: TXT }}>{filteredBuses.length}</span>{' '}
                     {filteredBuses.length === 1 ? 'bus' : 'buses'} found
                 </Text>
             </Flex>
 
             {/* Mobile: Filters trigger */}
             <div className="md:hidden">
-                <Button
-                    icon={<FilterOutlined />}
+                <Button icon={<FilterOutlined />}
                     onClick={() => setMobileFiltersOpen(true)}
-                    className="border border-gray-200"
+                    style={{ borderColor: '#D9D9D9', borderRadius: 6 }}
                 >
                     Filters
                     {activeFilterCount > 0 && (
-                        <span className="ml-1 bg-amber-400 text-white text-xs rounded-full w-4 h-4 inline-flex items-center justify-center">
+                        <span className="ml-1 text-white text-xs rounded-full w-4 h-4 inline-flex items-center justify-center"
+                            style={{ backgroundColor: P }}
+                        >
                             {activeFilterCount}
                         </span>
                     )}
@@ -539,9 +552,8 @@ const BusTicketResults = () => {
 
                 {/* Desktop filter sidebar */}
                 <Col md={6} className="hidden md:block">
-                    <div
-                        className="rounded-2xl border border-gray-100 p-4 bg-white sticky top-4"
-                        style={{ boxShadow: '0px 2px 12px rgba(0,0,0,0.06)' }}
+                    <div className="bg-white p-5 sticky top-4"
+                        style={{ border: `1px solid ${BDR}`, borderRadius: 8, padding: '20px 24px' }}
                     >
                         <FilterContent {...filterProps} />
                     </div>
@@ -550,60 +562,51 @@ const BusTicketResults = () => {
                 {/* Results panel */}
                 <Col xs={24} md={18}>
                     {/* Sort Bar */}
-                    <Flex
-                        align="center" gap={4}
-                        className="py-3 px-4 bg-gray-50 rounded-t-2xl border border-b-0 border-gray-100 flex-wrap"
+                    <div className="flex items-center flex-wrap gap-1 px-4 py-3 bg-white border-b"
+                        style={{ border: `1px solid ${BDR}`, borderBottom: 'none', borderRadius: '8px 8px 0 0' }}
                     >
-                        <Text className="text-gray-500 text-xs me-2">Sort by:</Text>
+                        <Text style={{ fontSize: 13, color: HLP }} className="me-2">Sort by:</Text>
                         {SORT_OPTIONS.map(opt => (
-                            <button
-                                key={opt.key}
-                                onClick={() => setSortKey(opt.key)}
-                                className={`px-3 py-1 rounded text-sm font-medium transition-colors cursor-pointer border-0 bg-transparent ${
-                                    sortKey === opt.key ? 'underline' : 'text-gray-500 hover:text-gray-800'
-                                }`}
-                                style={sortKey === opt.key ? { color: '#FFA827' } : undefined}
+                            <button key={opt.key} onClick={() => setSortKey(opt.key)}
+                                className="px-3 py-1 cursor-pointer border-0 bg-transparent"
+                                style={{
+                                    fontSize: 14,
+                                    color: sortKey === opt.key ? P : TXT,
+                                    fontWeight: sortKey === opt.key ? 600 : 400,
+                                    borderBottom: sortKey === opt.key ? `2px solid ${P}` : '2px solid transparent',
+                                }}
                             >
                                 {opt.label}
                             </button>
                         ))}
-                    </Flex>
+                    </div>
 
                     {/* Bus Cards */}
-                    <Flex
-                        vertical gap={12}
-                        className="rounded-b-2xl border border-t-0 border-gray-100 p-3 bg-gray-50"
+                    <Flex vertical gap={0}
+                        className="p-3"
+                        style={{ border: `1px solid ${BDR}`, borderTop: 'none', borderRadius: '0 0 8px 8px', backgroundColor: '#F5F5F5' }}
                     >
                         {filteredBuses.length === 0 ? (
                             <Flex align="center" justify="center" className="py-16">
-                                <Text className="text-gray-400 text-base">
-                                    No buses match your filters. Try adjusting the filters.
-                                </Text>
+                                <Text style={{ color: HLP }}>No buses match your filters. Try adjusting the filters.</Text>
                             </Flex>
                         ) : (
-                            filteredBuses.map(bus => (
-                                <BusCard
-                                    key={bus.id}
-                                    bus={bus}
-                                    source={source}
-                                    destination={destination}
-                                    onSelectSeats={handleSelectSeats}
-                                />
-                            ))
+                            <Flex vertical gap={12}>
+                                {filteredBuses.map(bus => (
+                                    <BusCard key={bus.id} bus={bus} source={source} destination={destination} onSelectSeats={handleSelectSeats} />
+                                ))}
+                            </Flex>
                         )}
                     </Flex>
                 </Col>
             </Row>
 
-            {/* ══ MOBILE FILTER DRAWER ══ */}
+            {/* Mobile Filter Drawer */}
             <Drawer
                 title={
                     <Flex justify="space-between" align="center">
-                        <span>Filters</span>
-                        <Text
-                            onClick={handleClearAll}
-                            className="text-xs text-amber-500 cursor-pointer font-medium"
-                        >
+                        <span style={{ fontSize: 16, fontWeight: 600, color: TXT }}>Filters</span>
+                        <Text onClick={handleClearAll} style={{ fontSize: 14, color: P, cursor: 'pointer' }}>
                             Clear All
                         </Text>
                     </Flex>
@@ -613,10 +616,9 @@ const BusTicketResults = () => {
                 open={mobileFiltersOpen}
                 width={300}
                 footer={
-                    <Button
-                        type="primary" block
+                    <Button block size="large"
                         onClick={() => setMobileFiltersOpen(false)}
-                        style={{ backgroundColor: '#FFA827', borderColor: '#FFA827' }}
+                        style={{ backgroundColor: P, borderColor: P, color: '#fff', borderRadius: 6, fontWeight: 600 }}
                     >
                         Show {filteredBuses.length} Buses
                     </Button>
@@ -624,7 +626,6 @@ const BusTicketResults = () => {
             >
                 <FilterContent {...filterProps} />
             </Drawer>
-
         </Flex>
     );
 };

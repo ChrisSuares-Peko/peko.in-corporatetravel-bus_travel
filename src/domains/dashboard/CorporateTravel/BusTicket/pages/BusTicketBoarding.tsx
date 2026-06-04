@@ -171,12 +171,12 @@ const StopList = ({
     onSelect: (id: string) => void;
 }) => (
     <div
-        className="border border-gray-100 rounded-2xl bg-white overflow-hidden"
-        style={{ boxShadow: '0px 1px 8px rgba(0,0,0,0.05)' }}
+        className="bg-white overflow-hidden"
+        style={{ border: '1px solid #E8E8E8', borderRadius: 8 }}
     >
         {/* Column header */}
-        <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
-            <Text className="font-bold text-sm text-gray-700">{title}</Text>
+        <div className="px-4 py-3 border-b" style={{ borderColor: '#F0F0F0', backgroundColor: '#FAFAFA' }}>
+            <Text style={{ fontSize: 16, fontWeight: 600, color: '#171717' }}>{title}</Text>
         </div>
 
         {/* Scrollable list */}
@@ -185,11 +185,8 @@ const StopList = ({
                 <div key={point.id}>
                     <div
                         onClick={() => onSelect(point.id)}
-                        className={`flex items-start gap-3 px-4 py-4 cursor-pointer transition-colors ${
-                            selected === point.id
-                                ? 'bg-amber-50'
-                                : 'hover:bg-gray-50'
-                        }`}
+                        className="flex items-start gap-3 px-4 py-4 cursor-pointer transition-colors"
+                        style={{ backgroundColor: selected === point.id ? '#FFF1F0' : undefined }}
                     >
                         {/* Radio indicator */}
                         <Radio
@@ -200,19 +197,22 @@ const StopList = ({
                         {/* Content */}
                         <div className="flex-1 min-w-0">
                             <Text
-                                className={`text-sm block leading-tight ${
-                                    selected === point.id
-                                        ? 'font-bold text-gray-800'
-                                        : 'font-semibold text-gray-700'
-                                }`}
+                                className="block leading-tight"
+                                style={{ fontSize: 14, fontWeight: 600, color: '#171717' }}
                             >
                                 {point.name}
                             </Text>
-                            <Text className="text-gray-500 text-xs block mt-1">
+                            <Text
+                                className="block mt-1"
+                                style={{ fontSize: 13, color: '#FF4F4F' }}
+                            >
                                 {point.time}, {point.date}
                             </Text>
                             {point.landmark && (
-                                <Text className="text-gray-400 text-xs block mt-0.5 leading-relaxed">
+                                <Text
+                                    className="block mt-0.5 leading-relaxed"
+                                    style={{ fontSize: 12, fontWeight: 300, color: '#8C8C8C' }}
+                                >
                                     {point.landmark}
                                 </Text>
                             )}
@@ -283,8 +283,8 @@ const BusTicketBoarding = () => {
     // ── Booking summary panel ──
     const SummaryPanel = ({ compact = false }: { compact?: boolean }) => (
         <div
-            className={`border border-gray-100 rounded-2xl bg-white ${compact ? 'p-4' : 'p-5'}`}
-            style={{ boxShadow: '0px 2px 12px rgba(0,0,0,0.06)' }}
+            className={`bg-white ${compact ? 'p-4' : 'p-5'}`}
+            style={{ border: '1px solid #E8E8E8', borderRadius: 8 }}
         >
             {/* Total */}
             <Flex vertical gap={2} className="mb-4">
@@ -295,7 +295,7 @@ const BusTicketBoarding = () => {
                     className="font-black leading-none"
                     style={{
                         fontSize: compact ? 22 : 28,
-                        color: totalAmount > 0 ? '#FFA827' : '#9CA3AF',
+                        color: totalAmount > 0 ? '#FF4F4F' : '#BFBFBF',
                     }}
                 >
                     {totalAmount > 0 ? `₹${totalAmount.toLocaleString()}` : '₹0'}
@@ -320,7 +320,7 @@ const BusTicketBoarding = () => {
                 className="rounded-md font-semibold"
                 style={
                     proceedEnabled
-                        ? { backgroundColor: '#FFA827', borderColor: '#FFA827', color: '#fff' }
+                        ? { backgroundColor: '#FF4F4F', borderColor: '#FF4F4F', color: '#fff', borderRadius: 6, fontWeight: 600 }
                         : undefined
                 }
             >

@@ -2,9 +2,11 @@ import { useState } from 'react';
 
 import { StarFilled, StarOutlined } from '@ant-design/icons';
 import { Button, Col, Divider, Flex, Popover, Row, Typography } from 'antd';
-import { FaBed, FaFilm, FaWifi } from 'react-icons/fa';
-import { MdLocalDrink, MdLocalPhone, MdPower } from 'react-icons/md';
 import { useLocation, useNavigate } from 'react-router-dom';
+
+import {
+    BedIcon, ChargingIcon, FilmIcon, PhoneIcon, WaterIcon, WifiIcon,
+} from '../components/SolarIcons';
 
 import { BusEntry } from '@src/mock/data';
 
@@ -74,22 +76,22 @@ const PRICE_TIERS = [
 // ─── Amenity Icon Map ─────────────────────────────────────────────────────────
 
 const AMENITY_ICONS: Record<string, React.ReactNode> = {
-    Blankets:                 <FaBed className="text-gray-500 text-sm flex-shrink-0" />,
-    'Charging Point':         <MdPower className="text-gray-500 text-sm flex-shrink-0" />,
-    'Emergency Contact Number': <MdLocalPhone className="text-gray-500 text-sm flex-shrink-0" />,
-    Movie:                    <FaFilm className="text-gray-500 text-sm flex-shrink-0" />,
-    Wifi:                     <FaWifi className="text-gray-500 text-sm flex-shrink-0" />,
-    'Water Bottle':           <MdLocalDrink className="text-gray-500 text-sm flex-shrink-0" />,
+    Blankets:                   <BedIcon      size={14} color="#8C8C8C" />,
+    'Charging Point':           <ChargingIcon size={14} color="#8C8C8C" />,
+    'Emergency Contact Number': <PhoneIcon    size={14} color="#8C8C8C" />,
+    Movie:                      <FilmIcon     size={14} color="#8C8C8C" />,
+    Wifi:                       <WifiIcon     size={14} color="#8C8C8C" />,
+    'Water Bottle':             <WaterIcon    size={14} color="#8C8C8C" />,
 };
 
 // ─── Status Style Map ─────────────────────────────────────────────────────────
 
-const STATUS_STYLE: Record<string | 'selected', { bg: string; border: string; strip: string; text: string }> = {
-    available: { bg: '#FFFFFF', border: '#D1D5DB', strip: '#D1D5DB',  text: '#4B5563' },
-    booked:    { bg: '#E5E7EB', border: '#9CA3AF', strip: '#9CA3AF',  text: '#9CA3AF' },
-    female:    { bg: '#FCE7F3', border: '#F9A8D4', strip: '#F472B6',  text: '#BE185D' },
-    male:      { bg: '#DBEAFE', border: '#93C5FD', strip: '#60A5FA',  text: '#1D4ED8' },
-    selected:  { bg: '#D1FAE5', border: '#34D399', strip: '#10B981',  text: '#065F46' },
+const STATUS_STYLE: Record<string | 'selected', { bg: string; border: string; borderW: string; text: string }> = {
+    available: { bg: '#FFFFFF', border: '#D9D9D9', borderW: '1px',  text: '#171717' },
+    booked:    { bg: '#F5F5F5', border: '#D9D9D9', borderW: '1px',  text: '#BFBFBF' },
+    female:    { bg: '#FFF0F6', border: '#FFADD2', borderW: '1px',  text: '#EB2F96' },
+    male:      { bg: '#F0F5FF', border: '#ADC6FF', borderW: '1px',  text: '#2F54EB' },
+    selected:  { bg: '#FFF1F0', border: '#FF4F4F', borderW: '2px',  text: '#FF4F4F' },
 };
 
 // ─── Steering Wheel SVG ───────────────────────────────────────────────────────
@@ -107,9 +109,9 @@ const SteeringWheel = () => (
 
 // ─── Seat Berth ───────────────────────────────────────────────────────────────
 
-const BERTH_W = 62;
-const BERTH_H = 30;
-const STRIP_H = 5;
+const BERTH_W = 40;
+const BERTH_H = 40;
+const STRIP_H = 4;
 
 const SeatBerth = ({
     seat,
@@ -137,7 +139,8 @@ const SeatBerth = ({
                 width: BERTH_W,
                 height: BERTH_H,
                 backgroundColor: s.bg,
-                border: `1.5px solid ${s.border}`,
+                border: `${s.borderW} solid ${s.border}`,
+                borderRadius: 6,
                 cursor: clickable ? 'pointer' : 'not-allowed',
             }}
         >
@@ -191,13 +194,13 @@ const DeckSection = ({
 
     return (
         <Flex vertical gap={8}>
-            <Text className="text-xs font-bold uppercase tracking-widest text-gray-400">
+            <Text style={{ fontSize: 11, fontWeight: 600, color: '#8C8C8C', textTransform: 'uppercase', letterSpacing: 1 }}>
                 {isLower ? 'Lower Deck' : 'Upper Deck'}
             </Text>
 
             <div
-                className="border border-gray-200 rounded-2xl bg-white p-4"
-                style={{ boxShadow: '0px 1px 8px rgba(0,0,0,0.06)', display: 'inline-block' }}
+                className="bg-white p-4"
+                style={{ border: '1px solid #E8E8E8', borderRadius: 8, display: 'inline-block' }}
             >
                 {/* Driver position — lower deck only */}
                 {isLower && (
@@ -374,8 +377,8 @@ const BusTicketSeatSelection = () => {
     // ── Booking summary panel (reused on desktop sidebar and mobile footer) ──
     const SummaryPanel = ({ compact = false }: { compact?: boolean }) => (
         <div
-            className={`border border-gray-100 rounded-2xl bg-white ${compact ? 'p-3' : 'p-5'}`}
-            style={{ boxShadow: '0px 2px 12px rgba(0,0,0,0.06)' }}
+            className={`bg-white ${compact ? 'p-3' : 'p-5'}`}
+            style={{ border: '1px solid #E8E8E8', borderRadius: 8 }}
         >
             {!compact && (
                 <Text className="text-xs text-gray-400 uppercase tracking-wide block mb-1">
@@ -390,7 +393,7 @@ const BusTicketSeatSelection = () => {
                         className="font-black leading-none"
                         style={{
                             fontSize: compact ? 20 : 28,
-                            color: totalAmount > 0 ? '#FFA827' : '#9CA3AF',
+                            color: totalAmount > 0 ? '#FF4F4F' : '#BFBFBF',
                         }}
                     >
                         {totalAmount > 0 ? `₹${totalAmount.toLocaleString()}` : '₹0'}
@@ -405,7 +408,7 @@ const BusTicketSeatSelection = () => {
                         className="rounded-md font-semibold"
                         style={
                             selectedIds.size > 0
-                                ? { backgroundColor: '#FFA827', borderColor: '#FFA827', color: '#fff' }
+                                ? { backgroundColor: '#FF4F4F', borderColor: '#FF4F4F', color: '#fff', borderRadius: 6, fontWeight: 600 }
                                 : undefined
                         }
                     >
@@ -433,7 +436,7 @@ const BusTicketSeatSelection = () => {
                         className="rounded-md font-semibold"
                         style={
                             selectedIds.size > 0
-                                ? { backgroundColor: '#FFA827', borderColor: '#FFA827', color: '#fff' }
+                                ? { backgroundColor: '#FF4F4F', borderColor: '#FF4F4F', color: '#fff', borderRadius: 6, fontWeight: 600 }
                                 : undefined
                         }
                     >
@@ -449,8 +452,8 @@ const BusTicketSeatSelection = () => {
 
             {/* ══ HEADER CARD ══ */}
             <div
-                className="border border-gray-100 rounded-2xl p-4 bg-white"
-                style={{ boxShadow: '0px 1px 8px rgba(0,0,0,0.06)' }}
+                className="bg-white p-4"
+                style={{ border: '1px solid #E8E8E8', borderRadius: 8 }}
             >
                 <Row gutter={[16, 8]} align="middle">
                     <Col xs={24} md={14}>
@@ -514,7 +517,7 @@ const BusTicketSeatSelection = () => {
                                 overlayInnerStyle={{ padding: 12 }}
                                 arrow={false}
                             >
-                                <Text className="text-amber-500 text-sm cursor-pointer hover:text-amber-600 hover:underline select-none">
+                                <Text className="text-sm cursor-pointer select-none" style={{ color: '#FF4F4F', fontWeight: 500 }}>
                                     {item.label}
                                 </Text>
                             </Popover>
@@ -537,16 +540,18 @@ const BusTicketSeatSelection = () => {
                 {/* All button */}
                 <div
                     onClick={() => setPriceFilter(null)}
-                    className={`px-3 py-1.5 rounded-lg border cursor-pointer select-none transition-all ${
-                        priceFilter === null
-                            ? 'border-amber-400 bg-amber-50'
-                            : 'border-gray-200 bg-white hover:border-gray-300'
-                    }`}
+                    className="px-3 py-1.5 cursor-pointer select-none transition-all"
+                    style={{
+                        borderRadius: 6,
+                        border: priceFilter === null ? '2px solid #FF4F4F' : '1px solid #D9D9D9',
+                        backgroundColor: priceFilter === null ? '#FFF1F0' : '#FFFFFF',
+                    }}
                 >
                     <Text
-                        className={`text-sm font-semibold ${
-                            priceFilter === null ? 'text-amber-600' : 'text-gray-600'
-                        }`}
+                        style={{
+                            fontSize: 14, fontWeight: 600,
+                            color: priceFilter === null ? '#FF4F4F' : '#171717',
+                        }}
                     >
                         All
                     </Text>
@@ -556,20 +561,22 @@ const BusTicketSeatSelection = () => {
                     <div
                         key={tier.price}
                         onClick={() => setPriceFilter(tier.price)}
-                        className={`flex flex-col items-center px-3 py-1.5 rounded-lg border cursor-pointer select-none transition-all ${
-                            priceFilter === tier.price
-                                ? 'border-amber-400 bg-amber-50'
-                                : 'border-gray-200 bg-white hover:border-gray-300'
-                        }`}
+                        className="flex flex-col items-center px-3 py-1.5 cursor-pointer select-none transition-all"
+                        style={{
+                            borderRadius: 6,
+                            border: priceFilter === tier.price ? '2px solid #FF4F4F' : '1px solid #D9D9D9',
+                            backgroundColor: priceFilter === tier.price ? '#FFF1F0' : '#FFFFFF',
+                        }}
                     >
                         <Text
-                            className={`text-sm font-bold leading-none ${
-                                priceFilter === tier.price ? 'text-amber-600' : 'text-gray-700'
-                            }`}
+                            style={{
+                                fontSize: 14, fontWeight: 600, lineHeight: 1,
+                                color: priceFilter === tier.price ? '#FF4F4F' : '#171717',
+                            }}
                         >
                             ₹{tier.price}
                         </Text>
-                        <Text className="text-xs text-gray-400 line-through leading-none mt-0.5">
+                        <Text style={{ fontSize: 12, color: '#8C8C8C', textDecoration: 'line-through', lineHeight: 1, marginTop: 2 }}>
                             ₹{tier.originalPrice}
                         </Text>
                     </div>
@@ -579,36 +586,23 @@ const BusTicketSeatSelection = () => {
             {/* ══ SEAT LEGEND ══ */}
             <Flex gap={12} align="center" className="flex-wrap">
                 {[
-                    { label: 'Available', bg: '#FFFFFF', border: '#D1D5DB', strip: '#D1D5DB' },
-                    { label: 'Booked',    bg: '#E5E7EB', border: '#9CA3AF', strip: '#9CA3AF' },
-                    { label: 'Selected',  bg: '#D1FAE5', border: '#34D399', strip: '#10B981' },
-                    { label: 'Female',    bg: '#FCE7F3', border: '#F9A8D4', strip: '#F472B6' },
-                    { label: 'Male',      bg: '#DBEAFE', border: '#93C5FD', strip: '#60A5FA' },
+                    { label: 'Available', bg: '#FFFFFF', border: '#D9D9D9' },
+                    { label: 'Booked',    bg: '#F5F5F5', border: '#D9D9D9' },
+                    { label: 'Selected',  bg: '#FFF1F0', border: '#FF4F4F' },
+                    { label: 'Female',    bg: '#FFF0F6', border: '#FFADD2' },
+                    { label: 'Male',      bg: '#F0F5FF', border: '#ADC6FF' },
                 ].map(item => (
                     <Flex key={item.label} align="center" gap={5}>
                         <div
-                            className="rounded"
                             style={{
-                                width: 24,
-                                height: 14,
+                                width: 22,
+                                height: 22,
                                 backgroundColor: item.bg,
-                                border: `1.5px solid ${item.border}`,
-                                position: 'relative',
-                                overflow: 'hidden',
+                                border: `1px solid ${item.border}`,
+                                borderRadius: 4,
                             }}
-                        >
-                            <div
-                                style={{
-                                    position: 'absolute',
-                                    bottom: 0,
-                                    left: 0,
-                                    right: 0,
-                                    height: 3,
-                                    backgroundColor: item.strip,
-                                }}
-                            />
-                        </div>
-                        <Text className="text-xs text-gray-500">{item.label}</Text>
+                        />
+                        <Text style={{ fontSize: 12, color: '#8C8C8C' }}>{item.label}</Text>
                     </Flex>
                 ))}
             </Flex>

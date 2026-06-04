@@ -133,7 +133,7 @@ const TravellerForm = ({
                     onClick={onConfirm}
                     style={
                         values.name.trim() && values.age
-                            ? { backgroundColor: '#FFA827', borderColor: '#FFA827', color: '#fff' }
+                            ? { backgroundColor: '#FF4F4F', borderColor: '#FF4F4F', color: '#fff', borderRadius: 6, fontWeight: 600 }
                             : undefined
                     }
                 >
@@ -191,8 +191,8 @@ const SeatCard = ({
 
     return (
         <div
-            className="border border-gray-100 rounded-2xl bg-white overflow-hidden"
-            style={{ boxShadow: '0px 1px 8px rgba(0,0,0,0.05)' }}
+            className="bg-white overflow-hidden"
+            style={{ border: '1px solid #E8E8E8', borderRadius: 8 }}
         >
             {/* ── Card Header ── */}
             <div className="px-5 pt-4 pb-3">
@@ -200,7 +200,7 @@ const SeatCard = ({
                     <Flex align="center" gap={8} className="flex-wrap">
                         <Text
                             className="font-bold text-base leading-tight"
-                            style={{ color: '#FFA827' }}
+                            style={{ color: '#FF4F4F' }}
                         >
                             Seat number{' '}
                             {seat.deck === 'lower' ? 'L' : 'U'}
@@ -240,7 +240,7 @@ const SeatCard = ({
                         </Text>
                         <Text
                             onClick={handleChangeAddedTraveller}
-                            className="text-amber-500 text-xs cursor-pointer hover:text-amber-600 hover:underline select-none ml-auto"
+                            className="text-xs cursor-pointer select-none ml-auto" style={{ color: '#FF4F4F' }}
                         >
                             Change
                         </Text>
@@ -269,7 +269,7 @@ const SeatCard = ({
                                         addNewOpen: false,
                                     })
                                 }
-                                className="text-amber-500 text-sm cursor-pointer hover:text-amber-600 hover:underline whitespace-nowrap select-none flex-shrink-0"
+                                className="text-sm cursor-pointer whitespace-nowrap select-none flex-shrink-0" style={{ color: '#FF4F4F' }}
                             >
                                 {state.editFormOpen ? 'Close' : 'Edit traveller'}
                             </Text>
@@ -305,12 +305,12 @@ const SeatCard = ({
                             className="cursor-pointer select-none"
                         >
                             <RightOutlined
-                                className="text-amber-400 text-xs transition-transform"
+                                className="text-xs transition-transform" style={{ color: '#FF4F4F' }}
                                 style={{
                                     transform: state.addNewOpen ? 'rotate(90deg)' : 'rotate(0deg)',
                                 }}
                             />
-                            <Text className="text-amber-500 text-sm hover:text-amber-600">
+                            <Text className="text-sm" style={{ color: '#FF4F4F' }}>
                                 Add New Traveller
                             </Text>
                         </Flex>
@@ -447,8 +447,8 @@ const BusTicketTraveller = () => {
 
                         {/* Contact Details */}
                         <div
-                            className="border border-gray-100 rounded-2xl bg-white p-5"
-                            style={{ boxShadow: '0px 1px 8px rgba(0,0,0,0.05)' }}
+                            className="bg-white p-5"
+                            style={{ border: '1px solid #E8E8E8', borderRadius: 8 }}
                         >
                             <Text className="font-bold text-base block mb-4">
                                 Contact details
@@ -500,8 +500,8 @@ const BusTicketTraveller = () => {
                 <Col xs={24} md={8}>
                     <div className="sticky top-4">
                         <div
-                            className="border border-gray-100 rounded-2xl bg-white p-5"
-                            style={{ boxShadow: '0px 2px 12px rgba(0,0,0,0.06)' }}
+                            className="bg-white p-5"
+                            style={{ border: '1px solid #E8E8E8', borderRadius: 8 }}
                         >
                             <Checkbox
                                 checked={termsAccepted}
@@ -512,7 +512,7 @@ const BusTicketTraveller = () => {
                                     By checking this box, I understand and agree with the{' '}
                                     <a
                                         href="#"
-                                        className="text-blue-500 hover:text-blue-600"
+                                        style={{ color: '#FF4F4F', textDecoration: 'none' }}
                                         onClick={e => e.preventDefault()}
                                     >
                                         Terms and Conditions

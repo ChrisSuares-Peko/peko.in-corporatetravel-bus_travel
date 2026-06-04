@@ -120,7 +120,7 @@ const PolicyContent = () => (
                     <Flex key={p.label} gap={8} align="flex-start">
                         <div
                             className="mt-1.5 flex-shrink-0 rounded-full"
-                            style={{ width: 5, height: 5, minWidth: 5, backgroundColor: '#FFA827' }}
+                            style={{ width: 5, height: 5, minWidth: 5, backgroundColor: '#FF4F4F' }}
                         />
                         <Paragraph className="text-sm text-gray-600 mb-0">
                             <Text className="font-semibold text-gray-700 text-sm">
@@ -250,7 +250,7 @@ const BusTicketReview = () => {
                     align="center"
                     gap={6}
                     className="border border-gray-200 rounded-xl px-4 py-2 bg-white"
-                    style={{ boxShadow: '0px 1px 4px rgba(0,0,0,0.06)' }}
+                    style={{ border: '1px solid #E8E8E8', borderRadius: 6 }}
                 >
                     <ClockCircleOutlined
                         style={{ color: timerWarning ? '#EF4444' : '#9CA3AF', fontSize: 14 }}
@@ -279,8 +279,8 @@ const BusTicketReview = () => {
 
                         {/* ── Card 1: Bus & Journey Details ── */}
                         <div
-                            className="border border-gray-100 rounded-2xl bg-white p-5"
-                            style={{ boxShadow: '0px 1px 8px rgba(0,0,0,0.05)' }}
+                            className="bg-white p-5"
+                            style={{ border: '1px solid #E8E8E8', borderRadius: 8 }}
                         >
                             {/* Operator Header */}
                             <Flex vertical gap={2} className="mb-5">
@@ -350,8 +350,8 @@ const BusTicketReview = () => {
 
                         {/* ── Card 2: Traveller Details ── */}
                         <div
-                            className="border border-gray-100 rounded-2xl bg-white overflow-hidden"
-                            style={{ boxShadow: '0px 1px 8px rgba(0,0,0,0.05)' }}
+                            className="bg-white overflow-hidden"
+                            style={{ border: '1px solid #E8E8E8', borderRadius: 8 }}
                         >
                             {/* Header row */}
                             <Flex
@@ -393,7 +393,7 @@ const BusTicketReview = () => {
                                         {/* Right — seat number */}
                                         <Text
                                             className="text-sm font-semibold"
-                                            style={{ color: '#FFA827' }}
+                                            style={{ color: '#FF4F4F' }}
                                         >
                                             {getSeatLabel(td.seatId, selectedSeats)}
                                         </Text>
@@ -407,8 +407,8 @@ const BusTicketReview = () => {
 
                         {/* ── Card 3: Cancellation and Travel Policies ── */}
                         <div
-                            className="border border-gray-100 rounded-2xl bg-white overflow-hidden"
-                            style={{ boxShadow: '0px 1px 8px rgba(0,0,0,0.05)' }}
+                            className="bg-white overflow-hidden"
+                            style={{ border: '1px solid #E8E8E8', borderRadius: 8 }}
                         >
                             <Collapse
                                 ghost
@@ -440,8 +440,8 @@ const BusTicketReview = () => {
                 <Col xs={24} md={7}>
                     <div className="sticky top-4">
                         <div
-                            className="border border-gray-100 rounded-2xl bg-white p-5"
-                            style={{ boxShadow: '0px 2px 12px rgba(0,0,0,0.06)' }}
+                            className="bg-white p-5"
+                            style={{ border: '1px solid #E8E8E8', borderRadius: 8 }}
                         >
                             {/* Total */}
                             <Flex vertical gap={3} className="mb-5">
@@ -450,7 +450,7 @@ const BusTicketReview = () => {
                                 </Text>
                                 <Text
                                     className="font-black leading-none"
-                                    style={{ fontSize: 28, color: '#FFA827' }}
+                                    style={{ fontSize: 28, color: '#FF4F4F' }}
                                 >
                                     ₹{grandTotal.toLocaleString()}
                                 </Text>
@@ -465,9 +465,11 @@ const BusTicketReview = () => {
                                 onClick={handleProceed}
                                 className="rounded-md font-semibold mb-4"
                                 style={{
-                                    backgroundColor: '#FFA827',
-                                    borderColor: '#FFA827',
+                                    backgroundColor: '#FF4F4F',
+                                    borderColor: '#FF4F4F',
                                     color: '#fff',
+                                    borderRadius: 6,
+                                    fontWeight: 600,
                                 }}
                             >
                                 Proceed to Payment
@@ -481,7 +483,7 @@ const BusTicketReview = () => {
                                     {
                                         key: 'fare',
                                         label: (
-                                            <Text className="text-amber-500 text-sm">
+                                            <Text className="text-sm" style={{ color: '#FF4F4F' }}>
                                                 View fare break-up
                                             </Text>
                                         ),
@@ -511,7 +513,7 @@ const BusTicketReview = () => {
                                                     </Text>
                                                     <Text
                                                         className="font-bold text-sm"
-                                                        style={{ color: '#FFA827' }}
+                                                        style={{ color: '#FF4F4F' }}
                                                     >
                                                         ₹{grandTotal.toLocaleString()}
                                                     </Text>
@@ -538,7 +540,7 @@ const BusTicketReview = () => {
                             setSessionExpired(false);
                             navigate('/corporate-travel/bus-ticket');
                         }}
-                        style={{ backgroundColor: '#FFA827', borderColor: '#FFA827', color: '#fff' }}
+                        style={{ backgroundColor: '#FF4F4F', borderColor: '#FF4F4F', color: '#fff' }}
                     >
                         Search Again
                     </Button>
