@@ -5,6 +5,14 @@ import { Button, DatePicker, Flex, Input, Select, Typography, message } from 'an
 import { Content } from 'antd/es/layout/layout';
 import dayjs, { Dayjs } from 'dayjs';
 import { Link, useNavigate } from 'react-router-dom';
+import { ReactSVG } from 'react-svg';
+
+import AirplaneSVG from '../../../../components/molecular/corporate-travel-card/assets/icons/airplane-card.svg';
+import BusSVG      from '../../../../components/molecular/corporate-travel-card/assets/icons/bus-card.svg';
+import EsimSVG     from '../../../../components/molecular/corporate-travel-card/assets/icons/esim-card.svg';
+import HotelSVG    from '../../../../components/molecular/corporate-travel-card/assets/icons/hotel-card.svg';
+import VisaSVG     from '../../../../components/molecular/corporate-travel-card/assets/icons/visa-card.svg';
+import '../../../../components/molecular/corporate-travel-card/assets/style.css';
 
 import { BusOutlineIcon, LocationIcon } from '../BusTicket/components/SolarIcons';
 import { links } from '../utils/data';
@@ -32,15 +40,6 @@ const COUNTRIES = [
     'Netherlands', 'Switzerland',
 ].map(c => ({ label: c, value: c }));
 
-// ─── Tab illustrated icons (48×48, CDN) ────────────────────────────────────────
-const TAB_ICONS: Record<string, string> = {
-    '1': 'https://cdn-icons-png.flaticon.com/128/484/484167.png',
-    '2': 'https://cdn-icons-png.flaticon.com/128/2933/2933245.png',
-    '3': 'https://cdn-icons-png.flaticon.com/128/364/364089.png',
-    '4': 'https://cdn-icons-png.flaticon.com/128/1078/1078012.png',
-    '5': 'https://cdn-icons-png.flaticon.com/128/1068/1068928.png',
-};
-
 // ─── Airplane icon for air ticket fields ────────────────────────────────────────
 const AirplaneFieldIcon = () => (
     <svg width="16" height="16" viewBox="0 0 24 24" fill={HLP}>
@@ -50,14 +49,14 @@ const AirplaneFieldIcon = () => (
 
 // ─── Landing Tab Bar ────────────────────────────────────────────────────────────
 
-interface TabDef { key: string; label: string; icon: React.ReactNode }
+interface TabDef { key: string; label: string; src: string }
 
 const LANDING_TABS: TabDef[] = [
-    { key: '1', label: 'Air Tickets',   icon: <img src={TAB_ICONS['1']} width={48} height={48} alt="Air Tickets" style={{ display: 'block' }} /> },
-    { key: '2', label: 'Hotel Booking', icon: <img src={TAB_ICONS['2']} width={48} height={48} alt="Hotel Booking" style={{ display: 'block' }} /> },
-    { key: '3', label: 'Travel eSIM',   icon: <img src={TAB_ICONS['3']} width={48} height={48} alt="Travel eSIM" style={{ display: 'block' }} /> },
-    { key: '4', label: 'Visa',          icon: <img src={TAB_ICONS['4']} width={48} height={48} alt="Visa" style={{ display: 'block' }} /> },
-    { key: '5', label: 'Bus Ticket',    icon: <img src={TAB_ICONS['5']} width={48} height={48} alt="Bus Ticket" style={{ display: 'block' }} /> },
+    { key: '1', label: 'Air Tickets',   src: AirplaneSVG },
+    { key: '2', label: 'Hotel Booking', src: HotelSVG },
+    { key: '3', label: 'Travel eSIM',   src: EsimSVG },
+    { key: '4', label: 'Visa',          src: VisaSVG },
+    { key: '5', label: 'Bus Ticket',    src: BusSVG },
 ];
 
 const LandingTabBar = ({
@@ -103,7 +102,14 @@ const LandingTabBar = ({
                         boxShadow: active ? '0 4px 12px rgba(255, 79, 79, 0.15)' : 'none',
                     }}
                 >
-                    {tab.icon}
+                    <ReactSVG
+                        src={tab.src}
+                        className={active ? 'selected-svg' : ''}
+                        beforeInjection={svg => {
+                            svg.setAttribute('width', '48');
+                            svg.setAttribute('height', '48');
+                        }}
+                    />
                     <Text
                         style={{
                             fontSize: 13,
