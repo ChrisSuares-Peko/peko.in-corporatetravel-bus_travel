@@ -288,7 +288,7 @@ const BusTicketReview = () => {
                         {/* ── Card 1: Bus & Journey Details ── */}
                         <div
                             className="bg-white p-5"
-                            style={{ border: '1px solid #E8E8E8', borderRadius: 8 }}
+                            style={{ border: '1px solid #E8E8E8', borderRadius: 12 }}
                         >
                             {/* Operator Header */}
                             <Flex vertical gap={2} className="mb-5">
@@ -359,7 +359,7 @@ const BusTicketReview = () => {
                         {/* ── Card 2: Traveller Details ── */}
                         <div
                             className="bg-white overflow-hidden"
-                            style={{ border: '1px solid #E8E8E8', borderRadius: 8 }}
+                            style={{ border: '1px solid #E8E8E8', borderRadius: 12 }}
                         >
                             {/* Header row */}
                             <Flex
@@ -416,7 +416,7 @@ const BusTicketReview = () => {
                         {/* ── Card 3: Cancellation and Travel Policies ── */}
                         <div
                             className="bg-white overflow-hidden"
-                            style={{ border: '1px solid #E8E8E8', borderRadius: 8 }}
+                            style={{ border: '1px solid #E8E8E8', borderRadius: 12 }}
                         >
                             <Collapse
                                 ghost
@@ -448,36 +448,41 @@ const BusTicketReview = () => {
                 <Col xs={24} md={7}>
                     <div className="sticky top-4">
                         <div
-                            className="bg-white p-5"
-                            style={{ border: '1px solid #E8E8E8', borderRadius: 8 }}
+                            className="bg-white"
+                            style={{ border: '1px solid #E8E8E8', borderRadius: 12, padding: 24 }}
                         >
+                            {/* Section label */}
+                            <Text style={{ fontSize: 11, fontWeight: 600, color: '#8C8C8C', textTransform: 'uppercase', letterSpacing: 0.5, display: 'block', marginBottom: 16 }}>
+                                Booking Summary
+                            </Text>
+
                             {/* Total */}
-                            <Flex vertical gap={3} className="mb-5">
-                                <Text className="text-xs text-gray-500 uppercase tracking-wide">
+                            <Flex vertical gap={2} style={{ marginBottom: 4 }}>
+                                <Text style={{ fontSize: 12, color: '#8C8C8C', fontWeight: 400 }}>
                                     Total Amount
                                 </Text>
-                                <Text
-                                    className="font-black leading-none"
-                                    style={{ fontSize: 28, color: '#FF4F4F' }}
-                                >
+                                <Text style={{ fontSize: 28, fontWeight: 700, color: '#FF4F4F', lineHeight: 1.1 }}>
                                     ₹{grandTotal.toLocaleString()}
                                 </Text>
-                                <Text className="text-gray-400 text-xs">
+                                <Text style={{ fontSize: 12, color: '#8C8C8C' }}>
                                     Incl. taxes &amp; fees
                                 </Text>
                             </Flex>
+
+                            <Divider style={{ margin: '12px 0' }} />
 
                             <Button
                                 block
                                 size="large"
                                 onClick={handleProceed}
-                                className="rounded-md font-semibold mb-4"
                                 style={{
                                     backgroundColor: '#FF4F4F',
                                     borderColor: '#FF4F4F',
                                     color: '#fff',
-                                    borderRadius: 6,
+                                    borderRadius: 8,
                                     fontWeight: 600,
+                                    height: 48,
+                                    marginBottom: 16,
                                 }}
                             >
                                 Proceed to Payment

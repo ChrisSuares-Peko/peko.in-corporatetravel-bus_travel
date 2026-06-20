@@ -14,9 +14,9 @@ const BusSVG = () => (
         height="80"
     >
         {/* Bus body */}
-        <rect x="4" y="10" width="148" height="52" rx="8" fill="#FFA827" />
+        <rect x="4" y="10" width="148" height="52" rx="8" fill="#FF4F4F" />
         {/* Roof stripe */}
-        <rect x="4" y="10" width="148" height="12" rx="8" fill="#E8920A" />
+        <rect x="4" y="10" width="148" height="12" rx="8" fill="#CC3030" />
         {/* Window row */}
         <rect x="16" y="18" width="22" height="16" rx="3" fill="white" opacity="0.85" />
         <rect x="46" y="18" width="22" height="16" rx="3" fill="white" opacity="0.85" />
@@ -25,7 +25,7 @@ const BusSVG = () => (
         {/* Lower panel / door */}
         <rect x="120" y="37" width="20" height="22" rx="3" fill="white" opacity="0.45" />
         {/* Front grille */}
-        <rect x="146" y="30" width="5" height="10" rx="2" fill="#E8920A" />
+        <rect x="146" y="30" width="5" height="10" rx="2" fill="#CC3030" />
         {/* Headlight */}
         <rect x="148" y="20" width="6" height="8" rx="2" fill="#FFF3C4" />
         {/* Peko branding text placeholder */}
@@ -130,7 +130,7 @@ const BusTicketSearching = () => {
                     <Progress
                         percent={progress}
                         showInfo={false}
-                        strokeColor="#FFA827"
+                        strokeColor="#FF4F4F"
                         trailColor="#F1F5F9"
                         strokeLinecap="round"
                     />

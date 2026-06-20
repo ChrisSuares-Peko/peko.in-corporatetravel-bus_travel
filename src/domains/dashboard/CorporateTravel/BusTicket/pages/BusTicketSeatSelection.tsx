@@ -1,21 +1,24 @@
 import { useState } from 'react';
 
-import { StarFilled, StarOutlined } from '@ant-design/icons';
-import { Button, Col, Divider, Flex, Popover, Row, Typography } from 'antd';
+import { Button, Divider, Flex, Progress, Radio, Table, Tabs, Tag, Typography } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 
+import { mockBusRating } from '@src/mock/data';
+
 import {
-    BedIcon, ChargingIcon, FilmIcon, PhoneIcon, WaterIcon, WifiIcon,
+    ArrowLeftIcon, BedIcon, ChargingIcon, FilmIcon, PhoneIcon, WaterIcon, WifiIcon,
 } from '../components/SolarIcons';
 
-import { BusEntry } from '@src/mock/data';
+const { Text } = Typography;
 
-import BoardingDropDrawer from '../components/BoardingDropDrawer';
-import PoliciesDrawer from '../components/PoliciesDrawer';
+// ─── Design tokens ────────────────────────────────────────────────────────────
 
-const { Text, Title } = Typography;
+const P   = '#FF4F4F';
+const TXT = '#171717';
+const HLP = '#8C8C8C';
+const BDR = '#E8E8E8';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ─── Seat types ───────────────────────────────────────────────────────────────
 
 type SeatStatus = 'available' | 'booked' | 'female' | 'male';
 
@@ -30,12 +33,10 @@ interface SeatDef {
     status: SeatStatus;
 }
 
-// ─── Mock Seat Data ───────────────────────────────────────────────────────────
-// 14 lower + 14 upper berths in a 2+1 sleeper layout.
-// At least 15 seats are available across both decks.
+// ─── Mock seat data ───────────────────────────────────────────────────────────
 
 const ALL_SEATS: SeatDef[] = [
-    // ── LOWER DECK ──
+    // LOWER DECK
     { id: 'L1',  label: '1',  deck: 'lower', row: 1, col: 'a', price: 950, originalPrice: 1200, status: 'available' },
     { id: 'L2',  label: '2',  deck: 'lower', row: 1, col: 'b', price: 950, originalPrice: 1200, status: 'female'    },
     { id: 'L3',  label: '3',  deck: 'lower', row: 1, col: 'c', price: 950, originalPrice: 1200, status: 'available' },
@@ -50,7 +51,7 @@ const ALL_SEATS: SeatDef[] = [
     { id: 'L12', label: '12', deck: 'lower', row: 4, col: 'c', price: 950, originalPrice: 1200, status: 'male'      },
     { id: 'L13', label: '13', deck: 'lower', row: 5, col: 'a', price: 950, originalPrice: 1200, status: 'available' },
     { id: 'L14', label: '14', deck: 'lower', row: 5, col: 'b', price: 950, originalPrice: 1200, status: 'booked'    },
-    // ── UPPER DECK ──
+    // UPPER DECK
     { id: 'U1',  label: '1',  deck: 'upper', row: 1, col: 'a', price: 850, originalPrice: 1050, status: 'available' },
     { id: 'U2',  label: '2',  deck: 'upper', row: 1, col: 'b', price: 850, originalPrice: 1050, status: 'booked'    },
     { id: 'U3',  label: '3',  deck: 'upper', row: 1, col: 'c', price: 850, originalPrice: 1050, status: 'available' },
@@ -67,34 +68,35 @@ const ALL_SEATS: SeatDef[] = [
     { id: 'U14', label: '14', deck: 'upper', row: 5, col: 'b', price: 850, originalPrice: 1050, status: 'available' },
 ];
 
-// Distinct price tiers (lower deck = ₹950, upper deck = ₹850)
 const PRICE_TIERS = [
     { price: 950, originalPrice: 1200 },
     { price: 850, originalPrice: 1050 },
 ];
 
-// ─── Amenity Icon Map ─────────────────────────────────────────────────────────
+// ─── Amenity icon map ─────────────────────────────────────────────────────────
 
 const AMENITY_ICONS: Record<string, React.ReactNode> = {
-    Blankets:                   <BedIcon      size={14} color="#8C8C8C" />,
-    'Charging Point':           <ChargingIcon size={14} color="#8C8C8C" />,
-    'Emergency Contact Number': <PhoneIcon    size={14} color="#8C8C8C" />,
-    Movie:                      <FilmIcon     size={14} color="#8C8C8C" />,
-    Wifi:                       <WifiIcon     size={14} color="#8C8C8C" />,
-    'Water Bottle':             <WaterIcon    size={14} color="#8C8C8C" />,
+    Blankets:                   <BedIcon      size={20} color={HLP} />,
+    'Charging Point':           <ChargingIcon size={20} color={HLP} />,
+    'Emergency Contact Number': <PhoneIcon    size={20} color={HLP} />,
+    Movie:                      <FilmIcon     size={20} color={HLP} />,
+    Wifi:                       <WifiIcon     size={20} color={HLP} />,
+    'Water Bottle':             <WaterIcon    size={20} color={HLP} />,
 };
 
-// ─── Status Style Map ─────────────────────────────────────────────────────────
+const ALL_AMENITY_KEYS = ['Blankets', 'Charging Point', 'Wifi', 'Movie', 'Water Bottle', 'Emergency Contact Number'];
 
-const STATUS_STYLE: Record<string | 'selected', { bg: string; border: string; borderW: string; text: string }> = {
-    available: { bg: '#FFFFFF', border: '#D9D9D9', borderW: '1px',  text: '#171717' },
+// ─── Status style map ─────────────────────────────────────────────────────────
+
+const STATUS_STYLE: Record<string, { bg: string; border: string; borderW: string; text: string }> = {
+    available: { bg: '#FFFFFF', border: '#D9D9D9', borderW: '1px',  text: TXT    },
     booked:    { bg: '#F5F5F5', border: '#D9D9D9', borderW: '1px',  text: '#BFBFBF' },
     female:    { bg: '#FFF0F6', border: '#FFADD2', borderW: '1px',  text: '#EB2F96' },
     male:      { bg: '#F0F5FF', border: '#ADC6FF', borderW: '1px',  text: '#2F54EB' },
-    selected:  { bg: '#FFF1F0', border: '#FF4F4F', borderW: '2px',  text: '#FF4F4F' },
+    selected:  { bg: '#FFF1F0', border: P,         borderW: '2px',  text: P      },
 };
 
-// ─── Steering Wheel SVG ───────────────────────────────────────────────────────
+// ─── Steering wheel SVG ───────────────────────────────────────────────────────
 
 const SteeringWheel = () => (
     <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-label="Driver">
@@ -107,65 +109,43 @@ const SteeringWheel = () => (
     </svg>
 );
 
-// ─── Seat Berth ───────────────────────────────────────────────────────────────
+// ─── Seat berth ───────────────────────────────────────────────────────────────
 
 const BERTH_W = 40;
 const BERTH_H = 40;
-const STRIP_H = 4;
 
 const SeatBerth = ({
-    seat,
-    isSelected,
-    isFiltered,
-    onToggle,
+    seat, isSelected, isFiltered, onToggle,
 }: {
-    seat: SeatDef;
-    isSelected: boolean;
-    isFiltered: boolean;
-    onToggle: (id: string) => void;
+    seat: SeatDef; isSelected: boolean; isFiltered: boolean; onToggle: (id: string) => void;
 }) => {
-    const effectiveKey = isSelected ? 'selected' : seat.status;
-    const s = STATUS_STYLE[effectiveKey];
+    const key = isSelected ? 'selected' : seat.status;
+    const s = STATUS_STYLE[key];
     const clickable = seat.status === 'available' || isSelected;
 
     return (
         <div
             onClick={clickable ? () => onToggle(seat.id) : undefined}
             title={clickable ? `Seat ${seat.label} • ₹${seat.price}` : `Seat ${seat.label} — ${seat.status}`}
-            className={`relative select-none rounded-md transition-all ${
-                isFiltered ? 'opacity-25' : ''
-            } ${clickable ? 'hover:scale-105' : ''}`}
+            className={`relative select-none transition-all ${isFiltered ? 'opacity-25' : ''} ${clickable ? 'hover:scale-105' : ''}`}
             style={{
-                width: BERTH_W,
-                height: BERTH_H,
+                width: BERTH_W, height: BERTH_H,
                 backgroundColor: s.bg,
                 border: `${s.borderW} solid ${s.border}`,
                 borderRadius: 6,
                 cursor: clickable ? 'pointer' : 'not-allowed',
             }}
         >
-            {/* Seat label */}
-            <div
-                className="absolute inset-0 flex items-center justify-center"
-                style={{ paddingBottom: STRIP_H }}
-            >
-                <Text
-                    className="text-xs font-semibold leading-none"
-                    style={{ color: s.text, fontSize: 11 }}
-                >
+            <div className="absolute inset-0 flex items-center justify-center">
+                <Text style={{ fontSize: 11, fontWeight: 600, color: s.text, lineHeight: 1 }}>
                     {seat.label}
                 </Text>
             </div>
-            {/* Status strip at bottom */}
-            <div
-                className="absolute bottom-0 left-0 right-0 rounded-b-md"
-                style={{ height: STRIP_H, backgroundColor: s.strip }}
-            />
         </div>
     );
 };
 
-// ─── Deck Section ─────────────────────────────────────────────────────────────
+// ─── Deck section ─────────────────────────────────────────────────────────────
 
 const groupRows = (seats: SeatDef[]) => {
     const map = new Map<number, { a?: SeatDef; b?: SeatDef; c?: SeatDef }>();
@@ -177,15 +157,9 @@ const groupRows = (seats: SeatDef[]) => {
 };
 
 const DeckSection = ({
-    deck,
-    selectedIds,
-    priceFilter,
-    onToggle,
+    deck, selectedIds, priceFilter, onToggle,
 }: {
-    deck: 'lower' | 'upper';
-    selectedIds: Set<string>;
-    priceFilter: number | null;
-    onToggle: (id: string) => void;
+    deck: 'lower' | 'upper'; selectedIds: Set<string>; priceFilter: number | null; onToggle: (id: string) => void;
 }) => {
     const deckSeats = ALL_SEATS.filter(s => s.deck === deck);
     const rows = groupRows(deckSeats);
@@ -194,15 +168,13 @@ const DeckSection = ({
 
     return (
         <Flex vertical gap={8}>
-            <Text style={{ fontSize: 11, fontWeight: 600, color: '#8C8C8C', textTransform: 'uppercase', letterSpacing: 1 }}>
+            <Text style={{ fontSize: 11, fontWeight: 600, color: HLP, textTransform: 'uppercase', letterSpacing: 1 }}>
                 {isLower ? 'Lower Deck' : 'Upper Deck'}
             </Text>
-
             <div
                 className="bg-white p-4"
-                style={{ border: '1px solid #E8E8E8', borderRadius: 8, display: 'inline-block' }}
+                style={{ border: `1px solid ${BDR}`, borderRadius: 8, display: 'inline-block' }}
             >
-                {/* Driver position — lower deck only */}
                 {isLower && (
                     <div className="flex justify-end mb-3 pb-3 border-b border-gray-100">
                         <Flex align="center" gap={4}>
@@ -211,12 +183,7 @@ const DeckSection = ({
                         </Flex>
                     </div>
                 )}
-
-                {/* Column headers */}
-                <div
-                    className="flex items-center mb-2"
-                    style={{ gap: 4 }}
-                >
+                <div className="flex items-center mb-2" style={{ gap: 4 }}>
                     <div className="flex" style={{ gap: 4 }}>
                         {['A', 'B'].map(col => (
                             <div key={col} className="flex items-center justify-center" style={{ width: BERTH_W }}>
@@ -229,12 +196,9 @@ const DeckSection = ({
                         <Text className="text-xs text-gray-400">C</Text>
                     </div>
                 </div>
-
-                {/* Seat rows */}
                 <Flex vertical gap={6}>
                     {rows.map(([rowNum, rowSeats]) => (
                         <div key={rowNum} className="flex items-center" style={{ gap: 4 }}>
-                            {/* Left side: columns A + B */}
                             <div className="flex" style={{ gap: 4 }}>
                                 {(['a', 'b'] as const).map(col => {
                                     const seat = rowSeats[col];
@@ -251,16 +215,9 @@ const DeckSection = ({
                                     );
                                 })}
                             </div>
-
-                            {/* Aisle */}
-                            <div
-                                className="flex items-center justify-center flex-shrink-0"
-                                style={{ width: AISLE_W, height: BERTH_H }}
-                            >
+                            <div className="flex items-center justify-center flex-shrink-0" style={{ width: AISLE_W, height: BERTH_H }}>
                                 <div className="h-full w-px border-l border-dashed border-gray-200" />
                             </div>
-
-                            {/* Right side: column C */}
                             {rowSeats.c ? (
                                 <SeatBerth
                                     seat={rowSeats.c}
@@ -279,50 +236,141 @@ const DeckSection = ({
     );
 };
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+// ─── Boarding / drop point data ───────────────────────────────────────────────
 
-type RouteState = {
-    // bus can be the old BusEntry (departure/arrival as strings) or the new
-    // BusResultEntry (departure/arrival as objects with a .time property).
-    bus?: any;
-    source?: string;
-    destination?: string;
-    date?: string;
-};
+interface StopPoint { id: string; name: string; time: string; date: string; landmark: string; }
 
-// Safely extract a display time string from either format.
+const BOARDING_POINTS: StopPoint[] = [
+    { id: 'B1', name: 'Nayandahalli',        time: '05:00 AM', date: '04 Jun', landmark: 'In Front Of Nayandahalli Metro Station, Opposite To Global Mall' },
+    { id: 'B2', name: 'Majestic Bus Station', time: '05:25 AM', date: '04 Jun', landmark: 'Sri Krishna Tours & Travels, 19 Hotel Mayura Cmplx, Tank Bund Rd, Subash Nagar, Opp Majestic Bus Stand' },
+    { id: 'B3', name: 'Anand Rao Circle',     time: '05:30 AM', date: '04 Jun', landmark: 'SRE Travels (Kalpana Tourist)' },
+    { id: 'B4', name: 'Corporation Circle',   time: '05:40 AM', date: '04 Jun', landmark: 'Infront of City Bus Stop' },
+    { id: 'B5', name: 'Shanthi Nagar(C)',     time: '05:50 AM', date: '04 Jun', landmark: 'Infront of SRS Logistics' },
+    { id: 'B6', name: 'Koramangala',          time: '06:05 AM', date: '04 Jun', landmark: 'Nexus Mall back gate, next to Christ University' },
+    { id: 'B7', name: 'St. Johns Hospital',   time: '06:10 AM', date: '04 Jun', landmark: 'Infront of HP Petroleum Pump' },
+    { id: 'B8', name: 'Madiwala',             time: '06:15 AM', date: '04 Jun', landmark: 'Near Happiest Mind Technologies' },
+    { id: 'B9', name: 'Silk Board',           time: '06:20 AM', date: '04 Jun', landmark: 'Flyover End, Opp to Metro Station' },
+];
+
+const DROP_POINTS: StopPoint[] = [
+    { id: 'D1',  name: 'Sri Perumbudur',      time: '12:40 PM', date: '04 Jun', landmark: 'Near Sriperumbudur Toll Plaza (Towards Poonamalle)' },
+    { id: 'D2',  name: 'Poonamallee Bypass',  time: '12:55 PM', date: '04 Jun', landmark: 'Near BSNL Telephone Exchange' },
+    { id: 'D3',  name: 'Velappanchavadi',      time: '01:00 PM', date: '04 Jun', landmark: 'Infront of Velappanchavadi Bus Stop' },
+    { id: 'D4',  name: 'Maduravoyal',          time: '01:10 PM', date: '04 Jun', landmark: 'Maduravoyal Erikarai Bus Stop' },
+    { id: 'D5',  name: 'Koyambedu',            time: '01:15 PM', date: '04 Jun', landmark: 'Opp to CMBT' },
+    { id: 'D6',  name: 'Vadapalani',           time: '01:35 PM', date: '04 Jun', landmark: 'Opp to Murugan Idli Restaurant' },
+    { id: 'D7',  name: 'Ashok Nagar',          time: '01:45 PM', date: '04 Jun', landmark: 'Infront of Sree Mithai Store' },
+    { id: 'D8',  name: 'Guindy',               time: '01:50 PM', date: '04 Jun', landmark: 'Opp to Olympia Tech Park' },
+    { id: 'D9',  name: 'Anna University',      time: '02:00 PM', date: '04 Jun', landmark: 'Infront of Anna University Bus Stop' },
+    { id: 'D10', name: 'Madhya Kailash',       time: '02:05 PM', date: '04 Jun', landmark: '' },
+];
+
+// ─── Policy data ──────────────────────────────────────────────────────────────
+
+const TRAVEL_POLICIES = [
+    { label: 'Child Passenger Policy', value: 'Children above the age of 3 will need a ticket' },
+    { label: 'Luggage Policy', value: '1 piece of luggage will be accepted free of charge per passenger. Excess items will be chargeable' },
+    { label: 'Excess Baggage', value: 'Excess baggage over 10 kgs per passenger will be chargeable' },
+    { label: 'Pets Policy', value: 'Pets are not allowed' },
+    { label: 'Liquor Policy', value: 'Carrying or consuming liquor inside the bus is prohibited. Bus operator reserves the right to deboard drunk passengers' },
+    { label: 'Pick Up Time Policy', value: 'Bus operator is not obligated to wait beyond the scheduled departure time. No refund will be entertained for late arriving passengers' },
+];
+
+type CancellationRow = { key: string; time: string; percent: string; amount: string };
+
+const CANCELLATION_DATA: CancellationRow[] = [
+    { key: '1', time: 'Before 4th Jun 10:30 AM', percent: '15%', amount: '₹184.50' },
+    { key: '2', time: 'After 4th Jun 10:30 AM & Before 4th Jun 02:30 PM', percent: '30%', amount: '₹369.00' },
+    { key: '3', time: 'After 4th Jun 02:30 PM & Before 4th Jun 06:30 PM', percent: '60%', amount: '₹738.00' },
+    { key: '4', time: 'After 4th Jun 06:30 PM & Before 4th Jun 10:30 PM', percent: '95%', amount: '₹1,168.50' },
+];
+
+const CANCELLATION_COLUMNS = [
+    { title: 'Time',                dataIndex: 'time',    key: 'time',    render: (v: string) => <Text style={{ fontSize: 11, color: '#595959' }}>{v}</Text> },
+    { title: 'Cancellation %',      dataIndex: 'percent', key: 'percent', align: 'center' as const, render: (v: string) => <Text style={{ fontSize: 11, fontWeight: 600, color: TXT }}>{v}</Text> },
+    { title: 'Cancellation Amount', dataIndex: 'amount',  key: 'amount',  align: 'right'  as const, render: (v: string) => <Text style={{ fontSize: 11, fontWeight: 600, color: P }}>{v}</Text> },
+];
+
+const DISCLAIMERS = [
+    'Any cancellation of tickets can incur cancellation charges based on the bus operator policy',
+    'Cancellation charges shown above are indicative and exact charges will be available after the ticket is booked',
+    'Cancellation charges are computed on a per seat basis. Above fare is calculated based on seat fare of ₹1,230.00',
+    'Partial cancellation is allowed for this ticket',
+    "Customers will receive refunds after deducting cashbacks, offer discounts and non-refundable charges as per the bus operator's policy",
+    'Note: Cancellation charges shown above are exclusive of GST',
+    'For RTC buses — cancellation amount shown is an estimate and can change at the time of the Final RTC Cancellation Call Time',
+];
+
+// ─── Stop point list (used in Boarding & Drop tabs) ───────────────────────────
+
+const StopList = ({
+    points, selected, onSelect,
+}: {
+    points: StopPoint[]; selected: string | null; onSelect: (id: string) => void;
+}) => (
+    <div style={{ overflowY: 'auto', maxHeight: 380 }}>
+        {points.map((pt, idx) => (
+            <div key={pt.id}>
+                <div
+                    onClick={() => onSelect(pt.id)}
+                    style={{
+                        display: 'flex', alignItems: 'flex-start', gap: 10,
+                        padding: '12px 16px', cursor: 'pointer',
+                        backgroundColor: selected === pt.id ? '#FFF1F0' : undefined,
+                        transition: 'background-color 0.15s',
+                    }}
+                >
+                    <Radio checked={selected === pt.id} style={{ marginTop: 3, pointerEvents: 'none', flexShrink: 0 }} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                        <Text style={{ fontSize: 14, fontWeight: 600, color: TXT, display: 'block' }}>
+                            {pt.name}
+                        </Text>
+                        <Text style={{ fontSize: 13, color: P, display: 'block', marginTop: 2 }}>
+                            {pt.time}, {pt.date}
+                        </Text>
+                        {pt.landmark && (
+                            <Text style={{ fontSize: 12, color: HLP, display: 'block', marginTop: 2, fontWeight: 300, lineHeight: 1.5 }}>
+                                {pt.landmark}
+                            </Text>
+                        )}
+                    </div>
+                </div>
+                {idx < points.length - 1 && <Divider style={{ margin: 0 }} />}
+            </div>
+        ))}
+    </div>
+);
+
+// ─── Route state helper ───────────────────────────────────────────────────────
+
+type RouteState = { bus?: any; source?: string; destination?: string; date?: string; };
+
 const busTime = (v: unknown): string | undefined => {
     if (v == null) return undefined;
     if (typeof v === 'object' && 'time' in (v as object)) return (v as { time: string }).time;
     return v as string;
 };
 
+// ─── Main component ───────────────────────────────────────────────────────────
+
 const BusTicketSeatSelection = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const routeState = (location.state ?? {}) as RouteState;
 
-    const bus = routeState.bus;
+    const bus         = routeState.bus;
     const source      = routeState.source      ?? 'Bengaluru';
     const destination = routeState.destination ?? 'Chennai';
     const date        = routeState.date        ?? 'Today';
 
-    // ── Seat selection state ──
-    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+    const [selectedIds,      setSelectedIds]      = useState<Set<string>>(new Set());
+    const [priceFilter,      setPriceFilter]      = useState<number | null>(null);
+    const [selectedBoarding, setSelectedBoarding] = useState<string | null>(null);
+    const [selectedDrop,     setSelectedDrop]     = useState<string | null>(null);
 
-    // ── Price tier filter (null = All) ──
-    const [priceFilter, setPriceFilter] = useState<number | null>(null);
-
-    // ── Drawer / popover state ──
-    const [boardingOpen, setBoardingOpen] = useState(false);
-    const [policiesOpen, setPoliciesOpen] = useState(false);
-
-    // ── Seat toggle ──
     const handleToggle = (id: string) => {
         const seat = ALL_SEATS.find(s => s.id === id);
-        if (!seat) return;
-        if (seat.status !== 'available' && !selectedIds.has(id)) return;
-
+        if (!seat || (seat.status !== 'available' && !selectedIds.has(id))) return;
         setSelectedIds(prev => {
             const next = new Set(prev);
             next.has(id) ? next.delete(id) : next.add(id);
@@ -330,331 +378,360 @@ const BusTicketSeatSelection = () => {
         });
     };
 
-    // ── Derived values ──
-    const selectedSeats = ALL_SEATS.filter(s => selectedIds.has(s.id));
-
-    const totalAmount = selectedSeats.reduce((sum, s) => sum + s.price, 0);
-
+    const selectedSeats  = ALL_SEATS.filter(s => selectedIds.has(s.id));
+    const totalAmount    = selectedSeats.reduce((sum, s) => sum + s.price, 0);
     const selectedLabels = selectedSeats
-        .sort((a, b) => (a.deck === b.deck ? a.row - b.row : a.deck.localeCompare(b.deck)))
+        .sort((a, b) => a.deck === b.deck ? a.row - b.row : a.deck.localeCompare(b.deck))
         .map(s => `${s.deck === 'lower' ? 'L' : 'U'}${s.label}`)
         .join(', ');
 
-    // ── Navigate to boarding point selection ──
+    const boardingPt = BOARDING_POINTS.find(p => p.id === selectedBoarding);
+    const dropPt     = DROP_POINTS.find(p => p.id === selectedDrop);
+    const canProceed = selectedIds.size > 0 && selectedBoarding !== null && selectedDrop !== null;
+
     const handleProceed = () => {
-        if (selectedIds.size === 0) return;
-        navigate('/corporate-travel/bus-ticket/boarding', {
-            state: { bus, source, destination, date, selectedSeats, totalAmount },
+        if (!canProceed || !boardingPt || !dropPt) return;
+        navigate('/corporate-travel/bus-ticket/traveller', {
+            state: {
+                ...routeState,
+                selectedSeats,
+                totalAmount,
+                boardingPoint:    boardingPt.name,
+                boardingTime:     boardingPt.time,
+                boardingDate:     boardingPt.date,
+                boardingLandmark: boardingPt.landmark,
+                dropPoint:        dropPt.name,
+                dropTime:         dropPt.time,
+                dropDate:         dropPt.date,
+                dropLandmark:     dropPt.landmark,
+            },
         });
     };
 
-    // ── Amenities popover content ──
-    const amenitiesContent = (
-        <Flex vertical gap={10} className="min-w-[160px]">
-            {(bus?.amenities ?? ['Blankets', 'Charging Point', 'Wifi']).map(a => (
-                <Flex key={a} align="center" gap={8}>
-                    {AMENITY_ICONS[a] ?? <span className="w-3 h-3 rounded-full bg-gray-300 flex-shrink-0" />}
-                    <Text className="text-sm text-gray-700">{a}</Text>
-                </Flex>
-            ))}
-        </Flex>
-    );
+    // ── Details Card tab content ──────────────────────────────────────────────
 
-    // ── Ratings popover content ──
-    const rating = bus?.rating ?? 4.2;
-    const ratingFilled = Math.round(rating);
-    const ratingsContent = (
-        <Flex vertical gap={8} className="min-w-[160px] px-1">
-            <Flex align="center" gap={8}>
-                <Text className="text-3xl font-black text-gray-800">{rating.toFixed(1)}</Text>
-                <Flex vertical gap={2}>
-                    <Flex gap={2}>
-                        {Array.from({ length: 5 }).map((_, i) =>
-                            i < ratingFilled
-                                ? <StarFilled key={i} style={{ color: '#F59E0B', fontSize: 14 }} />
-                                : <StarOutlined key={i} style={{ color: '#D1D5DB', fontSize: 14 }} />
-                        )}
-                    </Flex>
-                    <Text className="text-xs text-gray-400">
-                        {(bus?.totalRatings ?? 1240).toLocaleString()} ratings
-                    </Text>
-                </Flex>
-            </Flex>
-        </Flex>
-    );
+    const busAmenities: string[] = bus?.amenities ?? ['Blankets', 'Charging Point', 'Wifi'];
 
-    // ── Booking summary panel (reused on desktop sidebar and mobile footer) ──
-    const SummaryPanel = ({ compact = false }: { compact?: boolean }) => (
-        <div
-            className={`bg-white ${compact ? 'p-3' : 'p-5'}`}
-            style={{ border: '1px solid #E8E8E8', borderRadius: 8 }}
-        >
-            {!compact && (
-                <Text className="text-xs text-gray-400 uppercase tracking-wide block mb-1">
-                    Booking Summary
-                </Text>
-            )}
-
-            <Flex justify="space-between" align="center" className={compact ? '' : 'mb-4'}>
-                <Flex vertical gap={2}>
-                    <Text className="text-xs text-gray-500">Total Amount</Text>
-                    <Text
-                        className="font-black leading-none"
+    const amenitiesTab = (
+        <div style={{ padding: 16, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            {ALL_AMENITY_KEYS.map(a => {
+                const available = busAmenities.includes(a);
+                return (
+                    <div
+                        key={a}
                         style={{
-                            fontSize: compact ? 20 : 28,
-                            color: totalAmount > 0 ? '#FF4F4F' : '#BFBFBF',
+                            display: 'flex', alignItems: 'center', gap: 10,
+                            padding: '10px 12px', borderRadius: 8,
+                            border: `1px solid ${available ? BDR : '#F0F0F0'}`,
+                            opacity: available ? 1 : 0.4,
                         }}
                     >
-                        {totalAmount > 0 ? `₹${totalAmount.toLocaleString()}` : '₹0'}
-                    </Text>
-                </Flex>
-
-                {compact && (
-                    <Button
-                        size="large"
-                        disabled={selectedIds.size === 0}
-                        onClick={handleProceed}
-                        className="rounded-md font-semibold"
-                        style={
-                            selectedIds.size > 0
-                                ? { backgroundColor: '#FF4F4F', borderColor: '#FF4F4F', color: '#fff', borderRadius: 6, fontWeight: 600 }
-                                : undefined
-                        }
-                    >
-                        Proceed
-                    </Button>
-                )}
-            </Flex>
-
-            {!compact && (
-                <>
-                    <Divider className="my-3" />
-
-                    <Flex vertical gap={2} className="mb-5">
-                        <Text className="text-xs text-gray-500">Seat No.</Text>
-                        <Text className="text-sm font-medium text-gray-700 min-h-[20px]">
-                            {selectedLabels || '—'}
+                        <div style={{
+                            width: 36, height: 36, borderRadius: 8, flexShrink: 0,
+                            backgroundColor: available ? '#FFF1F0' : '#F5F5F5',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                            {AMENITY_ICONS[a]}
+                        </div>
+                        <Text style={{ fontSize: 12, color: available ? TXT : HLP, fontWeight: available ? 500 : 400 }}>
+                            {a}
                         </Text>
-                    </Flex>
-
-                    <Button
-                        block
-                        size="large"
-                        disabled={selectedIds.size === 0}
-                        onClick={handleProceed}
-                        className="rounded-md font-semibold"
-                        style={
-                            selectedIds.size > 0
-                                ? { backgroundColor: '#FF4F4F', borderColor: '#FF4F4F', color: '#fff', borderRadius: 6, fontWeight: 600 }
-                                : undefined
-                        }
-                    >
-                        Proceed to Boarding Points
-                    </Button>
-                </>
-            )}
+                    </div>
+                );
+            })}
         </div>
     );
+
+    const rd = mockBusRating;
+    const total = rd.totalRatings;
+    const ratingsTab = (
+        <div style={{ padding: 16 }}>
+            {/* Score row */}
+            <Flex align="flex-end" gap={16} style={{ marginBottom: 16 }}>
+                <Text style={{ fontSize: 48, fontWeight: 800, color: TXT, lineHeight: 1 }}>
+                    {rd.rating.toFixed(1)}
+                </Text>
+                <Flex vertical gap={2} style={{ paddingBottom: 4 }}>
+                    <Flex gap={3}>
+                        {[1, 2, 3, 4, 5].map(i => (
+                            <span key={i} style={{ color: i <= Math.round(rd.rating) ? '#F59E0B' : '#D9D9D9', fontSize: 18 }}>★</span>
+                        ))}
+                    </Flex>
+                    <Text style={{ fontSize: 12, color: HLP }}>{total.toLocaleString()} ratings</Text>
+                </Flex>
+            </Flex>
+
+            {/* Breakdown bars */}
+            <Flex vertical gap={6} style={{ marginBottom: 16 }}>
+                {([5, 4, 3, 2, 1] as const).map(star => {
+                    const count   = rd.breakdown[star] ?? 0;
+                    const percent = total > 0 ? Math.round((count / total) * 100) : 0;
+                    return (
+                        <Flex key={star} align="center" gap={8}>
+                            <Text style={{ fontSize: 12, color: HLP, width: 12, textAlign: 'right', flexShrink: 0 }}>{star}</Text>
+                            <span style={{ color: '#F59E0B', fontSize: 13, flexShrink: 0 }}>★</span>
+                            <div style={{ flex: 1 }}>
+                                <Progress
+                                    percent={percent}
+                                    showInfo={false}
+                                    strokeColor={star >= 4 ? '#52C41A' : star === 3 ? '#FAAD14' : P}
+                                    trailColor="#F0F0F0"
+                                    size="small"
+                                />
+                            </div>
+                            <Text style={{ fontSize: 12, color: HLP, width: 28, textAlign: 'right', flexShrink: 0 }}>
+                                {percent}%
+                            </Text>
+                        </Flex>
+                    );
+                })}
+            </Flex>
+
+            {/* Loved by pills */}
+            <Text style={{ fontSize: 12, color: HLP, display: 'block', marginBottom: 8 }}>Loved by passengers for</Text>
+            <Flex gap={6} wrap="wrap">
+                {rd.lovedBy.map(item => (
+                    <Tag key={item} color="green" style={{ fontSize: 11, borderRadius: 4, margin: 0 }}>
+                        {item}
+                    </Tag>
+                ))}
+            </Flex>
+        </div>
+    );
+
+    const policyTab = (
+        <div style={{ padding: 16, overflowY: 'auto', maxHeight: 420 }}>
+            <Text style={{ fontSize: 14, fontWeight: 600, color: TXT, display: 'block', marginBottom: 12 }}>
+                Travel Policy
+            </Text>
+            <Flex vertical gap={10} style={{ marginBottom: 20 }}>
+                {TRAVEL_POLICIES.map(p => (
+                    <Flex key={p.label} gap={10} align="flex-start">
+                        <div style={{ marginTop: 6, width: 6, height: 6, borderRadius: '50%', backgroundColor: P, flexShrink: 0 }} />
+                        <Text style={{ fontSize: 13, color: TXT }}>
+                            <strong style={{ fontWeight: 600 }}>{p.label}: </strong>
+                            {p.value}
+                        </Text>
+                    </Flex>
+                ))}
+            </Flex>
+
+            <Divider style={{ margin: '0 0 16px' }} />
+
+            <Text style={{ fontSize: 14, fontWeight: 600, color: TXT, display: 'block', marginBottom: 12 }}>
+                Cancellation Policy
+            </Text>
+            <Table
+                dataSource={CANCELLATION_DATA}
+                columns={CANCELLATION_COLUMNS}
+                pagination={false}
+                size="small"
+                bordered
+                style={{ marginBottom: 16 }}
+            />
+            <Flex vertical gap={4}>
+                {DISCLAIMERS.map((note, i) => (
+                    <Flex key={i} gap={4} align="flex-start">
+                        <Text style={{ fontSize: 11, color: HLP, flexShrink: 0, lineHeight: 1.6 }}>*</Text>
+                        <Text style={{ fontSize: 11, color: HLP, lineHeight: 1.6, fontWeight: 300 }}>{note}</Text>
+                    </Flex>
+                ))}
+            </Flex>
+        </div>
+    );
+
+    const detailsTabs = [
+        {
+            key:      'boarding',
+            label:    'Boarding Point',
+            children: <StopList points={BOARDING_POINTS} selected={selectedBoarding} onSelect={setSelectedBoarding} />,
+        },
+        {
+            key:      'drop',
+            label:    'Drop Point',
+            children: <StopList points={DROP_POINTS} selected={selectedDrop} onSelect={setSelectedDrop} />,
+        },
+        { key: 'amenities', label: 'Amenities', children: amenitiesTab },
+        { key: 'ratings',   label: 'Ratings',   children: ratingsTab   },
+        { key: 'policy',    label: 'Policy',     children: policyTab    },
+    ];
+
+    // ── Validation hint ───────────────────────────────────────────────────────
+
+    const missingItems = [
+        ...(selectedIds.size === 0 ? ['seat'] : []),
+        ...(selectedBoarding === null ? ['boarding point'] : []),
+        ...(selectedDrop     === null ? ['drop point']     : []),
+    ];
 
     return (
         <Flex vertical gap={16}>
 
             {/* ══ HEADER CARD ══ */}
-            <div
-                className="bg-white p-4"
-                style={{ border: '1px solid #E8E8E8', borderRadius: 8 }}
-            >
-                <Row gutter={[16, 8]} align="middle">
-                    <Col xs={24} md={14}>
-                        <Flex vertical gap={4}>
-                            <Text className="font-bold text-lg leading-tight">
-                                {source} → {destination}
-                            </Text>
-                            <Text className="text-gray-400 text-sm">
-                                {date} • {busTime(bus?.departure) ?? '10:30 PM'} – {busTime(bus?.arrival) ?? '05:20 AM'}
-                            </Text>
-                        </Flex>
-                    </Col>
-                    <Col xs={24} md={10}>
-                        <Flex vertical gap={3} className="md:items-end">
-                            <Text className="font-bold text-base">{bus?.operator ?? 'Parveen Travels'}</Text>
-                            <Text className="text-gray-400 text-sm">{bus?.busType ?? 'Bharat Benz A/C Sleeper (2+1)'}</Text>
-                        </Flex>
-                    </Col>
-                </Row>
+            <div style={{ backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 12, padding: '12px 20px' }}>
+                <Flex align="center" gap={12}>
+                    <div
+                        onClick={() => navigate(-1)}
+                        style={{
+                            width: 36, height: 36, borderRadius: '50%',
+                            border: `1px solid ${BDR}`, backgroundColor: '#fff',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            cursor: 'pointer', flexShrink: 0,
+                        }}
+                    >
+                        <ArrowLeftIcon size={18} color={TXT} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                        <Text style={{ fontSize: 16, fontWeight: 700, color: TXT, display: 'block', lineHeight: 1.3 }}>
+                            {source} → {destination}
+                        </Text>
+                        <Text style={{ fontSize: 13, color: HLP }}>
+                            {date} · {busTime(bus?.departure) ?? '10:30 PM'} – {busTime(bus?.arrival) ?? '05:20 AM'} · {bus?.operator ?? 'Parveen Travels'}
+                        </Text>
+                    </div>
+                </Flex>
             </div>
 
-            {/* ══ INFO BAR ══ */}
-            <Flex
-                gap={0}
-                align="center"
-                className="border-b border-gray-100 pb-3 flex-wrap gap-y-2"
-            >
-                {[
-                    {
-                        label: 'Boarding & Drop Points',
-                        action: () => setBoardingOpen(true),
-                        popover: false,
-                        content: null,
-                    },
-                    {
-                        label: 'Amenities',
-                        action: null,
-                        popover: true,
-                        content: amenitiesContent,
-                    },
-                    {
-                        label: 'Ratings',
-                        action: null,
-                        popover: true,
-                        content: ratingsContent,
-                    },
-                    {
-                        label: 'Policies',
-                        action: () => setPoliciesOpen(true),
-                        popover: false,
-                        content: null,
-                    },
-                ].map((item, i) => (
-                    <Flex key={item.label} align="center">
-                        {i > 0 && <Divider type="vertical" className="mx-2" />}
-                        {item.popover ? (
-                            <Popover
-                                content={item.content}
-                                trigger="click"
-                                placement="bottomLeft"
-                                overlayInnerStyle={{ padding: 12 }}
-                                arrow={false}
-                            >
-                                <Text className="text-sm cursor-pointer select-none" style={{ color: '#FF4F4F', fontWeight: 500 }}>
-                                    {item.label}
-                                </Text>
-                            </Popover>
-                        ) : (
-                            <Text
-                                onClick={item.action ?? undefined}
-                                className="text-amber-500 text-sm cursor-pointer hover:text-amber-600 hover:underline select-none"
-                            >
-                                {item.label}
-                            </Text>
-                        )}
-                    </Flex>
-                ))}
-            </Flex>
+            {/* ══ 3-COLUMN LAYOUT ══ */}
+            <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start' }}>
 
-            {/* ══ PRICE TIER FILTER ══ */}
-            <Flex gap={8} align="center" className="flex-wrap">
-                <Text className="text-xs text-gray-500 me-1">Price:</Text>
+                {/* ── Column 1: Seat Map (flex 7 ≈ 35%) ── */}
+                <div style={{ flex: 7, minWidth: 0 }}>
 
-                {/* All button */}
-                <div
-                    onClick={() => setPriceFilter(null)}
-                    className="px-3 py-1.5 cursor-pointer select-none transition-all"
-                    style={{
-                        borderRadius: 6,
-                        border: priceFilter === null ? '2px solid #FF4F4F' : '1px solid #D9D9D9',
-                        backgroundColor: priceFilter === null ? '#FFF1F0' : '#FFFFFF',
-                    }}
-                >
-                    <Text
-                        style={{
-                            fontSize: 14, fontWeight: 600,
-                            color: priceFilter === null ? '#FF4F4F' : '#171717',
-                        }}
-                    >
-                        All
-                    </Text>
-                </div>
-
-                {PRICE_TIERS.map(tier => (
-                    <div
-                        key={tier.price}
-                        onClick={() => setPriceFilter(tier.price)}
-                        className="flex flex-col items-center px-3 py-1.5 cursor-pointer select-none transition-all"
-                        style={{
-                            borderRadius: 6,
-                            border: priceFilter === tier.price ? '2px solid #FF4F4F' : '1px solid #D9D9D9',
-                            backgroundColor: priceFilter === tier.price ? '#FFF1F0' : '#FFFFFF',
-                        }}
-                    >
-                        <Text
+                    {/* Price tier filter */}
+                    <Flex gap={8} align="center" style={{ marginBottom: 12 }} wrap="wrap">
+                        <Text style={{ fontSize: 12, color: HLP, marginRight: 4 }}>Price:</Text>
+                        <div
+                            onClick={() => setPriceFilter(null)}
                             style={{
-                                fontSize: 14, fontWeight: 600, lineHeight: 1,
-                                color: priceFilter === tier.price ? '#FF4F4F' : '#171717',
+                                padding: '5px 12px', borderRadius: 6, cursor: 'pointer',
+                                border: priceFilter === null ? `2px solid ${P}` : `1px solid #D9D9D9`,
+                                backgroundColor: priceFilter === null ? '#FFF1F0' : '#FFF',
                             }}
                         >
-                            ₹{tier.price}
-                        </Text>
-                        <Text style={{ fontSize: 12, color: '#8C8C8C', textDecoration: 'line-through', lineHeight: 1, marginTop: 2 }}>
-                            ₹{tier.originalPrice}
-                        </Text>
-                    </div>
-                ))}
-            </Flex>
-
-            {/* ══ SEAT LEGEND ══ */}
-            <Flex gap={12} align="center" className="flex-wrap">
-                {[
-                    { label: 'Available', bg: '#FFFFFF', border: '#D9D9D9' },
-                    { label: 'Booked',    bg: '#F5F5F5', border: '#D9D9D9' },
-                    { label: 'Selected',  bg: '#FFF1F0', border: '#FF4F4F' },
-                    { label: 'Female',    bg: '#FFF0F6', border: '#FFADD2' },
-                    { label: 'Male',      bg: '#F0F5FF', border: '#ADC6FF' },
-                ].map(item => (
-                    <Flex key={item.label} align="center" gap={5}>
-                        <div
-                            style={{
-                                width: 22,
-                                height: 22,
-                                backgroundColor: item.bg,
-                                border: `1px solid ${item.border}`,
-                                borderRadius: 4,
-                            }}
-                        />
-                        <Text style={{ fontSize: 12, color: '#8C8C8C' }}>{item.label}</Text>
+                            <Text style={{ fontSize: 13, fontWeight: 600, color: priceFilter === null ? P : TXT }}>All</Text>
+                        </div>
+                        {PRICE_TIERS.map(tier => (
+                            <div
+                                key={tier.price}
+                                onClick={() => setPriceFilter(tier.price)}
+                                style={{
+                                    display: 'flex', flexDirection: 'column', alignItems: 'center',
+                                    padding: '4px 12px', borderRadius: 6, cursor: 'pointer',
+                                    border: priceFilter === tier.price ? `2px solid ${P}` : `1px solid #D9D9D9`,
+                                    backgroundColor: priceFilter === tier.price ? '#FFF1F0' : '#FFF',
+                                }}
+                            >
+                                <Text style={{ fontSize: 13, fontWeight: 600, lineHeight: 1, color: priceFilter === tier.price ? P : TXT }}>
+                                    ₹{tier.price}
+                                </Text>
+                                <Text style={{ fontSize: 11, color: HLP, textDecoration: 'line-through', lineHeight: 1, marginTop: 2 }}>
+                                    ₹{tier.originalPrice}
+                                </Text>
+                            </div>
+                        ))}
                     </Flex>
-                ))}
-            </Flex>
 
-            {/* ══ MAIN TWO-COLUMN LAYOUT ══ */}
-            <Row gutter={[20, 20]} align="top">
+                    {/* Seat legend */}
+                    <Flex gap={10} wrap="wrap" style={{ marginBottom: 16 }}>
+                        {[
+                            { label: 'Available', bg: '#FFFFFF', border: '#D9D9D9' },
+                            { label: 'Booked',    bg: '#F5F5F5', border: '#D9D9D9' },
+                            { label: 'Selected',  bg: '#FFF1F0', border: P          },
+                            { label: 'Female',    bg: '#FFF0F6', border: '#FFADD2'  },
+                            { label: 'Male',      bg: '#F0F5FF', border: '#ADC6FF'  },
+                        ].map(item => (
+                            <Flex key={item.label} align="center" gap={5}>
+                                <div style={{ width: 18, height: 18, backgroundColor: item.bg, border: `1px solid ${item.border}`, borderRadius: 4 }} />
+                                <Text style={{ fontSize: 12, color: HLP }}>{item.label}</Text>
+                            </Flex>
+                        ))}
+                    </Flex>
 
-                {/* Left: Seat Maps */}
-                <Col xs={24} md={18}>
-                    <div className="overflow-x-auto">
-                        <Flex gap={24} align="flex-start" className="flex-col sm:flex-row">
-                            <DeckSection
-                                deck="lower"
-                                selectedIds={selectedIds}
-                                priceFilter={priceFilter}
-                                onToggle={handleToggle}
-                            />
-                            <DeckSection
-                                deck="upper"
-                                selectedIds={selectedIds}
-                                priceFilter={priceFilter}
-                                onToggle={handleToggle}
-                            />
+                    {/* Deck sections */}
+                    <div style={{ overflowX: 'auto' }}>
+                        <Flex gap={20} align="flex-start" style={{ flexWrap: 'wrap' }}>
+                            <DeckSection deck="lower" selectedIds={selectedIds} priceFilter={priceFilter} onToggle={handleToggle} />
+                            <DeckSection deck="upper" selectedIds={selectedIds} priceFilter={priceFilter} onToggle={handleToggle} />
                         </Flex>
                     </div>
-                </Col>
+                </div>
 
-                {/* Right: Booking Summary (desktop) */}
-                <Col xs={0} md={6}>
-                    <div className="sticky top-4">
-                        <SummaryPanel />
+                {/* ── Column 2: Details Card (flex 8 ≈ 40%) ── */}
+                <div style={{ flex: 8, minWidth: 0 }}>
+                    <div style={{ backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 12, overflow: 'hidden' }}>
+                        <Tabs
+                            items={detailsTabs}
+                            size="small"
+                            style={{ paddingLeft: 4, paddingRight: 4 }}
+                            tabBarStyle={{ marginBottom: 0, paddingLeft: 12 }}
+                        />
                     </div>
-                </Col>
-            </Row>
+                </div>
 
-            {/* Mobile Booking Summary */}
-            <div className="md:hidden">
-                <SummaryPanel compact />
+                {/* ── Column 3: Booking Summary (flex 5 ≈ 25%) ── */}
+                <div style={{ flex: 5, minWidth: 200 }}>
+                    <div className="sticky" style={{ top: 16, backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 12, padding: 20 }}>
+
+                        {/* Section label */}
+                        <Text style={{ fontSize: 11, fontWeight: 600, color: HLP, textTransform: 'uppercase', letterSpacing: 0.5, display: 'block', marginBottom: 16 }}>
+                            Booking Summary
+                        </Text>
+
+                        {/* Total amount */}
+                        <Flex vertical gap={2} style={{ marginBottom: 4 }}>
+                            <Text style={{ fontSize: 12, color: HLP }}>Total Amount</Text>
+                            <Text style={{ fontSize: 28, fontWeight: 700, color: totalAmount > 0 ? P : '#D9D9D9', lineHeight: 1.1 }}>
+                                {totalAmount > 0 ? `₹${totalAmount.toLocaleString()}` : '₹0'}
+                            </Text>
+                        </Flex>
+
+                        <Divider style={{ margin: '12px 0' }} />
+
+                        {/* Summary rows */}
+                        <Flex vertical gap={10} style={{ marginBottom: 16 }}>
+                            <Flex vertical gap={2}>
+                                <Text style={{ fontSize: 11, color: HLP }}>Seat(s)</Text>
+                                <Text style={{ fontSize: 13, fontWeight: 500, color: selectedIds.size > 0 ? TXT : '#BFBFBF' }}>
+                                    {selectedLabels || '—'}
+                                </Text>
+                            </Flex>
+                            <Flex vertical gap={2}>
+                                <Text style={{ fontSize: 11, color: HLP }}>Boarding Point</Text>
+                                <Text style={{ fontSize: 13, fontWeight: 500, color: boardingPt ? TXT : '#BFBFBF' }}>
+                                    {boardingPt ? `${boardingPt.name} (${boardingPt.time})` : '—'}
+                                </Text>
+                            </Flex>
+                            <Flex vertical gap={2}>
+                                <Text style={{ fontSize: 11, color: HLP }}>Drop Point</Text>
+                                <Text style={{ fontSize: 13, fontWeight: 500, color: dropPt ? TXT : '#BFBFBF' }}>
+                                    {dropPt ? `${dropPt.name} (${dropPt.time})` : '—'}
+                                </Text>
+                            </Flex>
+                        </Flex>
+
+                        {/* Proceed button */}
+                        <Button
+                            block
+                            size="large"
+                            type={canProceed ? 'primary' : 'default'}
+                            danger={canProceed}
+                            disabled={!canProceed}
+                            onClick={handleProceed}
+                            style={{ borderRadius: 8, fontWeight: 600, height: 48 }}
+                        >
+                            Proceed
+                        </Button>
+
+                        {/* Validation hint */}
+                        {missingItems.length > 0 && (
+                            <Text style={{ fontSize: 11, color: HLP, display: 'block', textAlign: 'center', marginTop: 8, lineHeight: 1.5 }}>
+                                Select {missingItems.join(', ')} to continue
+                            </Text>
+                        )}
+                    </div>
+                </div>
             </div>
-
-            {/* ══ DRAWERS ══ */}
-            <BoardingDropDrawer open={boardingOpen} onClose={() => setBoardingOpen(false)} />
-            <PoliciesDrawer     open={policiesOpen} onClose={() => setPoliciesOpen(false)} />
         </Flex>
     );
 };

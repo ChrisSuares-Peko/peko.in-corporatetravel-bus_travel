@@ -227,3 +227,19 @@ export const ShieldCheckIcon = ({ size = 16, color = 'currentColor', className }
         <polyline points="9 12 11 14 15 10" />
     </svg>
 );
+
+export const CameraIcon = ({ size = 24, color = 'currentColor', className }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}
+        strokeWidth={S} strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" />
+        <circle cx="12" cy="13" r="4" />
+    </svg>
+);
+
+export const HomeIcon = ({ size = 24, color = 'currentColor', className }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}
+        strokeWidth={S} strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+        <polyline points="9 22 9 12 15 12 15 22" />
+    </svg>
+);

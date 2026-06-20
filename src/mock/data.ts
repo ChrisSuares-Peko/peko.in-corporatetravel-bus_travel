@@ -363,6 +363,24 @@ export const mockBusResults: BusResultEntry[] = [
 ];
 
 // ─────────────────────────────────────────────
+// Bus Rating
+// ─────────────────────────────────────────────
+
+export interface BusRatingData {
+    rating: number;
+    totalRatings: number;
+    breakdown: { 1: number; 2: number; 3: number; 4: number; 5: number };
+    lovedBy: string[];
+}
+
+export const mockBusRating: BusRatingData = {
+    rating: 4.9,
+    totalRatings: 110,
+    breakdown: { 5: 92, 4: 6, 3: 1, 2: 0, 1: 1 },
+    lovedBy: ['Punctuality', 'Staff behavior', 'Cleanliness', 'Driving', 'Seat/Sleep Comfort', 'AC', 'Live tracking'],
+};
+
+// ─────────────────────────────────────────────
 // Other services — will be populated later
 // ─────────────────────────────────────────────
 

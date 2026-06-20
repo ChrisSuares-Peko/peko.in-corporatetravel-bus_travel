@@ -172,7 +172,7 @@ const StopList = ({
 }) => (
     <div
         className="bg-white overflow-hidden"
-        style={{ border: '1px solid #E8E8E8', borderRadius: 8 }}
+        style={{ border: '1px solid #E8E8E8', borderRadius: 12 }}
     >
         {/* Column header */}
         <div className="px-4 py-3 border-b" style={{ borderColor: '#F0F0F0', backgroundColor: '#FAFAFA' }}>
@@ -284,7 +284,7 @@ const BusTicketBoarding = () => {
     const SummaryPanel = ({ compact = false }: { compact?: boolean }) => (
         <div
             className={`bg-white ${compact ? 'p-4' : 'p-5'}`}
-            style={{ border: '1px solid #E8E8E8', borderRadius: 8 }}
+            style={{ border: '1px solid #E8E8E8', borderRadius: 12 }}
         >
             {/* Total */}
             <Flex vertical gap={2} className="mb-4">
@@ -320,7 +320,7 @@ const BusTicketBoarding = () => {
                 className="rounded-md font-semibold"
                 style={
                     proceedEnabled
-                        ? { backgroundColor: '#FF4F4F', borderColor: '#FF4F4F', color: '#fff', borderRadius: 6, fontWeight: 600 }
+                        ? { backgroundColor: '#FF4F4F', borderColor: '#FF4F4F', color: '#fff', borderRadius: 8, fontWeight: 600, height: 48 }
                         : undefined
                 }
             >
@@ -343,9 +343,24 @@ const BusTicketBoarding = () => {
         <Flex vertical gap={20}>
 
             {/* ── Page Header ── */}
-            <Title level={4} className="m-0">
-                {source} to {destination}
-            </Title>
+            <Flex align="center" gap={12}>
+                <div
+                    onClick={() => navigate(-1)}
+                    style={{
+                        width: 36, height: 36, borderRadius: '50%',
+                        border: '1px solid #E8E8E8', backgroundColor: '#fff',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        cursor: 'pointer', flexShrink: 0,
+                    }}
+                >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#171717" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M19 12H5M12 5l-7 7 7 7" />
+                    </svg>
+                </div>
+                <Title level={4} className="m-0">
+                    {source} to {destination}
+                </Title>
+            </Flex>
 
             {/* ── Three-Column Layout ── */}
             <Row gutter={[16, 16]} align="top">

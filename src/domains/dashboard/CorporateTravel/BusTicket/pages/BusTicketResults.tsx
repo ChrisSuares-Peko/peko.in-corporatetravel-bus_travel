@@ -176,13 +176,15 @@ const BusCard = ({
     return (
         <>
             <div
+                className="bus-result-card"
                 style={{
                     backgroundColor: '#FFFFFF',
                     border: `1px solid ${BDR}`,
-                    borderRadius: 8,
+                    borderRadius: 12,
                     padding: '20px 24px',
                     marginBottom: 12,
                     position: 'relative',
+                    transition: 'box-shadow 0.2s ease, transform 0.2s ease',
                 }}
             >
                 {/* Offer badge — top right */}
@@ -316,10 +318,11 @@ const BusCard = ({
                         </Text>
                         <Text style={{ fontSize: 12, color: HLP }}>Onwards</Text>
                         <Button
+                            type="primary"
+                            danger
                             onClick={() => onViewSeats(bus)}
                             style={{
-                                backgroundColor: P, borderColor: P, color: '#fff',
-                                borderRadius: 20, fontWeight: 600, fontSize: 13,
+                                borderRadius: 8, fontWeight: 600, fontSize: 13,
                                 padding: '0 24px', height: 38, marginTop: 4,
                             }}
                         >
@@ -440,13 +443,14 @@ const BusTicketResults = () => {
 
     return (
         <Flex vertical gap={16}>
+            <style>{`.bus-result-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.12); transform: scale(1.005); }`}</style>
 
             {/* ══ SEARCH BAR CARD ══ */}
             <div
                 style={{
                     backgroundColor: '#FFFFFF',
                     border: `1px solid ${BDR}`,
-                    borderRadius: 8,
+                    borderRadius: 12,
                     padding: '16px 24px',
                 }}
             >
@@ -565,7 +569,7 @@ const BusTicketResults = () => {
                         top: 16, width: 260, flexShrink: 0,
                         backgroundColor: '#FFFFFF',
                         border: `1px solid ${BDR}`,
-                        borderRadius: 8, padding: 16,
+                        borderRadius: 12, padding: 20,
                     }}
                 >
                     <FilterPanel {...filterProps} />
@@ -625,7 +629,7 @@ const BusTicketResults = () => {
                             align="center" justify="center"
                             style={{
                                 backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`,
-                                borderRadius: 8, padding: '64px 24px',
+                                borderRadius: 12, padding: '64px 24px',
                             }}
                         >
                             <Text style={{ color: HLP }}>

@@ -192,7 +192,7 @@ const SeatCard = ({
     return (
         <div
             className="bg-white overflow-hidden"
-            style={{ border: '1px solid #E8E8E8', borderRadius: 8 }}
+            style={{ border: '1px solid #E8E8E8', borderRadius: 12 }}
         >
             {/* ── Card Header ── */}
             <div className="px-5 pt-4 pb-3">
@@ -449,7 +449,7 @@ const BusTicketTraveller = () => {
                         {/* Contact Details */}
                         <div
                             className="bg-white p-5"
-                            style={{ border: '1px solid #E8E8E8', borderRadius: 8 }}
+                            style={{ border: '1px solid #E8E8E8', borderRadius: 12 }}
                         >
                             <Text className="font-bold text-base block mb-4">
                                 Contact details
@@ -502,7 +502,7 @@ const BusTicketTraveller = () => {
                     <div className="sticky top-4">
                         <div
                             className="bg-white p-5"
-                            style={{ border: '1px solid #E8E8E8', borderRadius: 8 }}
+                            style={{ border: '1px solid #E8E8E8', borderRadius: 12 }}
                         >
                             <Checkbox
                                 checked={termsAccepted}
@@ -532,11 +532,13 @@ const BusTicketTraveller = () => {
                                 style={
                                     !proceedDisabled
                                         ? {
-                                              backgroundColor: '#FFA827',
-                                              borderColor: '#FFA827',
+                                              backgroundColor: '#FF4F4F',
+                                              borderColor: '#FF4F4F',
                                               color: '#fff',
+                                              borderRadius: 8,
+                                              fontWeight: 600,
                                           }
-                                        : undefined
+                                        : { borderRadius: 8 }
                                 }
                             >
                                 Proceed to Review
