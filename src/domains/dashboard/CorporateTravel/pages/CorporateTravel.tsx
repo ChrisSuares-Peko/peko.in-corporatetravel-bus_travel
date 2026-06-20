@@ -125,7 +125,6 @@ const LandingTabBar = ({
             padding: '8px 16px',
             display: 'flex',
             gap: 8,
-            flexWrap: 'wrap',
             overflow: 'visible',
             position: 'relative',
         }}
@@ -137,7 +136,8 @@ const LandingTabBar = ({
                     key={tab.key}
                     onClick={() => onChange(tab.key)}
                     style={{
-                        width: 160,
+                        flex: 1,
+                        minWidth: 120,
                         height: 80,
                         borderRadius: 12,
                         padding: '12px 16px',
@@ -152,6 +152,7 @@ const LandingTabBar = ({
                         top: active ? 8 : 0,
                         zIndex: active ? 2 : 1,
                         transition: 'all 0.2s ease',
+                        transform: active ? 'translateY(-4px)' : 'none',
                         backgroundColor: active ? '#FFFFFF' : 'transparent',
                         border: active ? `1.5px solid ${P}` : 'none',
                         boxShadow: active ? '0 4px 12px rgba(255, 79, 79, 0.15)' : 'none',
@@ -234,7 +235,7 @@ const SearchCTA = ({
             style={{
                 backgroundColor: P, borderColor: P, color: '#fff',
                 borderRadius: 8, fontWeight: 600, fontSize: 14,
-                height: 44, width: 200,
+                height: 48, width: 220,
             }}
         >
             {label}
@@ -268,7 +269,7 @@ const AirTicketsForm = () => {
     const [tripType, setTripType]     = useState('oneWay');
     const [from, setFrom]             = useState('');
     const [to, setTo]                 = useState('');
-    const [departure, setDeparture]   = useState<Dayjs | null>(null);
+    const [departure, setDeparture]   = useState<Dayjs | null>(dayjs());
     const [returnDate, setReturnDate] = useState<Dayjs | null>(null);
     const [cabin, setCabin]           = useState('1-eco');
 
@@ -333,6 +334,7 @@ const AirTicketsForm = () => {
                         onChange={setDeparture}
                         disabledDate={c => c && c < dayjs().startOf('day')}
                         variant="borderless"
+                        format="DD MMM YYYY, ddd"
                         placeholder="Select date"
                         style={{ padding: 0, flex: 1, fontSize: 14 }}
                     />
@@ -371,7 +373,7 @@ const AirTicketsForm = () => {
                             const parts = String(label).split(', ');
                             return (
                                 <Flex vertical gap={0} style={{ lineHeight: 1.2 }}>
-                                    <Text style={{ fontSize: 14, color: TXT }}>{parts[0]}</Text>
+                                    <Text style={{ fontSize: 16, fontWeight: 600, color: TXT }}>{parts[0]}</Text>
                                     <Text style={{ fontSize: 12, color: HLP }}>{parts[1]}</Text>
                                 </Flex>
                             );
@@ -637,12 +639,15 @@ const Footer = () => (
         <Text style={{ fontSize: 12, color: HLP }}>
             © 2026 Peko Platforms Private Limited. All Rights Reserved
         </Text>
-        <Flex gap={16} className="flex-wrap">
-            {['Peko Platform Agreement', 'Privacy Policy', 'Refund Policy', 'Cookie Policy'].map(lnk => (
-                <Text key={lnk} style={{ fontSize: 12, color: HLP, cursor: 'pointer' }}>
-                    {lnk}
-                </Text>
-            ))}
+        <Flex gap={0} align="center" className="flex-wrap">
+            {['Peko Platform Agreement', 'Privacy Policy', 'Refund Policy', 'Cookie Policy'].flatMap((lnk, i) =>
+                i === 0
+                    ? [<Text key={lnk} style={{ fontSize: 12, color: HLP, cursor: 'pointer' }}>{lnk}</Text>]
+                    : [
+                        <Text key={`sep-${i}`} style={{ fontSize: 12, color: HLP, margin: '0 8px' }}>|</Text>,
+                        <Text key={lnk} style={{ fontSize: 12, color: HLP, cursor: 'pointer' }}>{lnk}</Text>,
+                      ]
+            )}
         </Flex>
     </div>
 );
@@ -690,13 +695,13 @@ const CorporateTravel = () => {
                     backgroundColor: '#FFFFFF',
                     border: `1px solid ${BDR}`,
                     borderRadius: 12,
-                    padding: '32px 32px 28px',
+                    padding: '40px 32px 32px 32px',
                     boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
                     position: 'relative',
                 }}
             >
-                {/* Manage Booking button */}
-                <Flex justify="flex-end" style={{ marginBottom: 24 }}>
+                {/* Manage Booking button — top-right corner */}
+                <div style={{ position: 'absolute', top: 16, right: 32 }}>
                     {manageLink ? (
                         <Link to={manageLink}>
                             <Button
@@ -726,7 +731,7 @@ const CorporateTravel = () => {
                             {manageLabel}
                         </Button>
                     )}
-                </Flex>
+                </div>
 
                 {renderForm()}
             </div>
