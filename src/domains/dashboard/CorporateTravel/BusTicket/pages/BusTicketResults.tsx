@@ -1,499 +1,332 @@
 import { useMemo, useState } from 'react';
 
-import { DownOutlined, FilterOutlined, SwapOutlined, UpOutlined } from '@ant-design/icons';
-import {
-    Button, Checkbox, Col, Divider, Drawer, Flex, InputNumber, Row, Select, Slider,
-    Tag, Typography,
-} from 'antd';
-import dayjs from 'dayjs';
+import { Button, Checkbox, DatePicker, Drawer, Flex, Select, Tag, Typography } from 'antd';
+import dayjs, { Dayjs } from 'dayjs';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { BusAmenity, BusResultEntry, BusSlot, BusType, mockBusResults } from '@src/mock/data';
+import {
+    BusAmenity, BusResultEntry, BusSlot, BusType, mockBusResults,
+} from '@src/mock/data';
 
 import BoardingDropDrawer from '../components/BoardingDropDrawer';
 import PoliciesDrawer from '../components/PoliciesDrawer';
 import {
-    ArrowRightIcon, BedIcon, BusOutlineIcon, ChairIcon, ChargingIcon,
-    CloudIcon, FilmIcon, LightningIcon, LocationIcon, MoonIcon, MoneyIcon, PhoneIcon,
-    SnowflakeIcon, SunriseIcon, SunIcon, WaterIcon, WifiIcon,
+    ArrowLeftIcon, BedIcon, ChargingIcon, FilmIcon,
+    LocationIcon, PhoneIcon, SearchIcon, ShieldCheckIcon, SwapHorizIcon,
+    WaterIcon, WifiIcon,
 } from '../components/SolarIcons';
 
 const { Text } = Typography;
 
-// ─── Design tokens ────────────────────────────────────────────────────────────
 const P   = '#FF4F4F';
 const TXT = '#171717';
 const HLP = '#8C8C8C';
 const BDR = '#E8E8E8';
 
-// ─── City → State lookup ──────────────────────────────────────────────────────
-const CITY_STATE: Record<string, string> = {
-    Bangalore: 'Karnataka',  Mumbai: 'Maharashtra', Chennai: 'Tamil Nadu',
-    Delhi: 'Delhi',          Hyderabad: 'Telangana', Pune: 'Maharashtra',
-    Kolkata: 'West Bengal',  Ahmedabad: 'Gujarat',   Jaipur: 'Rajasthan',
-    Kochi: 'Kerala',         Chandigarh: 'Punjab',   Surat: 'Gujarat',
-};
-const cityLabel = (c: string) => `${c}, ${CITY_STATE[c] ?? 'India'}`;
+const CITIES = [
+    'Bangalore', 'Mumbai', 'Chennai', 'Surat', 'Delhi',
+    'Kolkata', 'Hyderabad', 'Pune', 'Ahmedabad', 'Jaipur', 'Kochi', 'Chandigarh',
+];
+const CITY_OPTS = CITIES.map(c => ({ label: c, value: c }));
 
-// ─── Duration parser ──────────────────────────────────────────────────────────
-const parseDurMin = (d: string) => {
-    const h = d.match(/(\d+)h/);
-    const m = d.match(/(\d+)m/);
-    return (h ? +h[1] : 0) * 60 + (m ? +m[1] : 0);
-};
-
-// ─── Amenity config ───────────────────────────────────────────────────────────
+// ─── Amenity icons ────────────────────────────────────────────────────────────
 const AMENITY_ICONS: Record<BusAmenity, React.ReactNode> = {
-    Blankets:                 <BedIcon      size={13} color={HLP} />,
-    'Charging Point':         <ChargingIcon size={13} color={HLP} />,
-    'Emergency Contact Number': <PhoneIcon  size={13} color={HLP} />,
-    Movie:                    <FilmIcon     size={13} color={HLP} />,
-    Wifi:                     <WifiIcon     size={13} color={HLP} />,
-    'Water Bottle':           <WaterIcon    size={13} color={HLP} />,
+    'Blankets':                  <BedIcon      size={12} color={HLP} />,
+    'Charging Point':            <ChargingIcon size={12} color={HLP} />,
+    'Emergency Contact Number':  <PhoneIcon    size={12} color={HLP} />,
+    'Movie':                     <FilmIcon     size={12} color={HLP} />,
+    'Wifi':                      <WifiIcon     size={12} color={HLP} />,
+    'Water Bottle':              <WaterIcon    size={12} color={HLP} />,
 };
-const ALL_AMENITIES: BusAmenity[] = [
-    'Blankets', 'Charging Point', 'Wifi', 'Movie', 'Water Bottle', 'Emergency Contact Number',
+
+// ─── Departure slot config ────────────────────────────────────────────────────
+const DEP_SLOTS: { key: BusSlot; label: string }[] = [
+    { key: 'before6', label: 'Before 6AM' },
+    { key: '6to12',   label: '6AM - 12PM' },
+    { key: '12to6',   label: '12PM - 6PM' },
+    { key: 'after6',  label: 'After 6PM' },
 ];
 
-// ─── Departure Time config ────────────────────────────────────────────────────
-const TIME_SLOTS: { key: BusSlot; label: string; range: string; icon: React.ReactNode }[] = [
-    { key: 'Morning',   label: 'Morning',   range: '00:00–11:59', icon: <SunriseIcon size={18} /> },
-    { key: 'Noon',      label: 'Noon',      range: '12:00–14:59', icon: <SunIcon     size={18} /> },
-    { key: 'Afternoon', label: 'Afternoon', range: '15:00–17:59', icon: <CloudIcon   size={18} /> },
-    { key: 'Night',     label: 'Night',     range: '18:00–23:59', icon: <MoonIcon    size={18} /> },
-];
+// ─── Filter pill type ─────────────────────────────────────────────────────────
+type QuickFilter = BusType | 'LiveTracking' | 'FreeCancellation' | 'HighRated';
 
-// ─── Bus Type config ──────────────────────────────────────────────────────────
-const BUS_TYPES: { key: BusType; label: string; icon: React.ReactNode }[] = [
-    { key: 'AC',      label: 'AC',      icon: <SnowflakeIcon size={16} /> },
-    { key: 'NonAC',   label: 'Non AC',  icon: <SnowflakeIcon size={16} color={HLP} /> },
-    { key: 'Sleeper', label: 'Sleeper', icon: <BedIcon       size={16} /> },
-    { key: 'Seater',  label: 'Seater',  icon: <ChairIcon     size={16} /> },
-];
-
-// ─── Price range derived from mock data ───────────────────────────────────────
-const MIN_PRICE = Math.min(...mockBusResults.map(b => b.price));
-const MAX_PRICE = Math.max(...mockBusResults.map(b => b.price));
-
-// ─── Grid toggle button ───────────────────────────────────────────────────────
-const GridToggle = ({
-    icon, label, sub, active, onClick,
+// ─── Pill button ──────────────────────────────────────────────────────────────
+const Pill = ({
+    label, active, onClick, icon,
 }: {
-    icon: React.ReactNode; label: string; sub: string; active: boolean; onClick: () => void;
+    label: string; active: boolean; onClick: () => void; icon?: React.ReactNode;
 }) => (
     <div
         onClick={onClick}
-        className="flex flex-col items-center justify-center gap-1 p-3 cursor-pointer select-none transition-all"
         style={{
+            display: 'inline-flex', alignItems: 'center', gap: 4,
+            padding: '5px 12px', borderRadius: 20, cursor: 'pointer',
+            userSelect: 'none', fontSize: 13, fontFamily: 'Roboto, sans-serif',
             border: active ? `1px solid ${P}` : `1px solid ${BDR}`,
-            borderRadius: 8,
             backgroundColor: active ? '#FFF1F0' : '#FFFFFF',
+            color: active ? P : TXT,
+            transition: 'all 0.15s ease',
+            whiteSpace: 'nowrap',
         }}
     >
-        <span style={{ color: active ? P : HLP }}>{icon}</span>
-        <Text style={{ fontSize: 12, fontWeight: 600, color: active ? P : TXT, lineHeight: 1 }}>
-            {label}
-        </Text>
-        <Text style={{ fontSize: 11, color: active ? P : HLP, lineHeight: 1 }}>{sub}</Text>
-    </div>
-);
-
-// ─── Quick Select Card ────────────────────────────────────────────────────────
-const QuickCard = ({
-    icon, label, sub, active, onClick,
-}: {
-    icon: React.ReactNode; label: string; sub: string; active: boolean; onClick: () => void;
-}) => (
-    <div
-        onClick={onClick}
-        className="flex items-center gap-3 cursor-pointer select-none transition-all"
-        style={{
-            border: active ? `1px solid ${P}` : `1px solid ${BDR}`,
-            borderRadius: 8,
-            padding: '10px 12px',
-            backgroundColor: active ? '#FFF1F0' : '#FFFFFF',
-        }}
-    >
-        <span style={{ color: active ? P : HLP, flexShrink: 0 }}>{icon}</span>
-        <div>
-            <Text style={{ fontSize: 14, fontWeight: 600, color: active ? P : TXT, display: 'block', lineHeight: 1.2 }}>
-                {label}
-            </Text>
-            <Text style={{ fontSize: 12, color: HLP }}>{sub}</Text>
-        </div>
+        {icon && <span style={{ display: 'flex', alignItems: 'center' }}>{icon}</span>}
+        {label}
     </div>
 );
 
 // ─── Filter Panel ─────────────────────────────────────────────────────────────
 interface FilterPanelProps {
-    priceRange: [number, number];
-    setPriceRange: (v: [number, number]) => void;
-    quickSelect: string | null;
-    setQuickSelect: (v: string | null) => void;
-    depTimes: BusSlot[];
-    setDepTimes: React.Dispatch<React.SetStateAction<BusSlot[]>>;
-    busTypeFilter: BusType[];
-    setBusTypeFilter: React.Dispatch<React.SetStateAction<BusType[]>>;
+    quickFilters: QuickFilter[];
+    toggleQuick: (k: QuickFilter) => void;
+    depSlots: BusSlot[];
+    toggleSlot: (k: BusSlot) => void;
     amenityFilter: BusAmenity[];
-    setAmenityFilter: React.Dispatch<React.SetStateAction<BusAmenity[]>>;
+    toggleAmenity: (a: BusAmenity) => void;
     onReset: () => void;
-    cheapest: BusResultEntry | undefined;
-    fastest: BusResultEntry | undefined;
-    nonStop: BusResultEntry | undefined;
+    counts: Record<QuickFilter, number>;
 }
 
+const QUICK_PILLS: { key: QuickFilter; label: string }[] = [
+    { key: 'AC',               label: 'AC' },
+    { key: 'NonAC',            label: 'Non AC' },
+    { key: 'Sleeper',          label: 'Sleeper' },
+    { key: 'Seater',           label: 'Seater' },
+    { key: 'LiveTracking',     label: 'Live Tracking' },
+    { key: 'FreeCancellation', label: 'Free Cancellation' },
+    { key: 'HighRated',        label: 'High Rated' },
+];
+
+const AMENITY_LIST: BusAmenity[] = ['Blankets', 'Charging Point', 'Wifi', 'Movie', 'Water Bottle'];
+
 const FilterPanel = ({
-    priceRange, setPriceRange, quickSelect, setQuickSelect,
-    depTimes, setDepTimes, busTypeFilter, setBusTypeFilter,
-    amenityFilter, setAmenityFilter, onReset,
-    cheapest, fastest, nonStop,
-}: FilterPanelProps) => {
-    const toggleSlot = (key: BusSlot) =>
-        setDepTimes(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]);
-    const toggleType = (key: BusType) =>
-        setBusTypeFilter(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]);
-
-    return (
-        <Flex vertical gap={20}>
-            {/* Header */}
-            <Flex justify="space-between" align="center">
-                <Text style={{ fontSize: 16, fontWeight: 600, color: TXT }}>Filter</Text>
-                <Text
-                    onClick={onReset}
-                    style={{ fontSize: 14, color: P, cursor: 'pointer' }}
-                >
-                    Reset
-                </Text>
-            </Flex>
-
-            <Divider className="my-0" style={{ borderColor: BDR }} />
-
-            {/* Price Range */}
-            <div>
-                <Text style={{ fontSize: 14, fontWeight: 600, color: TXT }} className="block mb-3">
-                    Price
-                </Text>
-                <Slider
-                    range
-                    min={MIN_PRICE}
-                    max={MAX_PRICE}
-                    value={priceRange}
-                    onChange={val => setPriceRange(val as [number, number])}
-                    styles={{
-                        track: { backgroundColor: P },
-                        handle: { borderColor: P },
-                    }}
-                />
-                <Flex gap={8} className="mt-2">
-                    <InputNumber
-                        prefix="₹"
-                        value={priceRange[0]}
-                        min={MIN_PRICE}
-                        max={priceRange[1]}
-                        onChange={v => v !== null && setPriceRange([v, priceRange[1]])}
-                        style={{ flex: 1, borderRadius: 6 }}
-                        placeholder="Min price"
-                    />
-                    <InputNumber
-                        prefix="₹"
-                        value={priceRange[1]}
-                        min={priceRange[0]}
-                        max={MAX_PRICE}
-                        onChange={v => v !== null && setPriceRange([priceRange[0], v])}
-                        style={{ flex: 1, borderRadius: 6 }}
-                        placeholder="Max price"
-                    />
-                </Flex>
-            </div>
-
-            <Divider className="my-0" style={{ borderColor: BDR }} />
-
-            {/* Quick Select */}
-            <Flex vertical gap={8}>
-                {cheapest && (
-                    <QuickCard
-                        icon={<MoneyIcon size={18} />}
-                        label="Cheapest"
-                        sub={`₹${cheapest.price.toLocaleString()} · ${cheapest.duration}`}
-                        active={quickSelect === 'cheapest'}
-                        onClick={() => setQuickSelect(quickSelect === 'cheapest' ? null : 'cheapest')}
-                    />
-                )}
-                {nonStop && (
-                    <QuickCard
-                        icon={<ArrowRightIcon size={18} />}
-                        label="Non Stop First"
-                        sub={`₹${nonStop.price.toLocaleString()} · ${nonStop.duration}`}
-                        active={quickSelect === 'nonstop'}
-                        onClick={() => setQuickSelect(quickSelect === 'nonstop' ? null : 'nonstop')}
-                    />
-                )}
-                {fastest && (
-                    <QuickCard
-                        icon={<LightningIcon size={18} />}
-                        label="Fastest"
-                        sub={`₹${fastest.price.toLocaleString()} · ${fastest.duration}`}
-                        active={quickSelect === 'fastest'}
-                        onClick={() => setQuickSelect(quickSelect === 'fastest' ? null : 'fastest')}
-                    />
-                )}
-            </Flex>
-
-            <Divider className="my-0" style={{ borderColor: BDR }} />
-
-            {/* Departure Time */}
-            <div>
-                <Text style={{ fontSize: 14, fontWeight: 600, color: TXT }} className="block mb-3">
-                    Departure Time
-                </Text>
-                <div className="grid grid-cols-2 gap-2">
-                    {TIME_SLOTS.map(s => (
-                        <GridToggle
-                            key={s.key}
-                            icon={s.icon}
-                            label={s.label}
-                            sub={s.range}
-                            active={depTimes.includes(s.key)}
-                            onClick={() => toggleSlot(s.key)}
-                        />
-                    ))}
-                </div>
-            </div>
-
-            <Divider className="my-0" style={{ borderColor: BDR }} />
-
-            {/* Bus Type */}
-            <div>
-                <Text style={{ fontSize: 14, fontWeight: 600, color: TXT }} className="block mb-3">
-                    Bus Type
-                </Text>
-                <div className="grid grid-cols-2 gap-2">
-                    {BUS_TYPES.map(t => (
-                        <GridToggle
-                            key={t.key}
-                            icon={t.icon}
-                            label={t.label}
-                            sub=""
-                            active={busTypeFilter.includes(t.key)}
-                            onClick={() => toggleType(t.key)}
-                        />
-                    ))}
-                </div>
-            </div>
-
-            <Divider className="my-0" style={{ borderColor: BDR }} />
-
-            {/* Amenities */}
-            <div>
-                <Text style={{ fontSize: 14, fontWeight: 600, color: TXT }} className="block mb-3">
-                    Amenities
-                </Text>
-                <Flex vertical gap={8}>
-                    {ALL_AMENITIES.map(a => (
-                        <Checkbox
-                            key={a}
-                            checked={amenityFilter.includes(a)}
-                            onChange={e =>
-                                setAmenityFilter(prev =>
-                                    e.target.checked ? [...prev, a] : prev.filter(x => x !== a)
-                                )
-                            }
-                        >
-                            <Flex align="center" gap={6}>
-                                {AMENITY_ICONS[a]}
-                                <Text style={{ fontSize: 14, color: TXT }}>{a}</Text>
-                            </Flex>
-                        </Checkbox>
-                    ))}
-                </Flex>
-            </div>
+    quickFilters, toggleQuick, depSlots, toggleSlot,
+    amenityFilter, toggleAmenity, onReset, counts,
+}: FilterPanelProps) => (
+    <Flex vertical gap={20}>
+        <Flex justify="space-between" align="center">
+            <Text style={{ fontSize: 16, fontWeight: 600, color: TXT }}>Filter buses</Text>
+            <Text onClick={onReset} style={{ fontSize: 13, color: P, cursor: 'pointer' }}>Reset</Text>
         </Flex>
-    );
-};
+
+        {/* Quick filter pills */}
+        <Flex gap={8} wrap="wrap">
+            {QUICK_PILLS.map(p => (
+                <Pill
+                    key={p.key}
+                    label={`${p.label} (${counts[p.key]})`}
+                    active={quickFilters.includes(p.key)}
+                    onClick={() => toggleQuick(p.key)}
+                />
+            ))}
+        </Flex>
+
+        {/* Departure time */}
+        <div>
+            <Text style={{ fontSize: 14, fontWeight: 600, color: TXT, display: 'block', marginBottom: 10 }}>
+                Departure time
+            </Text>
+            <Flex gap={8} wrap="wrap">
+                {DEP_SLOTS.map(s => (
+                    <Pill
+                        key={s.key}
+                        label={s.label}
+                        active={depSlots.includes(s.key)}
+                        onClick={() => toggleSlot(s.key)}
+                    />
+                ))}
+            </Flex>
+        </div>
+
+        {/* Amenities */}
+        <div>
+            <Text style={{ fontSize: 14, fontWeight: 600, color: TXT, display: 'block', marginBottom: 10 }}>
+                Amenities
+            </Text>
+            <Flex vertical gap={8}>
+                {AMENITY_LIST.map(a => (
+                    <Checkbox
+                        key={a}
+                        checked={amenityFilter.includes(a)}
+                        onChange={e =>
+                            toggleAmenity(a)
+                        }
+                        style={{ fontSize: 13, color: TXT }}
+                    >
+                        <Flex align="center" gap={6}>
+                            {AMENITY_ICONS[a]}
+                            <span>{a}</span>
+                        </Flex>
+                    </Checkbox>
+                ))}
+            </Flex>
+        </div>
+    </Flex>
+);
 
 // ─── Bus Result Card ──────────────────────────────────────────────────────────
 const BusCard = ({
-    bus, onBookNow,
+    bus, onViewSeats,
 }: {
     bus: BusResultEntry;
-    onBookNow: (bus: BusResultEntry) => void;
+    onViewSeats: (bus: BusResultEntry) => void;
 }) => {
-    const [expanded, setExpanded]         = useState(false);
     const [boardingOpen, setBoardingOpen] = useState(false);
     const [policiesOpen, setPoliciesOpen] = useState(false);
 
     return (
         <>
             <div
-                className="bg-white"
-                style={{ border: `1px solid ${BDR}`, borderRadius: 8, padding: '20px 24px', marginBottom: 12 }}
+                style={{
+                    backgroundColor: '#FFFFFF',
+                    border: `1px solid ${BDR}`,
+                    borderRadius: 8,
+                    padding: '20px 24px',
+                    marginBottom: 12,
+                    position: 'relative',
+                }}
             >
-                {/* ── Main row ── */}
-                <Row gutter={[0, 16]} align="middle">
+                {/* Offer badge — top right */}
+                {bus.offerTag && (
+                    <div
+                        style={{
+                            position: 'absolute', top: 0, right: 16,
+                            backgroundColor: P, color: '#fff',
+                            fontSize: 11, fontWeight: 600,
+                            padding: '3px 10px',
+                            borderRadius: '0 0 6px 6px',
+                        }}
+                    >
+                        {bus.offerTag}
+                    </div>
+                )}
 
-                    {/* Bus Info */}
-                    <Col xs={24} md={5}>
-                        <Flex vertical align="flex-start" gap={4}>
-                            <div
-                                className="flex items-center justify-center"
-                                style={{
-                                    width: 48, height: 48, borderRadius: 8,
-                                    backgroundColor: '#F5F5F5', flexShrink: 0,
-                                }}
-                            >
-                                <BusOutlineIcon size={24} color={P} />
-                            </div>
-                            <Text style={{ fontSize: 14, fontWeight: 600, color: TXT, lineHeight: 1.2 }}>
+                <div className="flex flex-col md:flex-row gap-4">
+
+                    {/* ── Left: Operator info ── */}
+                    <div style={{ flex: '0 0 200px', minWidth: 0 }}>
+                        <Flex align="center" gap={6} style={{ marginBottom: 2 }}>
+                            <Text style={{ fontSize: 15, fontWeight: 600, color: TXT, lineHeight: 1.3 }}>
                                 {bus.operator}
                             </Text>
-                            <Text style={{ fontSize: 12, color: HLP }}>
-                                {bus.busType}
-                            </Text>
+                            <ShieldCheckIcon size={14} color={HLP} />
                         </Flex>
-                    </Col>
+                        <Text style={{ fontSize: 12, color: HLP, display: 'block', marginBottom: 8 }}>
+                            {bus.busType}
+                        </Text>
 
-                    {/* Departure */}
-                    <Col xs={12} md={5}>
-                        <Flex vertical gap={2}>
-                            <Text style={{ fontSize: 12, color: HLP }}>{bus.departure.city}</Text>
-                            <Text style={{ fontSize: 22, fontWeight: 600, color: TXT, lineHeight: 1 }}>
-                                {bus.departure.time}
-                            </Text>
-                            <Text style={{ fontSize: 12, color: HLP }}>{bus.departure.date}</Text>
+                        {/* Amenity tags */}
+                        <Flex gap={4} wrap="wrap" style={{ marginBottom: 6 }}>
+                            {bus.amenities.slice(0, 4).map(a => (
+                                <Tag key={a} style={{ fontSize: 11, margin: 0, borderRadius: 4 }}>
+                                    {a}
+                                </Tag>
+                            ))}
                         </Flex>
-                    </Col>
 
-                    {/* Duration */}
-                    <Col xs={0} md={5}>
-                        <Flex vertical align="center" gap={4}>
-                            <Flex align="center" className="w-full">
-                                <div
-                                    className="flex-1"
-                                    style={{
-                                        height: 1,
-                                        borderTop: `1.5px dashed ${P}`,
-                                    }}
-                                />
-                                <div
-                                    className="px-3 py-0.5 mx-1"
-                                    style={{
-                                        border: `1px solid ${BDR}`,
-                                        borderRadius: 12,
-                                        backgroundColor: '#FAFAFA',
-                                        flexShrink: 0,
-                                    }}
-                                >
-                                    <Text style={{ fontSize: 13, color: HLP }}>{bus.duration}</Text>
-                                </div>
-                                <div
-                                    className="flex-1"
-                                    style={{ height: 1, borderTop: `1.5px dashed ${P}` }}
-                                />
-                            </Flex>
-                            <Text style={{ fontSize: 12, color: HLP }}>{bus.stops}</Text>
-                        </Flex>
-                    </Col>
-
-                    {/* Arrival */}
-                    <Col xs={12} md={5}>
-                        <Flex vertical gap={2} align="flex-end" className="md:items-start">
-                            <Text style={{ fontSize: 12, color: HLP }}>{bus.arrival.city}</Text>
-                            <Text style={{ fontSize: 22, fontWeight: 600, color: TXT, lineHeight: 1 }}>
-                                {bus.arrival.time}
-                            </Text>
-                            <Text style={{ fontSize: 12, color: HLP }}>{bus.arrival.date}</Text>
-                        </Flex>
-                    </Col>
-
-                    {/* Price + CTA */}
-                    <Col xs={24} md={4}>
-                        <Flex vertical gap={4} className="md:items-end">
-                            <Text style={{ fontSize: 12, color: HLP }}>Price</Text>
-                            <Text style={{ fontSize: 20, fontWeight: 600, color: TXT, lineHeight: 1 }}>
-                                ₹ {bus.price.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                            </Text>
-                            <Button
-                                block
-                                size="middle"
-                                onClick={() => onBookNow(bus)}
+                        {/* Free Cancellation tag */}
+                        {bus.freeCancellation && (
+                            <div
                                 style={{
-                                    backgroundColor: P, borderColor: P, color: '#fff',
-                                    borderRadius: 6, fontWeight: 600, fontSize: 13,
+                                    display: 'inline-flex', alignItems: 'center',
+                                    border: `1px solid ${P}`, backgroundColor: '#FFF1F0',
+                                    color: P, fontSize: 11, borderRadius: 4,
+                                    padding: '2px 8px', marginTop: 2,
                                 }}
                             >
-                                Book Now
-                            </Button>
-                            <Flex
-                                align="center"
-                                gap={4}
-                                onClick={() => setExpanded(e => !e)}
-                                className="cursor-pointer"
-                            >
-                                <Text style={{ fontSize: 12, color: P }}>Bus Details</Text>
-                                {expanded
-                                    ? <UpOutlined style={{ fontSize: 10, color: P }} />
-                                    : <DownOutlined style={{ fontSize: 10, color: P }} />
-                                }
-                            </Flex>
-                        </Flex>
-                    </Col>
-                </Row>
+                                Free Cancellation
+                            </div>
+                        )}
 
-                {/* Mobile duration row */}
-                <div className="md:hidden mt-3">
-                    <Flex align="center">
-                        <div className="flex-1" style={{ height: 1, borderTop: `1.5px dashed ${P}` }} />
-                        <div className="px-3 py-0.5 mx-2" style={{ border: `1px solid ${BDR}`, borderRadius: 12 }}>
-                            <Text style={{ fontSize: 13, color: HLP }}>{bus.duration} · {bus.stops}</Text>
-                        </div>
-                        <div className="flex-1" style={{ height: 1, borderTop: `1.5px dashed ${P}` }} />
-                    </Flex>
-                </div>
-
-                {/* ── Expanded Details ── */}
-                {expanded && (
-                    <div
-                        className="mt-4 pt-4"
-                        style={{ borderTop: `1px solid ${BDR}` }}
-                    >
-                        <Flex align="center" gap={12} className="flex-wrap mb-3">
-                            <Tag color={bus.rating >= 4 ? 'success' : 'warning'}>
-                                ★ {bus.rating.toFixed(1)} ({bus.totalRatings.toLocaleString()})
-                            </Tag>
-                            <Text style={{ fontSize: 12, color: HLP }}>
-                                {bus.seatsLeft} seats left
-                            </Text>
-                            {bus.isLiveTrackable && (
-                                <Tag color="success" icon={<LocationIcon size={12} color="#52C41A" />}>
-                                    &nbsp;Live Tracking
-                                </Tag>
-                            )}
+                        {/* Boarding / Policies links */}
+                        <Flex gap={12} style={{ marginTop: 8 }}>
                             <Text
                                 onClick={() => setBoardingOpen(true)}
-                                style={{ fontSize: 12, color: P, cursor: 'pointer' }}
+                                style={{ fontSize: 11, color: P, cursor: 'pointer' }}
                             >
-                                Boarding &amp; Drop Points
+                                Boarding &amp; Drop
                             </Text>
                             <Text
                                 onClick={() => setPoliciesOpen(true)}
-                                style={{ fontSize: 12, color: P, cursor: 'pointer' }}
+                                style={{ fontSize: 11, color: P, cursor: 'pointer' }}
                             >
                                 Policies
                             </Text>
                         </Flex>
-                        <Flex gap={6} className="flex-wrap">
-                            {bus.amenities.map(a => (
-                                <Flex key={a} align="center" gap={4}
-                                    className="px-2 py-1"
-                                    style={{ border: `1px solid ${BDR}`, borderRadius: 4 }}
-                                >
-                                    {AMENITY_ICONS[a]}
-                                    <Text style={{ fontSize: 12, color: HLP }}>{a}</Text>
+                    </div>
+
+                    {/* ── Centre: Journey info ── */}
+                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 16 }}>
+
+                        {/* Rating badge */}
+                        <Flex vertical align="center" gap={2} style={{ flexShrink: 0 }}>
+                            <div
+                                style={{
+                                    backgroundColor: bus.rating >= 4 ? '#52C41A' : '#FAAD14',
+                                    color: '#fff', borderRadius: 4,
+                                    padding: '4px 8px', fontSize: 13, fontWeight: 700,
+                                    display: 'flex', alignItems: 'center', gap: 4,
+                                }}
+                            >
+                                ★ {bus.rating.toFixed(1)}
+                            </div>
+                            <Text style={{ fontSize: 11, color: HLP }}>{bus.totalRatings}</Text>
+                        </Flex>
+
+                        {/* Departure time */}
+                        <Flex vertical gap={2} align="center" style={{ flexShrink: 0 }}>
+                            <Text style={{ fontSize: 20, fontWeight: 700, color: TXT, lineHeight: 1 }}>
+                                {bus.departure.time}
+                            </Text>
+                        </Flex>
+
+                        {/* Duration + seats */}
+                        <Flex vertical align="center" gap={4} style={{ flex: 1 }}>
+                            <div style={{ width: '100%', height: 1, borderTop: `1.5px dashed ${BDR}` }} />
+                            <Text style={{ fontSize: 12, color: HLP }}>
+                                {bus.duration}
+                                {' · '}
+                                {bus.seatsLeft} Seats
+                                {bus.singleSeats > 0 && ` (${bus.singleSeats} Single)`}
+                            </Text>
+                            {bus.isLiveTrackable && (
+                                <Flex align="center" gap={4}>
+                                    <LocationIcon size={11} color="#52C41A" />
+                                    <Text style={{ fontSize: 11, color: '#52C41A' }}>Live Tracking</Text>
                                 </Flex>
-                            ))}
+                            )}
+                        </Flex>
+
+                        {/* Arrival time */}
+                        <Flex vertical gap={2} align="center" style={{ flexShrink: 0 }}>
+                            <Text style={{ fontSize: 20, fontWeight: 700, color: TXT, lineHeight: 1 }}>
+                                {bus.arrival.time}
+                            </Text>
                         </Flex>
                     </div>
-                )}
+
+                    {/* ── Right: Price + CTA ── */}
+                    <Flex vertical align="flex-end" justify="center" gap={4} style={{ flexShrink: 0, minWidth: 120 }}>
+                        {bus.originalPrice > bus.price && (
+                            <Text style={{ fontSize: 13, color: HLP, textDecoration: 'line-through' }}>
+                                ₹{bus.originalPrice}
+                            </Text>
+                        )}
+                        <Text style={{ fontSize: 20, fontWeight: 700, color: TXT, lineHeight: 1 }}>
+                            ₹{bus.price}
+                        </Text>
+                        <Text style={{ fontSize: 12, color: HLP }}>Onwards</Text>
+                        <Button
+                            onClick={() => onViewSeats(bus)}
+                            style={{
+                                backgroundColor: P, borderColor: P, color: '#fff',
+                                borderRadius: 20, fontWeight: 600, fontSize: 13,
+                                padding: '0 24px', height: 38, marginTop: 4,
+                            }}
+                        >
+                            View Seats
+                        </Button>
+                    </Flex>
+                </div>
             </div>
 
             <BoardingDropDrawer open={boardingOpen} onClose={() => setBoardingOpen(false)} />
@@ -502,62 +335,8 @@ const BusCard = ({
     );
 };
 
-// ─── Column Headers ───────────────────────────────────────────────────────────
-const ColHeaders = ({
-    sortDir,
-    onToggleSort,
-}: {
-    sortDir: 'asc' | 'desc';
-    onToggleSort: () => void;
-}) => (
-    <Row
-        gutter={[0, 0]}
-        className="hidden md:flex"
-        style={{
-            padding: '10px 24px',
-            backgroundColor: '#FAFAFA',
-            borderBottom: `1px solid ${BDR}`,
-            borderRadius: '8px 8px 0 0',
-            border: `1px solid ${BDR}`,
-            marginBottom: -1,
-        }}
-    >
-        {[
-            { label: 'OPERATOR', span: 5 },
-            { label: 'DEPARTURE', span: 5 },
-            { label: 'DURATION', span: 5, center: true },
-            { label: 'ARRIVAL', span: 5 },
-        ].map(col => (
-            <Col key={col.label} span={col.span}>
-                <Text
-                    className={col.center ? 'block text-center' : ''}
-                    style={{ fontSize: 12, fontWeight: 600, color: HLP, letterSpacing: '0.5px' }}
-                >
-                    {col.label}
-                </Text>
-            </Col>
-        ))}
-        <Col span={4}>
-            <Flex
-                align="center"
-                gap={4}
-                justify="flex-end"
-                onClick={onToggleSort}
-                className="cursor-pointer"
-            >
-                <Text style={{ fontSize: 12, fontWeight: 600, color: P, letterSpacing: '0.5px' }}>
-                    PRICE
-                </Text>
-                {sortDir === 'asc'
-                    ? <UpOutlined style={{ fontSize: 10, color: P }} />
-                    : <DownOutlined style={{ fontSize: 10, color: P }} />
-                }
-            </Flex>
-        </Col>
-    </Row>
-);
-
 // ─── Main Component ───────────────────────────────────────────────────────────
+type Sort = 'ratings' | 'departure' | 'price';
 type RouteState = Record<string, any>;
 
 const BusTicketResults = () => {
@@ -565,208 +344,308 @@ const BusTicketResults = () => {
     const navigate = useNavigate();
     const rs = (location.state ?? {}) as RouteState;
 
-    const source      = rs.source      ?? 'Bangalore';
-    const destination = rs.destination ?? 'Mumbai';
-    const dateStr     = rs.date        ?? dayjs().format('DD MMM');
-    const parsedDate  = dayjs(dateStr, 'DD MMM');
-    const fullDate    = parsedDate.isValid()
-        ? parsedDate.format('DD MMM YYYY, dddd')
-        : dateStr;
+    // ── Editable search state ──
+    const [source, setSource]     = useState<string>(rs.source ?? 'Bangalore');
+    const [dest, setDest]         = useState<string>(rs.destination ?? 'Mumbai');
+    const [travelDate, setTravelDate] = useState<Dayjs>(
+        rs.date ? dayjs(rs.date, 'DD MMM') : dayjs()
+    );
+
+    // ── Active search (what results are shown) ──
+    const [activeSource, setActiveSource]   = useState(source);
+    const [activeDest, setActiveDest]       = useState(dest);
 
     // ── Filter state ──
-    const [priceRange, setPriceRange]     = useState<[number, number]>([MIN_PRICE, MAX_PRICE]);
-    const [quickSelect, setQuickSelect]   = useState<string | null>(null);
-    const [depTimes, setDepTimes]         = useState<BusSlot[]>([]);
-    const [busTypeFilter, setBusTypeFilter] = useState<BusType[]>([]);
+    const [quickFilters, setQuickFilters]   = useState<QuickFilter[]>([]);
+    const [depSlots, setDepSlots]           = useState<BusSlot[]>([]);
     const [amenityFilter, setAmenityFilter] = useState<BusAmenity[]>([]);
-    const [sortDir, setSortDir]           = useState<'asc' | 'desc'>('asc');
+    const [sort, setSort]                   = useState<Sort>('departure');
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-    const handleReset = () => {
-        setPriceRange([MIN_PRICE, MAX_PRICE]);
-        setQuickSelect(null);
-        setDepTimes([]);
-        setBusTypeFilter([]);
-        setAmenityFilter([]);
-        setSortDir('asc');
-    };
+    // ── Pill counts (from full data, not filtered) ──
+    const counts: Record<QuickFilter, number> = useMemo(() => ({
+        AC:               mockBusResults.filter(b => b.type === 'AC').length,
+        NonAC:            mockBusResults.filter(b => b.type === 'NonAC').length,
+        Sleeper:          mockBusResults.filter(b => b.type === 'Sleeper').length,
+        Seater:           mockBusResults.filter(b => b.type === 'Seater').length,
+        LiveTracking:     mockBusResults.filter(b => b.isLiveTrackable).length,
+        FreeCancellation: mockBusResults.filter(b => b.freeCancellation).length,
+        HighRated:        mockBusResults.filter(b => b.rating >= 4.0).length,
+    }), []);
 
-    // ── Quick-select derived values ──
-    const cheapest = [...mockBusResults].sort((a, b) => a.price - b.price)[0];
-    const fastest  = [...mockBusResults].sort((a, b) => parseDurMin(a.duration) - parseDurMin(b.duration))[0];
-    const nonStop  = mockBusResults.find(b => b.stops === 'Non Stop');
+    const toggleQuick   = (k: QuickFilter) =>
+        setQuickFilters(prev => prev.includes(k) ? prev.filter(x => x !== k) : [...prev, k]);
+    const toggleSlot    = (k: BusSlot) =>
+        setDepSlots(prev => prev.includes(k) ? prev.filter(x => x !== k) : [...prev, k]);
+    const toggleAmenity = (a: BusAmenity) =>
+        setAmenityFilter(prev => prev.includes(a) ? prev.filter(x => x !== a) : [...prev, a]);
+
+    const handleReset = () => {
+        setQuickFilters([]);
+        setDepSlots([]);
+        setAmenityFilter([]);
+        setSort('departure');
+    };
 
     // ── Filtered + sorted ──
     const buses = useMemo(() => {
         let list = mockBusResults.filter(b => {
-            if (b.price < priceRange[0] || b.price > priceRange[1]) return false;
-            if (depTimes.length > 0 && !depTimes.includes(b.departureSlot)) return false;
-            if (busTypeFilter.length > 0 && !busTypeFilter.includes(b.type)) return false;
+            if (quickFilters.includes('AC')               && b.type !== 'AC')      return false;
+            if (quickFilters.includes('NonAC')            && b.type !== 'NonAC')   return false;
+            if (quickFilters.includes('Sleeper')          && b.type !== 'Sleeper') return false;
+            if (quickFilters.includes('Seater')           && b.type !== 'Seater')  return false;
+            if (quickFilters.includes('LiveTracking')     && !b.isLiveTrackable)   return false;
+            if (quickFilters.includes('FreeCancellation') && !b.freeCancellation)  return false;
+            if (quickFilters.includes('HighRated')        && b.rating < 4.0)       return false;
+            if (depSlots.length > 0 && !depSlots.includes(b.departureSlot))        return false;
             if (amenityFilter.length > 0 && !amenityFilter.every(a => b.amenities.includes(a))) return false;
-            if (quickSelect === 'nonstop' && b.stops !== 'Non Stop') return false;
             return true;
         });
 
-        if (quickSelect === 'cheapest') {
-            list = [...list].sort((a, b) => a.price - b.price);
-        } else if (quickSelect === 'fastest') {
-            list = [...list].sort((a, b) => parseDurMin(a.duration) - parseDurMin(b.duration));
-        } else {
-            list = [...list].sort((a, b) => sortDir === 'asc' ? a.price - b.price : b.price - a.price);
-        }
+        if (sort === 'ratings')   list = [...list].sort((a, b) => b.rating - a.rating);
+        if (sort === 'price')     list = [...list].sort((a, b) => a.price - b.price);
+        if (sort === 'departure') list = [...list].sort((a, b) => a.departure.time.localeCompare(b.departure.time));
         return list;
-    }, [priceRange, depTimes, busTypeFilter, amenityFilter, quickSelect, sortDir]);
+    }, [quickFilters, depSlots, amenityFilter, sort]);
 
-    const handleBookNow = (bus: BusResultEntry) => {
+    const handleSearch = () => {
+        setActiveSource(source);
+        setActiveDest(dest);
+    };
+
+    const handleViewSeats = (bus: BusResultEntry) => {
         navigate('/corporate-travel/bus-ticket/seats', {
-            state: { ...rs, bus, selectedSeats: [], totalAmount: bus.price },
+            state: {
+                ...rs,
+                source,
+                destination: dest,
+                date: travelDate.format('DD MMM'),
+                bus,
+                selectedSeats: [],
+                totalAmount: bus.price,
+            },
         });
     };
 
-    const filterProps: FilterPanelProps = {
-        priceRange, setPriceRange, quickSelect, setQuickSelect,
-        depTimes, setDepTimes, busTypeFilter, setBusTypeFilter,
-        amenityFilter, setAmenityFilter, onReset: handleReset,
-        cheapest, fastest, nonStop,
+    const filterProps = {
+        quickFilters, toggleQuick, depSlots, toggleSlot,
+        amenityFilter, toggleAmenity, onReset: handleReset, counts,
     };
 
+    const dateDisplay = travelDate.isValid()
+        ? travelDate.format('DD MMM YYYY')
+        : dayjs().format('DD MMM YYYY');
+    const isToday    = travelDate.isSame(dayjs(), 'day');
+    const isTomorrow = travelDate.isSame(dayjs().add(1, 'day'), 'day');
+
     return (
-        <Flex vertical gap={0}>
+        <Flex vertical gap={16}>
 
-            {/* ══ STICKY COMPACT SEARCH BAR ══ */}
+            {/* ══ SEARCH BAR CARD ══ */}
             <div
-                className="sticky top-0 z-10 bg-white"
-                style={{ borderBottom: `1px solid ${BDR}`, padding: '16px 24px', marginBottom: 16 }}
+                style={{
+                    backgroundColor: '#FFFFFF',
+                    border: `1px solid ${BDR}`,
+                    borderRadius: 8,
+                    padding: '16px 24px',
+                }}
             >
-                <Flex align="center" gap={12} className="flex-wrap">
-                    {/* Trip type */}
-                    <Select
-                        value="oneWay"
-                        options={[{ label: 'One Way', value: 'oneWay' }]}
-                        size="small"
-                        style={{ borderRadius: 6, minWidth: 90 }}
-                    />
+                <Flex align="center" gap={12} wrap="wrap">
 
-                    <Divider type="vertical" style={{ height: 24, margin: '0 4px' }} />
+                    {/* Back arrow */}
+                    <div
+                        onClick={() => navigate('/corporate-travel')}
+                        style={{
+                            width: 36, height: 36, borderRadius: '50%',
+                            border: `1px solid ${BDR}`, backgroundColor: '#fff',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            cursor: 'pointer', flexShrink: 0,
+                        }}
+                    >
+                        <ArrowLeftIcon size={18} color={TXT} />
+                    </div>
 
                     {/* From */}
-                    <Flex vertical gap={0}>
+                    <Flex vertical gap={2} style={{ flex: '1 1 140px', minWidth: 120 }}>
                         <Text style={{ fontSize: 11, color: HLP }}>From</Text>
-                        <Text style={{ fontSize: 14, fontWeight: 600, color: TXT }}>
-                            {cityLabel(source)}
-                        </Text>
+                        <Select
+                            showSearch
+                            value={source}
+                            onChange={setSource}
+                            options={CITY_OPTS.filter(o => o.value !== dest)}
+                            variant="borderless"
+                            style={{ padding: 0, fontWeight: 600, fontSize: 14, color: TXT }}
+                            filterOption={(i, o) => (o?.label ?? '').toLowerCase().includes(i.toLowerCase())}
+                        />
                     </Flex>
 
                     {/* Swap */}
-                    <SwapOutlined style={{ color: P, fontSize: 16, cursor: 'pointer' }} />
-
-                    {/* To */}
-                    <Flex vertical gap={0}>
-                        <Text style={{ fontSize: 11, color: HLP }}>To</Text>
-                        <Text style={{ fontSize: 14, fontWeight: 600, color: TXT }}>
-                            {cityLabel(destination)}
-                        </Text>
-                    </Flex>
-
-                    <Divider type="vertical" style={{ height: 24, margin: '0 4px' }} />
-
-                    {/* Date */}
-                    <Flex vertical gap={0}>
-                        <Text style={{ fontSize: 11, color: HLP }}>Date</Text>
-                        <Text style={{ fontSize: 14, fontWeight: 600, color: TXT }}>{fullDate}</Text>
-                    </Flex>
-
-                    <Divider type="vertical" style={{ height: 24, margin: '0 4px' }} />
-
-                    {/* Passengers */}
-                    <Flex vertical gap={0}>
-                        <Text style={{ fontSize: 11, color: HLP }}>Passengers</Text>
-                        <Text style={{ fontSize: 14, fontWeight: 600, color: TXT }}>1 Passenger</Text>
-                    </Flex>
-
-                    <div className="flex-1" />
-
-                    {/* Search button */}
-                    <Button
-                        size="middle"
+                    <div
+                        onClick={() => { const t = source; setSource(dest); setDest(t); }}
                         style={{
-                            borderColor: P, color: P,
-                            borderRadius: 6, fontWeight: 600, fontSize: 14,
+                            width: 32, height: 32, borderRadius: '50%',
+                            border: `1px solid ${BDR}`, backgroundColor: '#fff',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            cursor: 'pointer', flexShrink: 0,
                         }}
                     >
-                        Search
-                    </Button>
+                        <SwapHorizIcon size={16} color={HLP} />
+                    </div>
+
+                    {/* To */}
+                    <Flex vertical gap={2} style={{ flex: '1 1 140px', minWidth: 120 }}>
+                        <Text style={{ fontSize: 11, color: HLP }}>To</Text>
+                        <Select
+                            showSearch
+                            value={dest}
+                            onChange={setDest}
+                            options={CITY_OPTS.filter(o => o.value !== source)}
+                            variant="borderless"
+                            style={{ padding: 0, fontWeight: 600, fontSize: 14, color: TXT }}
+                            filterOption={(i, o) => (o?.label ?? '').toLowerCase().includes(i.toLowerCase())}
+                        />
+                    </Flex>
+
+                    {/* Date of Journey */}
+                    <Flex vertical gap={2} style={{ flex: '1 1 180px', minWidth: 160 }}>
+                        <Text style={{ fontSize: 11, color: HLP }}>Date of Journey</Text>
+                        <Flex align="center" gap={8}>
+                            <DatePicker
+                                value={travelDate}
+                                onChange={d => d && setTravelDate(d)}
+                                disabledDate={c => c && c < dayjs().startOf('day')}
+                                variant="borderless"
+                                format="DD MMM YYYY"
+                                allowClear={false}
+                                style={{ padding: 0, fontWeight: 600, fontSize: 14, flex: 1 }}
+                            />
+                            <Pill
+                                label="Today"
+                                active={isToday}
+                                onClick={() => setTravelDate(dayjs())}
+                            />
+                            <Pill
+                                label="Tomorrow"
+                                active={isTomorrow}
+                                onClick={() => setTravelDate(dayjs().add(1, 'day'))}
+                            />
+                        </Flex>
+                    </Flex>
+
+                    {/* Search button */}
+                    <div
+                        onClick={handleSearch}
+                        style={{
+                            width: 40, height: 40, borderRadius: '50%',
+                            backgroundColor: P, display: 'flex',
+                            alignItems: 'center', justifyContent: 'center',
+                            cursor: 'pointer', flexShrink: 0,
+                        }}
+                    >
+                        <SearchIcon size={18} color="#fff" />
+                    </div>
                 </Flex>
             </div>
 
-            {/* Mobile filter button */}
-            <div className="md:hidden px-4 mb-3">
-                <Button
-                    icon={<FilterOutlined />}
-                    onClick={() => setMobileFiltersOpen(true)}
-                    style={{ borderColor: BDR, borderRadius: 6 }}
-                >
-                    Filters
-                </Button>
-                <Text style={{ fontSize: 13, color: HLP, marginLeft: 12 }}>
-                    <span style={{ fontWeight: 600, color: TXT }}>{buses.length}</span>{' '}
-                    {buses.length === 1 ? 'bus' : 'buses'} found
+            {/* Route summary */}
+            <Flex align="center" gap={12}>
+                <Text style={{ fontSize: 16, fontWeight: 700, color: TXT }}>
+                    {activeSource} → {activeDest}
                 </Text>
-            </div>
+                <Text style={{ fontSize: 13, color: HLP }}>{buses.length} buses found</Text>
+            </Flex>
 
-            {/* ══ MAIN TWO-COLUMN LAYOUT ══ */}
-            <Row gutter={[20, 16]} align="top">
+            {/* ══ TWO-COLUMN LAYOUT ══ */}
+            <div className="flex gap-5 items-start">
 
-                {/* ── Filter Sidebar (desktop) ── */}
-                <Col md={6} className="hidden md:block">
-                    <div
-                        className="bg-white sticky"
-                        style={{ top: 80, border: `1px solid ${BDR}`, borderRadius: 8, padding: 20 }}
-                    >
-                        <FilterPanel {...filterProps} />
-                    </div>
-                </Col>
+                {/* ── Filter Panel (desktop) ── */}
+                <div
+                    className="hidden md:block sticky"
+                    style={{
+                        top: 16, width: 260, flexShrink: 0,
+                        backgroundColor: '#FFFFFF',
+                        border: `1px solid ${BDR}`,
+                        borderRadius: 8, padding: 16,
+                    }}
+                >
+                    <FilterPanel {...filterProps} />
+                </div>
 
                 {/* ── Results ── */}
-                <Col xs={24} md={18}>
-                    {/* Result count */}
-                    <Flex justify="space-between" align="center" className="hidden md:flex mb-2 px-1">
-                        <Text style={{ fontSize: 14, color: HLP }}>
-                            <span style={{ fontWeight: 600, color: TXT }}>{buses.length}</span>{' '}
-                            {buses.length === 1 ? 'bus' : 'buses'} found
+                <div style={{ flex: 1, minWidth: 0 }}>
+
+                    {/* Sort bar */}
+                    <Flex
+                        justify="space-between" align="center"
+                        style={{ marginBottom: 12 }}
+                    >
+                        <Text style={{ fontSize: 15, fontWeight: 600, color: TXT }}>
+                            {buses.length} buses found
                         </Text>
+                        <Flex align="center" gap={4}>
+                            <Text style={{ fontSize: 13, color: HLP }}>Sort by:</Text>
+                            {(['ratings', 'departure', 'price'] as Sort[]).map(s => {
+                                const label = s === 'ratings' ? 'Ratings'
+                                    : s === 'departure' ? 'Departure time' : 'Price';
+                                const active = sort === s;
+                                return (
+                                    <span
+                                        key={s}
+                                        onClick={() => setSort(s)}
+                                        style={{
+                                            fontSize: 13,
+                                            fontWeight: active ? 600 : 400,
+                                            color: active ? P : TXT,
+                                            cursor: 'pointer',
+                                            paddingBottom: 2,
+                                            borderBottom: active ? `2px solid ${P}` : '2px solid transparent',
+                                            marginLeft: 8,
+                                        }}
+                                    >
+                                        {label}
+                                    </span>
+                                );
+                            })}
+                        </Flex>
                     </Flex>
 
-                    {/* Column headers */}
-                    <ColHeaders sortDir={sortDir} onToggleSort={() => setSortDir(d => d === 'asc' ? 'desc' : 'asc')} />
+                    {/* Mobile filter button */}
+                    <div className="md:hidden mb-3">
+                        <Button
+                            onClick={() => setMobileFiltersOpen(true)}
+                            style={{ borderColor: BDR, borderRadius: 6 }}
+                        >
+                            Filters
+                        </Button>
+                    </div>
 
                     {/* Bus cards */}
-                    <div style={buses.length > 0 ? { borderTop: 'none' } : {}}>
-                        {buses.length === 0 ? (
-                            <Flex
-                                align="center" justify="center"
-                                className="bg-white py-16"
-                                style={{ border: `1px solid ${BDR}`, borderRadius: '0 0 8px 8px' }}
-                            >
-                                <Text style={{ color: HLP }}>
-                                    No buses match your filters. Try adjusting the filters.
-                                </Text>
-                            </Flex>
-                        ) : (
-                            buses.map(bus => (
-                                <BusCard key={bus.id} bus={bus} onBookNow={handleBookNow} />
-                            ))
-                        )}
-                    </div>
-                </Col>
-            </Row>
+                    {buses.length === 0 ? (
+                        <Flex
+                            align="center" justify="center"
+                            style={{
+                                backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`,
+                                borderRadius: 8, padding: '64px 24px',
+                            }}
+                        >
+                            <Text style={{ color: HLP }}>
+                                No buses match your filters. Try adjusting the filters.
+                            </Text>
+                        </Flex>
+                    ) : (
+                        buses.map(bus => (
+                            <BusCard key={bus.id} bus={bus} onViewSeats={handleViewSeats} />
+                        ))
+                    )}
+                </div>
+            </div>
 
             {/* ══ MOBILE FILTER DRAWER ══ */}
             <Drawer
                 title={
                     <Flex justify="space-between" align="center">
-                        <span style={{ fontSize: 16, fontWeight: 600, color: TXT }}>Filters</span>
-                        <Text onClick={handleReset} style={{ fontSize: 14, color: P, cursor: 'pointer' }}>
+                        <span style={{ fontSize: 16, fontWeight: 600, color: TXT }}>Filter buses</span>
+                        <Text onClick={handleReset} style={{ fontSize: 13, color: P, cursor: 'pointer' }}>
                             Reset
                         </Text>
                     </Flex>
@@ -779,7 +658,10 @@ const BusTicketResults = () => {
                     <Button
                         block size="large"
                         onClick={() => setMobileFiltersOpen(false)}
-                        style={{ backgroundColor: P, borderColor: P, color: '#fff', borderRadius: 6, fontWeight: 600 }}
+                        style={{
+                            backgroundColor: P, borderColor: P, color: '#fff',
+                            borderRadius: 6, fontWeight: 600,
+                        }}
                     >
                         Show {buses.length} Buses
                     </Button>

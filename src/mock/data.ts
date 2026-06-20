@@ -200,13 +200,13 @@ export const mockBuses: BusEntry[] = [
 // Bus Results (v2 — structured for the results screen)
 // ─────────────────────────────────────────────
 
-export type BusSlot = 'Morning' | 'Noon' | 'Afternoon' | 'Night';
+export type BusSlot = 'before6' | '6to12' | '12to6' | 'after6';
 
 export interface BusStop {
     city: string;
     state: string;
-    time: string; // display time, e.g. "10:30 PM"
-    date: string; // display date, e.g. "04 Jun"
+    time: string; // 24hr display time, e.g. "21:43"
+    date: string; // display date, e.g. "20 Jun"
 }
 
 export interface BusResultEntry {
@@ -217,113 +217,148 @@ export interface BusResultEntry {
     departure: BusStop;
     arrival: BusStop;
     duration: string;
-    stops: string;          // "Non Stop" | "1 Stop" etc.
+    stops: string;
     price: number;
     originalPrice: number;
     seatsLeft: number;
+    singleSeats: number;
     rating: number;
     totalRatings: number;
     isLiveTrackable: boolean;
+    freeCancellation: boolean;
     amenities: BusAmenity[];
     departureSlot: BusSlot;
+    offerTag: string | null;
 }
 
 export const mockBusResults: BusResultEntry[] = [
     {
         id: 'R001',
-        operator: 'Parveen Travels',
-        busType: 'Bharat Benz A/C Sleeper (2+1)',
+        operator: 'Varahi Travels',
+        busType: 'A/C Sleeper (2+1)',
         type: 'Sleeper',
-        departure: { city: 'Bangalore', state: 'Karnataka', time: '10:30 PM', date: '04 Jun' },
-        arrival:   { city: 'Chennai',   state: 'Tamil Nadu',  time: '05:20 AM', date: '05 Jun' },
-        duration: '6h 50m', stops: 'Non Stop', price: 950, originalPrice: 1200,
-        seatsLeft: 12, rating: 4.2, totalRatings: 1240, isLiveTrackable: true,
-        amenities: ['Blankets', 'Charging Point', 'Water Bottle', 'Wifi'],
-        departureSlot: 'Night',
+        departure: { city: 'Bangalore', state: 'Karnataka', time: '21:43', date: '20 Jun' },
+        arrival:   { city: 'Chennai',   state: 'Tamil Nadu', time: '05:25', date: '21 Jun' },
+        duration: '7h 42m', stops: 'Non Stop',
+        price: 899, originalPrice: 999,
+        seatsLeft: 15, singleSeats: 4,
+        rating: 4.9, totalRatings: 110,
+        isLiveTrackable: true, freeCancellation: true,
+        amenities: ['Blankets', 'Charging Point', 'Water Bottle'],
+        departureSlot: 'after6',
+        offerTag: 'Exclusive 10% OFF',
     },
     {
         id: 'R002',
-        operator: 'VRL Travels',
-        busType: 'Volvo 9600 A/C Multi Axle Semi Sleeper',
-        type: 'AC',
-        departure: { city: 'Bangalore', state: 'Karnataka', time: '08:00 PM', date: '04 Jun' },
-        arrival:   { city: 'Chennai',   state: 'Tamil Nadu',  time: '03:45 AM', date: '05 Jun' },
-        duration: '7h 45m', stops: 'Non Stop', price: 1100, originalPrice: 1400,
-        seatsLeft: 5, rating: 4.5, totalRatings: 3200, isLiveTrackable: true,
-        amenities: ['Blankets', 'Charging Point', 'Movie', 'Water Bottle', 'Wifi'],
-        departureSlot: 'Night',
+        operator: 'Intercity Travels',
+        busType: 'Bharat Benz A/C Sleeper (2+1)',
+        type: 'Sleeper',
+        departure: { city: 'Bangalore', state: 'Karnataka', time: '21:40', date: '20 Jun' },
+        arrival:   { city: 'Chennai',   state: 'Tamil Nadu', time: '05:45', date: '21 Jun' },
+        duration: '8h 5m', stops: 'Non Stop',
+        price: 899, originalPrice: 899,
+        seatsLeft: 17, singleSeats: 5,
+        rating: 4.5, totalRatings: 144,
+        isLiveTrackable: true, freeCancellation: false,
+        amenities: ['Blankets', 'Charging Point', 'Wifi'],
+        departureSlot: 'after6',
+        offerTag: null,
     },
     {
         id: 'R003',
-        operator: 'SRS Travels',
-        busType: 'Non A/C Seater (2+3)',
-        type: 'Seater',
-        departure: { city: 'Bangalore', state: 'Karnataka', time: '09:00 AM', date: '04 Jun' },
-        arrival:   { city: 'Chennai',   state: 'Tamil Nadu',  time: '05:30 PM', date: '04 Jun' },
-        duration: '8h 30m', stops: '1 Stop', price: 450, originalPrice: 600,
-        seatsLeft: 28, rating: 3.8, totalRatings: 890, isLiveTrackable: false,
-        amenities: ['Charging Point', 'Emergency Contact Number'],
-        departureSlot: 'Morning',
+        operator: 'VRL Travels',
+        busType: 'Volvo A/C Multi Axle Sleeper (2+1)',
+        type: 'AC',
+        departure: { city: 'Bangalore', state: 'Karnataka', time: '20:00', date: '20 Jun' },
+        arrival:   { city: 'Chennai',   state: 'Tamil Nadu', time: '03:45', date: '21 Jun' },
+        duration: '7h 45m', stops: 'Non Stop',
+        price: 1100, originalPrice: 1400,
+        seatsLeft: 5, singleSeats: 2,
+        rating: 4.5, totalRatings: 3200,
+        isLiveTrackable: true, freeCancellation: true,
+        amenities: ['Blankets', 'Charging Point', 'Movie', 'Water Bottle', 'Wifi'],
+        departureSlot: 'after6',
+        offerTag: 'Free Cancellation',
     },
     {
         id: 'R004',
         operator: 'Orange Travels',
         busType: 'Volvo B11R A/C Sleeper Cum Seater',
         type: 'AC',
-        departure: { city: 'Bangalore', state: 'Karnataka', time: '03:00 PM', date: '04 Jun' },
-        arrival:   { city: 'Chennai',   state: 'Tamil Nadu',  time: '10:30 PM', date: '04 Jun' },
-        duration: '7h 30m', stops: 'Non Stop', price: 1250, originalPrice: 1600,
-        seatsLeft: 8, rating: 4.7, totalRatings: 4100, isLiveTrackable: true,
+        departure: { city: 'Bangalore', state: 'Karnataka', time: '15:00', date: '20 Jun' },
+        arrival:   { city: 'Chennai',   state: 'Tamil Nadu', time: '22:30', date: '20 Jun' },
+        duration: '7h 30m', stops: 'Non Stop',
+        price: 1250, originalPrice: 1600,
+        seatsLeft: 8, singleSeats: 3,
+        rating: 4.7, totalRatings: 4100,
+        isLiveTrackable: true, freeCancellation: false,
         amenities: ['Blankets', 'Charging Point', 'Movie', 'Wifi', 'Water Bottle'],
-        departureSlot: 'Afternoon',
+        departureSlot: '12to6',
+        offerTag: 'Exclusive 20% OFF',
     },
     {
         id: 'R005',
-        operator: 'KSRTC Karnataka',
-        busType: 'Non A/C Sleeper (2+1)',
-        type: 'NonAC',
-        departure: { city: 'Bangalore', state: 'Karnataka', time: '11:45 PM', date: '04 Jun' },
-        arrival:   { city: 'Chennai',   state: 'Tamil Nadu',  time: '07:00 AM', date: '05 Jun' },
-        duration: '7h 15m', stops: 'Non Stop', price: 650, originalPrice: 780,
-        seatsLeft: 18, rating: 3.5, totalRatings: 560, isLiveTrackable: false,
-        amenities: ['Emergency Contact Number'],
-        departureSlot: 'Night',
+        operator: 'SRS Travels',
+        busType: 'Non A/C Seater (2+3)',
+        type: 'Seater',
+        departure: { city: 'Bangalore', state: 'Karnataka', time: '09:00', date: '20 Jun' },
+        arrival:   { city: 'Chennai',   state: 'Tamil Nadu', time: '17:30', date: '20 Jun' },
+        duration: '8h 30m', stops: '1 Stop',
+        price: 450, originalPrice: 600,
+        seatsLeft: 28, singleSeats: 0,
+        rating: 3.8, totalRatings: 890,
+        isLiveTrackable: false, freeCancellation: false,
+        amenities: ['Charging Point', 'Emergency Contact Number'],
+        departureSlot: '6to12',
+        offerTag: null,
     },
     {
         id: 'R006',
-        operator: 'IntrCity SmartBus',
-        busType: 'A/C Seater / Sleeper (2+1)',
-        type: 'Seater',
-        departure: { city: 'Bangalore', state: 'Karnataka', time: '06:30 AM', date: '04 Jun' },
-        arrival:   { city: 'Chennai',   state: 'Tamil Nadu',  time: '01:15 PM', date: '04 Jun' },
-        duration: '6h 45m', stops: 'Non Stop', price: 899, originalPrice: 1050,
-        seatsLeft: 15, rating: 4.4, totalRatings: 2180, isLiveTrackable: true,
-        amenities: ['Blankets', 'Charging Point', 'Wifi', 'Water Bottle'],
-        departureSlot: 'Morning',
+        operator: 'KSRTC Karnataka',
+        busType: 'Non A/C Sleeper (2+1)',
+        type: 'NonAC',
+        departure: { city: 'Bangalore', state: 'Karnataka', time: '23:45', date: '20 Jun' },
+        arrival:   { city: 'Chennai',   state: 'Tamil Nadu', time: '07:00', date: '21 Jun' },
+        duration: '7h 15m', stops: 'Non Stop',
+        price: 650, originalPrice: 780,
+        seatsLeft: 18, singleSeats: 6,
+        rating: 3.5, totalRatings: 560,
+        isLiveTrackable: false, freeCancellation: false,
+        amenities: ['Emergency Contact Number'],
+        departureSlot: 'after6',
+        offerTag: null,
     },
     {
         id: 'R007',
-        operator: 'Sugama Tourist',
-        busType: 'Non A/C Seater (2+2)',
-        type: 'NonAC',
-        departure: { city: 'Bangalore', state: 'Karnataka', time: '01:30 PM', date: '04 Jun' },
-        arrival:   { city: 'Chennai',   state: 'Tamil Nadu',  time: '10:00 PM', date: '04 Jun' },
-        duration: '8h 30m', stops: '1 Stop', price: 400, originalPrice: 520,
-        seatsLeft: 32, rating: 3.2, totalRatings: 340, isLiveTrackable: false,
-        amenities: ['Emergency Contact Number', 'Charging Point'],
-        departureSlot: 'Noon',
+        operator: 'IntrCity SmartBus',
+        busType: 'A/C Seater / Sleeper (2+1)',
+        type: 'Seater',
+        departure: { city: 'Bangalore', state: 'Karnataka', time: '06:30', date: '20 Jun' },
+        arrival:   { city: 'Chennai',   state: 'Tamil Nadu', time: '13:15', date: '20 Jun' },
+        duration: '6h 45m', stops: 'Non Stop',
+        price: 899, originalPrice: 1050,
+        seatsLeft: 15, singleSeats: 5,
+        rating: 4.4, totalRatings: 2180,
+        isLiveTrackable: true, freeCancellation: true,
+        amenities: ['Blankets', 'Charging Point', 'Wifi', 'Water Bottle'],
+        departureSlot: '6to12',
+        offerTag: null,
     },
     {
         id: 'R008',
         operator: 'Chartered Speed',
         busType: 'Volvo B9R A/C Sleeper (2+1)',
         type: 'Sleeper',
-        departure: { city: 'Bangalore', state: 'Karnataka', time: '02:00 AM', date: '04 Jun' },
-        arrival:   { city: 'Chennai',   state: 'Tamil Nadu',  time: '08:45 AM', date: '04 Jun' },
-        duration: '6h 45m', stops: 'Non Stop', price: 1050, originalPrice: 1300,
-        seatsLeft: 6, rating: 4.0, totalRatings: 1870, isLiveTrackable: true,
+        departure: { city: 'Bangalore', state: 'Karnataka', time: '02:00', date: '20 Jun' },
+        arrival:   { city: 'Chennai',   state: 'Tamil Nadu', time: '08:45', date: '20 Jun' },
+        duration: '6h 45m', stops: 'Non Stop',
+        price: 1050, originalPrice: 1300,
+        seatsLeft: 6, singleSeats: 2,
+        rating: 4.0, totalRatings: 1870,
+        isLiveTrackable: true, freeCancellation: false,
         amenities: ['Blankets', 'Charging Point', 'Water Bottle'],
-        departureSlot: 'Morning',
+        departureSlot: 'before6',
+        offerTag: null,
     },
 ];
 
