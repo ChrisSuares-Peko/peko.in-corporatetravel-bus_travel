@@ -32,65 +32,14 @@ const COUNTRIES = [
     'Netherlands', 'Switzerland',
 ].map(c => ({ label: c, value: c }));
 
-// ─── Tab illustrated icons (colorful, 48×48) ───────────────────────────────────
-
-const AirTabIcon = () => (
-    <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-        <circle cx="24" cy="24" r="24" fill="#FFF1F0" />
-        <path d="M38 24L17 15l4 7H12l2.5 2-2.5 2h9l-4 7 21-9z" fill="#FF4F4F" />
-        <rect x="22" y="21" width="9" height="6" rx="1" fill="#FFB3B3" opacity="0.6" />
-    </svg>
-);
-
-const HotelTabIcon = () => (
-    <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-        <circle cx="24" cy="24" r="24" fill="#F0F5FF" />
-        <rect x="14" y="27" width="20" height="10" rx="2" fill="#4080FF" />
-        <path d="M12 27l12-11 12 11" fill="#60A5FA" />
-        <rect x="12" y="37" width="24" height="3" rx="1" fill="#1D4ED8" />
-        <rect x="17" y="20" width="4" height="7" rx="1" fill="#BAE6FD" />
-        <rect x="25" y="20" width="4" height="7" rx="1" fill="#BAE6FD" />
-        <rect x="21" y="30" width="6" height="7" fill="white" rx="1" />
-    </svg>
-);
-
-const EsimTabIcon = () => (
-    <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-        <circle cx="24" cy="24" r="24" fill="#F6FFED" />
-        <ellipse cx="24" cy="24" rx="11" ry="11" stroke="#52C41A" strokeWidth="2" />
-        <ellipse cx="24" cy="24" rx="5" ry="11" stroke="#52C41A" strokeWidth="1.5" />
-        <line x1="13" y1="24" x2="35" y2="24" stroke="#52C41A" strokeWidth="1.5" />
-        <line x1="14.5" y1="18.5" x2="33.5" y2="18.5" stroke="#52C41A" strokeWidth="1" strokeDasharray="2 2" />
-        <line x1="14.5" y1="29.5" x2="33.5" y2="29.5" stroke="#52C41A" strokeWidth="1" strokeDasharray="2 2" />
-    </svg>
-);
-
-const VisaTabIcon = () => (
-    <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-        <circle cx="24" cy="24" r="24" fill="#FFFBE6" />
-        <rect x="13" y="13" width="22" height="16" rx="2.5" fill="#FAAD14" />
-        <rect x="16" y="17" width="16" height="2" rx="1" fill="white" opacity="0.9" />
-        <rect x="16" y="21" width="11" height="2" rx="1" fill="white" opacity="0.7" />
-        <rect x="16" y="25" width="7" height="1.5" rx="0.75" fill="white" opacity="0.5" />
-        <circle cx="32" cy="32" r="7" fill="#FF4F4F" />
-        <path d="M29.5 32l2 2 4-4" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-);
-
-const BusTabIcon = () => (
-    <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-        <circle cx="24" cy="24" r="24" fill="#FFF7E6" />
-        <rect x="10" y="17" width="28" height="16" rx="3" fill="#FA8C16" />
-        <rect x="10" y="17" width="28" height="5" rx="3" fill="#E8920A" />
-        <rect x="13" y="19" width="6" height="6" rx="1" fill="white" />
-        <rect x="21" y="19" width="6" height="6" rx="1" fill="white" />
-        <rect x="29" y="19" width="6" height="6" rx="1" fill="white" />
-        <circle cx="16" cy="35" r="3.5" fill="#AD4E00" />
-        <circle cx="32" cy="35" r="3.5" fill="#AD4E00" />
-        <rect x="8" y="21" width="3" height="8" rx="1.5" fill="#D46B08" />
-        <rect x="37" y="21" width="3" height="8" rx="1.5" fill="#D46B08" />
-    </svg>
-);
+// ─── Tab illustrated icons (48×48, CDN) ────────────────────────────────────────
+const TAB_ICONS: Record<string, string> = {
+    '1': 'https://cdn-icons-png.flaticon.com/128/484/484167.png',
+    '2': 'https://cdn-icons-png.flaticon.com/128/2933/2933245.png',
+    '3': 'https://cdn-icons-png.flaticon.com/128/364/364089.png',
+    '4': 'https://cdn-icons-png.flaticon.com/128/1078/1078012.png',
+    '5': 'https://cdn-icons-png.flaticon.com/128/1068/1068928.png',
+};
 
 // ─── Airplane icon for air ticket fields ────────────────────────────────────────
 const AirplaneFieldIcon = () => (
@@ -104,11 +53,11 @@ const AirplaneFieldIcon = () => (
 interface TabDef { key: string; label: string; icon: React.ReactNode }
 
 const LANDING_TABS: TabDef[] = [
-    { key: '1', label: 'Air Tickets',   icon: <AirTabIcon /> },
-    { key: '2', label: 'Hotel Booking', icon: <HotelTabIcon /> },
-    { key: '3', label: 'Travel eSIM',   icon: <EsimTabIcon /> },
-    { key: '4', label: 'Visa',          icon: <VisaTabIcon /> },
-    { key: '5', label: 'Bus Ticket',    icon: <BusTabIcon /> },
+    { key: '1', label: 'Air Tickets',   icon: <img src={TAB_ICONS['1']} width={48} height={48} alt="Air Tickets" style={{ display: 'block' }} /> },
+    { key: '2', label: 'Hotel Booking', icon: <img src={TAB_ICONS['2']} width={48} height={48} alt="Hotel Booking" style={{ display: 'block' }} /> },
+    { key: '3', label: 'Travel eSIM',   icon: <img src={TAB_ICONS['3']} width={48} height={48} alt="Travel eSIM" style={{ display: 'block' }} /> },
+    { key: '4', label: 'Visa',          icon: <img src={TAB_ICONS['4']} width={48} height={48} alt="Visa" style={{ display: 'block' }} /> },
+    { key: '5', label: 'Bus Ticket',    icon: <img src={TAB_ICONS['5']} width={48} height={48} alt="Bus Ticket" style={{ display: 'block' }} /> },
 ];
 
 const LandingTabBar = ({
@@ -122,9 +71,10 @@ const LandingTabBar = ({
         style={{
             backgroundColor: '#FDF5F5',
             borderRadius: 16,
-            padding: '8px 16px',
+            padding: '12px 24px',
             display: 'flex',
-            gap: 8,
+            justifyContent: 'space-around',
+            alignItems: 'flex-end',
             overflow: 'visible',
             position: 'relative',
         }}
@@ -136,23 +86,18 @@ const LandingTabBar = ({
                     key={tab.key}
                     onClick={() => onChange(tab.key)}
                     style={{
-                        flex: 1,
-                        minWidth: 120,
-                        height: 80,
                         borderRadius: 12,
-                        padding: '12px 16px',
+                        padding: '12px 24px',
                         cursor: 'pointer',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
-                        justifyContent: 'center',
                         gap: 6,
                         userSelect: 'none',
                         position: 'relative',
-                        top: active ? 8 : 0,
                         zIndex: active ? 2 : 1,
                         transition: 'all 0.2s ease',
-                        transform: active ? 'translateY(-4px)' : 'none',
+                        transform: active ? 'translateY(-8px)' : 'none',
                         backgroundColor: active ? '#FFFFFF' : 'transparent',
                         border: active ? `1.5px solid ${P}` : 'none',
                         boxShadow: active ? '0 4px 12px rgba(255, 79, 79, 0.15)' : 'none',
@@ -162,7 +107,8 @@ const LandingTabBar = ({
                     <Text
                         style={{
                             fontSize: 13,
-                            fontWeight: active ? 600 : 500,
+                            fontFamily: 'Roboto, sans-serif',
+                            fontWeight: active ? 600 : 400,
                             color: active ? P : TXT,
                             lineHeight: 1,
                             textAlign: 'center',
@@ -630,28 +576,6 @@ const MANAGE_LINKS: Record<string, string> = {
     '3': links[3] ?? '#',
 };
 
-// ─── Footer ────────────────────────────────────────────────────────────────────
-const Footer = () => (
-    <div
-        className="mt-12 pt-4 flex flex-wrap justify-between items-center gap-4"
-        style={{ borderTop: '1px solid #F0F0F0' }}
-    >
-        <Text style={{ fontSize: 12, color: HLP }}>
-            © 2026 Peko Platforms Private Limited. All Rights Reserved
-        </Text>
-        <Flex gap={0} align="center" className="flex-wrap">
-            {['Peko Platform Agreement', 'Privacy Policy', 'Refund Policy', 'Cookie Policy'].flatMap((lnk, i) =>
-                i === 0
-                    ? [<Text key={lnk} style={{ fontSize: 12, color: HLP, cursor: 'pointer' }}>{lnk}</Text>]
-                    : [
-                        <Text key={`sep-${i}`} style={{ fontSize: 12, color: HLP, margin: '0 8px' }}>|</Text>,
-                        <Text key={lnk} style={{ fontSize: 12, color: HLP, cursor: 'pointer' }}>{lnk}</Text>,
-                      ]
-            )}
-        </Flex>
-    </div>
-);
-
 // ─── Main Component ────────────────────────────────────────────────────────────
 
 const CorporateTravel = () => {
@@ -689,14 +613,14 @@ const CorporateTravel = () => {
             {/* ── Tab Bar ── */}
             <LandingTabBar activeTab={activeTab} onChange={handleTabChange} />
 
-            {/* ── Search Card (paddingTop:32 accommodates active-tab overlap) ── */}
+            {/* ── Search Card — flat top connects flush with tab bar ── */}
             <div
                 style={{
                     backgroundColor: '#FFFFFF',
                     border: `1px solid ${BDR}`,
-                    borderRadius: 12,
-                    padding: '40px 32px 32px 32px',
-                    boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                    borderRadius: '0 0 12px 12px',
+                    padding: 32,
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
                     position: 'relative',
                 }}
             >
@@ -736,8 +660,6 @@ const CorporateTravel = () => {
                 {renderForm()}
             </div>
 
-            {/* ── Footer ── */}
-            <Footer />
         </Content>
     );
 };
