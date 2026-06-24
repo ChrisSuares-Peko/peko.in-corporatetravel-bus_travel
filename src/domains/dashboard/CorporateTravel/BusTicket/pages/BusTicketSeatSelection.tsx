@@ -111,8 +111,8 @@ const SteeringWheel = () => (
 
 // ─── Seat berth ───────────────────────────────────────────────────────────────
 
-const BERTH_W = 40;
-const BERTH_H = 40;
+const BERTH_W = 44;
+const BERTH_H = 44;
 
 const SeatBerth = ({
     seat, isSelected, isFiltered, onToggle,
@@ -183,8 +183,8 @@ const DeckSection = ({
                         </Flex>
                     </div>
                 )}
-                <div className="flex items-center mb-2" style={{ gap: 4 }}>
-                    <div className="flex" style={{ gap: 4 }}>
+                <div className="flex items-center mb-2" style={{ gap: 8 }}>
+                    <div className="flex" style={{ gap: 8 }}>
                         {['A', 'B'].map(col => (
                             <div key={col} className="flex items-center justify-center" style={{ width: BERTH_W }}>
                                 <Text className="text-xs text-gray-400">{col}</Text>
@@ -196,10 +196,10 @@ const DeckSection = ({
                         <Text className="text-xs text-gray-400">C</Text>
                     </div>
                 </div>
-                <Flex vertical gap={6}>
+                <Flex vertical gap={8}>
                     {rows.map(([rowNum, rowSeats]) => (
-                        <div key={rowNum} className="flex items-center" style={{ gap: 4 }}>
-                            <div className="flex" style={{ gap: 4 }}>
+                        <div key={rowNum} className="flex items-center" style={{ gap: 8 }}>
+                            <div className="flex" style={{ gap: 8 }}>
                                 {(['a', 'b'] as const).map(col => {
                                     const seat = rowSeats[col];
                                     return seat ? (
@@ -595,8 +595,8 @@ const BusTicketSeatSelection = () => {
             {/* ══ 3-COLUMN LAYOUT ══ */}
             <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start' }}>
 
-                {/* ── Column 1: Seat Map (flex 7 ≈ 35%) ── */}
-                <div style={{ flex: 7, minWidth: 0 }}>
+                {/* ── Column 1: Seat Map (flex 5 ≈ 50%) ── */}
+                <div style={{ flex: 5, minWidth: 0 }}>
 
                     {/* Price tier filter */}
                     <Flex gap={8} align="center" style={{ marginBottom: 12 }} wrap="wrap">
@@ -650,15 +650,15 @@ const BusTicketSeatSelection = () => {
 
                     {/* Deck sections */}
                     <div style={{ overflowX: 'auto' }}>
-                        <Flex gap={20} align="flex-start" style={{ flexWrap: 'wrap' }}>
+                        <Flex gap={32} align="flex-start" style={{ flexWrap: 'wrap' }}>
                             <DeckSection deck="lower" selectedIds={selectedIds} priceFilter={priceFilter} onToggle={handleToggle} />
                             <DeckSection deck="upper" selectedIds={selectedIds} priceFilter={priceFilter} onToggle={handleToggle} />
                         </Flex>
                     </div>
                 </div>
 
-                {/* ── Column 2: Details Card (flex 8 ≈ 40%) ── */}
-                <div style={{ flex: 8, minWidth: 0 }}>
+                {/* ── Column 2: Details Card (flex 3 ≈ 30%) ── */}
+                <div style={{ flex: 3, minWidth: 0 }}>
                     <div style={{ backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 12, overflow: 'hidden' }}>
                         <Tabs
                             items={detailsTabs}
@@ -669,8 +669,8 @@ const BusTicketSeatSelection = () => {
                     </div>
                 </div>
 
-                {/* ── Column 3: Booking Summary (flex 5 ≈ 25%) ── */}
-                <div style={{ flex: 5, minWidth: 200 }}>
+                {/* ── Column 3: Booking Summary (flex 2 ≈ 20%) ── */}
+                <div style={{ flex: 2, minWidth: 200 }}>
                     <div className="sticky" style={{ top: 16, backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 12, padding: 20 }}>
 
                         {/* Section label */}
