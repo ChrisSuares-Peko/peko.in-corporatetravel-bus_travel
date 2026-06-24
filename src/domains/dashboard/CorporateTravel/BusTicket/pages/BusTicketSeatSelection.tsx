@@ -595,8 +595,11 @@ const BusTicketSeatSelection = () => {
             {/* ══ 3-COLUMN LAYOUT ══ */}
             <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start' }}>
 
-                {/* ── Column 1: Seat Map (flex 5 ≈ 50%) ── */}
-                <div style={{ flex: 5, minWidth: 0 }}>
+                {/* ── Seat Map + Details Card (tight inner group) ── */}
+                <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start', flex: 1, minWidth: 0 }}>
+
+                {/* ── Column 1: Seat Map (fit-content) ── */}
+                <div style={{ flexShrink: 0 }}>
 
                     {/* Price tier filter */}
                     <Flex gap={8} align="center" style={{ marginBottom: 12 }} wrap="wrap">
@@ -657,8 +660,8 @@ const BusTicketSeatSelection = () => {
                     </div>
                 </div>
 
-                {/* ── Column 2: Details Card (flex 3 ≈ 30%) ── */}
-                <div style={{ flex: 3, minWidth: 0 }}>
+                {/* ── Column 2: Details Card (flex: 1) ── */}
+                <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 12, overflow: 'hidden' }}>
                         <Tabs
                             items={detailsTabs}
@@ -669,8 +672,10 @@ const BusTicketSeatSelection = () => {
                     </div>
                 </div>
 
-                {/* ── Column 3: Booking Summary (flex 2 ≈ 20%) ── */}
-                <div style={{ flex: 2, minWidth: 200 }}>
+                </div>{/* ── End: Seat Map + Details Card group ── */}
+
+                {/* ── Column 3: Booking Summary (220px fixed) ── */}
+                <div style={{ width: 220, flexShrink: 0 }}>
                     <div className="sticky" style={{ top: 16, backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 12, padding: 20 }}>
 
                         {/* Section label */}
@@ -698,15 +703,25 @@ const BusTicketSeatSelection = () => {
                             </Flex>
                             <Flex vertical gap={2}>
                                 <Text style={{ fontSize: 11, color: HLP }}>Boarding Point</Text>
-                                <Text style={{ fontSize: 13, fontWeight: 500, color: boardingPt ? TXT : '#BFBFBF' }}>
-                                    {boardingPt ? `${boardingPt.name} (${boardingPt.time})` : '—'}
-                                </Text>
+                                {boardingPt ? (
+                                    <>
+                                        <Text style={{ fontSize: 13, fontWeight: 600, color: TXT, display: 'block' }}>{boardingPt.name}</Text>
+                                        <Text style={{ fontSize: 12, color: P, display: 'block' }}>{boardingPt.time}</Text>
+                                    </>
+                                ) : (
+                                    <Text style={{ fontSize: 12, color: HLP, fontStyle: 'italic' }}>Please select boarding point</Text>
+                                )}
                             </Flex>
                             <Flex vertical gap={2}>
                                 <Text style={{ fontSize: 11, color: HLP }}>Drop Point</Text>
-                                <Text style={{ fontSize: 13, fontWeight: 500, color: dropPt ? TXT : '#BFBFBF' }}>
-                                    {dropPt ? `${dropPt.name} (${dropPt.time})` : '—'}
-                                </Text>
+                                {dropPt ? (
+                                    <>
+                                        <Text style={{ fontSize: 13, fontWeight: 600, color: TXT, display: 'block' }}>{dropPt.name}</Text>
+                                        <Text style={{ fontSize: 12, color: P, display: 'block' }}>{dropPt.time}</Text>
+                                    </>
+                                ) : (
+                                    <Text style={{ fontSize: 12, color: HLP, fontStyle: 'italic' }}>Please select drop point</Text>
+                                )}
                             </Flex>
                         </Flex>
 
