@@ -500,7 +500,7 @@ const BusTicketSeatSelection = () => {
     );
 
     const policyTab = (
-        <div style={{ padding: 16, overflowY: 'auto', maxHeight: 420 }}>
+        <div style={{ padding: 16, overflowY: 'auto', maxHeight: 380 }}>
             <Text style={{ fontSize: 14, fontWeight: 600, color: TXT, display: 'block', marginBottom: 12 }}>
                 Travel Policy
             </Text>
@@ -565,10 +565,10 @@ const BusTicketSeatSelection = () => {
     ];
 
     return (
-        <Flex vertical gap={16}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: 24 }}>
 
             {/* ══ HEADER CARD ══ */}
-            <div style={{ backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 12, padding: '12px 20px' }}>
+            <div style={{ backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 8, padding: '16px 20px', marginBottom: 16 }}>
                 <Flex align="center" gap={12}>
                     <div
                         onClick={() => navigate(-1)}
@@ -586,20 +586,25 @@ const BusTicketSeatSelection = () => {
                             {source} → {destination}
                         </Text>
                         <Text style={{ fontSize: 13, color: HLP }}>
-                            {date} · {busTime(bus?.departure) ?? '10:30 PM'} – {busTime(bus?.arrival) ?? '05:20 AM'} · {bus?.operator ?? 'Parveen Travels'}
+                            {date} · {busTime(bus?.departure) ?? '10:30 PM'} – {busTime(bus?.arrival) ?? '05:20 AM'}
+                        </Text>
+                    </div>
+                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                        <Text style={{ fontSize: 13, fontWeight: 600, color: TXT, display: 'block' }}>
+                            {bus?.operator ?? 'Parveen Travels'}
+                        </Text>
+                        <Text style={{ fontSize: 12, color: HLP, display: 'block' }}>
+                            {bus?.busType ?? 'A/C Sleeper (2+1)'}
                         </Text>
                     </div>
                 </Flex>
             </div>
 
             {/* ══ 3-COLUMN LAYOUT ══ */}
-            <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 20 }}>
 
-                {/* ── Seat Map + Details Card (tight inner group) ── */}
-                <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start', flex: 1, minWidth: 0 }}>
-
-                {/* ── Column 1: Seat Map (fit-content) ── */}
-                <div style={{ flexShrink: 0 }}>
+                {/* ── Column 1: Seat Map (420px) ── */}
+                <div style={{ width: 420, flexShrink: 0, backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 8, padding: 16 }}>
 
                     {/* Price tier filter */}
                     <Flex gap={8} align="center" style={{ marginBottom: 12 }} wrap="wrap">
@@ -661,22 +666,17 @@ const BusTicketSeatSelection = () => {
                 </div>
 
                 {/* ── Column 2: Details Card (flex: 1) ── */}
-                <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 12, overflow: 'hidden' }}>
-                        <Tabs
-                            items={detailsTabs}
-                            size="small"
-                            style={{ paddingLeft: 4, paddingRight: 4 }}
-                            tabBarStyle={{ marginBottom: 0, paddingLeft: 12 }}
-                        />
-                    </div>
+                <div style={{ flex: 1, minWidth: 0, maxHeight: 460, overflow: 'hidden', backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 8 }}>
+                    <Tabs
+                        items={detailsTabs}
+                        size="small"
+                        style={{ paddingLeft: 4, paddingRight: 4 }}
+                        tabBarStyle={{ marginBottom: 0, paddingLeft: 12 }}
+                    />
                 </div>
 
-                </div>{/* ── End: Seat Map + Details Card group ── */}
-
-                {/* ── Column 3: Booking Summary (220px fixed) ── */}
-                <div style={{ width: 220, flexShrink: 0 }}>
-                    <div className="sticky" style={{ top: 16, backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 12, padding: 20 }}>
+                {/* ── Column 3: Booking Summary (200px) ── */}
+                <div style={{ width: 200, flexShrink: 0, position: 'sticky', top: 24, backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 8, padding: 16 }}>
 
                         {/* Section label */}
                         <Text style={{ fontSize: 11, fontWeight: 600, color: HLP, textTransform: 'uppercase', letterSpacing: 0.5, display: 'block', marginBottom: 16 }}>
@@ -744,10 +744,9 @@ const BusTicketSeatSelection = () => {
                                 Select {missingItems.join(', ')} to continue
                             </Text>
                         )}
-                    </div>
                 </div>
             </div>
-        </Flex>
+        </div>
     );
 };
 
