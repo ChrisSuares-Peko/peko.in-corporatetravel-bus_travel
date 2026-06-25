@@ -21,6 +21,7 @@ const BDR = '#E8E8E8';
 // ─── Seat types ───────────────────────────────────────────────────────────────
 
 type SeatStatus = 'available' | 'booked' | 'female' | 'male';
+type SeatStyle  = 'sleeper' | 'seater' | 'default';
 
 interface SeatDef {
     id: string;
@@ -145,6 +146,117 @@ const SeatBerth = ({
     );
 };
 
+// ─── Sleeper berth ────────────────────────────────────────────────────────────
+
+const SLEEPER_W = 36;
+const SLEEPER_H = 70;
+
+const SleeperBerth = ({
+    seat, isSelected, isFiltered, onToggle,
+}: {
+    seat: SeatDef; isSelected: boolean; isFiltered: boolean; onToggle: (id: string) => void;
+}) => {
+    const clickable = seat.status === 'available' || isSelected;
+    const GRN = '#52C41A';
+
+    let bgColor = '#FFFFFF', borderColor = GRN, borderW = '2px', labelColor = TXT, footBg = '#D9EFD9', showSold = false;
+
+    if (isSelected) {
+        bgColor = GRN; borderColor = GRN; borderW = '2px'; labelColor = '#FFFFFF'; footBg = '#3D9E3D';
+    } else if (seat.status === 'booked') {
+        bgColor = '#F0F0F0'; borderColor = '#D9D9D9'; borderW = '1px'; labelColor = '#BFBFBF'; footBg = '#E0E0E0'; showSold = true;
+    } else if (seat.status === 'female') {
+        bgColor = '#FFF0F6'; borderColor = '#FFADD2'; borderW = '1px'; labelColor = '#EB2F96'; footBg = '#FFD6EA';
+    } else if (seat.status === 'male') {
+        bgColor = '#F0F5FF'; borderColor = '#ADC6FF'; borderW = '1px'; labelColor = '#2F54EB'; footBg = '#D6E4FF';
+    }
+
+    const showPrice = seat.status === 'available' && !isSelected;
+
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
+            <div
+                onClick={clickable ? () => onToggle(seat.id) : undefined}
+                title={clickable ? `Seat ${seat.label} • ₹${seat.price}` : `Seat ${seat.label} — ${seat.status}`}
+                className={`select-none transition-all ${isFiltered ? 'opacity-25' : ''} ${clickable ? 'hover:scale-105' : ''}`}
+                style={{
+                    width: SLEEPER_W, height: SLEEPER_H,
+                    backgroundColor: bgColor, border: `${borderW} solid ${borderColor}`,
+                    borderRadius: 8, cursor: clickable ? 'pointer' : 'not-allowed',
+                    position: 'relative', overflow: 'hidden', flexShrink: 0,
+                }}
+            >
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {seat.status === 'female' ? (
+                        <Text style={{ fontSize: 14, color: labelColor, lineHeight: 1 }}>♀</Text>
+                    ) : seat.status === 'male' ? (
+                        <Text style={{ fontSize: 14, color: labelColor, lineHeight: 1 }}>♂</Text>
+                    ) : (
+                        <Text style={{ fontSize: 11, fontWeight: 600, color: labelColor, lineHeight: 1 }}>{seat.label}</Text>
+                    )}
+                </div>
+                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 14, backgroundColor: footBg, borderTop: `1px solid ${borderColor}` }} />
+            </div>
+            {showSold  && <Text style={{ fontSize: 10, color: HLP, lineHeight: 1 }}>Sold</Text>}
+            {showPrice && <Text style={{ fontSize: 10, color: HLP, lineHeight: 1 }}>₹{seat.price}</Text>}
+        </div>
+    );
+};
+
+// ─── Seater berth ─────────────────────────────────────────────────────────────
+
+const SeaterBerth = ({
+    seat, isSelected, isFiltered, onToggle,
+}: {
+    seat: SeatDef; isSelected: boolean; isFiltered: boolean; onToggle: (id: string) => void;
+}) => {
+    const clickable = seat.status === 'available' || isSelected;
+    const GRN = '#52C41A';
+
+    let fill = '#FFFFFF', stroke = GRN, txtFill = TXT, showSold = false, showPrice = false;
+
+    if (isSelected) {
+        fill = GRN; stroke = GRN; txtFill = '#FFFFFF';
+    } else if (seat.status === 'available') {
+        fill = '#FFFFFF'; stroke = GRN; txtFill = TXT; showPrice = true;
+    } else if (seat.status === 'booked') {
+        fill = '#F0F0F0'; stroke = '#D9D9D9'; txtFill = '#BFBFBF'; showSold = true;
+    } else if (seat.status === 'female') {
+        fill = '#FFF0F6'; stroke = '#FFADD2'; txtFill = '#EB2F96';
+    } else if (seat.status === 'male') {
+        fill = '#F0F5FF'; stroke = '#ADC6FF'; txtFill = '#2F54EB';
+    }
+
+    const armFill = isSelected ? '#3D9E3D' : seat.status === 'booked' ? '#E0E0E0' : '#F5F5F5';
+
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
+            <div
+                onClick={clickable ? () => onToggle(seat.id) : undefined}
+                title={clickable ? `Seat ${seat.label} • ₹${seat.price}` : `Seat ${seat.label} — ${seat.status}`}
+                className={`select-none transition-all ${isFiltered ? 'opacity-25' : ''} ${clickable ? 'hover:scale-105' : ''}`}
+                style={{ cursor: clickable ? 'pointer' : 'not-allowed', width: BERTH_W, height: BERTH_H, flexShrink: 0 }}
+            >
+                <svg width={BERTH_W} height={BERTH_H} viewBox="0 0 44 44" fill="none">
+                    <rect x="8" y="3" width="28" height="16" rx="4" fill={fill} stroke={stroke} strokeWidth="1.5" />
+                    <rect x="3" y="18" width="5" height="16" rx="2.5" fill={armFill} stroke={stroke} strokeWidth="1.5" />
+                    <rect x="36" y="18" width="5" height="16" rx="2.5" fill={armFill} stroke={stroke} strokeWidth="1.5" />
+                    <rect x="4" y="20" width="36" height="18" rx="4" fill={fill} stroke={stroke} strokeWidth="1.5" />
+                    {seat.status === 'female' ? (
+                        <text x="22" y="33" textAnchor="middle" fontSize={13} fill={txtFill}>♀</text>
+                    ) : seat.status === 'male' ? (
+                        <text x="22" y="33" textAnchor="middle" fontSize={13} fill={txtFill}>♂</text>
+                    ) : (
+                        <text x="22" y="33" textAnchor="middle" fontSize={11} fontWeight="600" fill={txtFill}>{seat.label}</text>
+                    )}
+                </svg>
+            </div>
+            {showSold  && <Text style={{ fontSize: 10, color: HLP, lineHeight: 1 }}>Sold</Text>}
+            {showPrice && <Text style={{ fontSize: 10, color: HLP, lineHeight: 1 }}>₹{seat.price}</Text>}
+        </div>
+    );
+};
+
 // ─── Deck section ─────────────────────────────────────────────────────────────
 
 const groupRows = (seats: SeatDef[]) => {
@@ -157,14 +269,16 @@ const groupRows = (seats: SeatDef[]) => {
 };
 
 const DeckSection = ({
-    deck, selectedIds, priceFilter, onToggle,
+    deck, selectedIds, priceFilter, onToggle, seatStyle,
 }: {
-    deck: 'lower' | 'upper'; selectedIds: Set<string>; priceFilter: number | null; onToggle: (id: string) => void;
+    deck: 'lower' | 'upper'; selectedIds: Set<string>; priceFilter: number | null; onToggle: (id: string) => void; seatStyle: SeatStyle;
 }) => {
     const deckSeats = ALL_SEATS.filter(s => s.deck === deck);
     const rows = groupRows(deckSeats);
     const isLower = deck === 'lower';
     const AISLE_W = 28;
+    const bW = seatStyle === 'sleeper' ? SLEEPER_W : BERTH_W;
+    const bH = seatStyle === 'sleeper' ? SLEEPER_H : BERTH_H;
 
     return (
         <Flex vertical gap={8}>
@@ -186,48 +300,42 @@ const DeckSection = ({
                 <div className="flex items-center mb-2" style={{ gap: 8 }}>
                     <div className="flex" style={{ gap: 8 }}>
                         {['A', 'B'].map(col => (
-                            <div key={col} className="flex items-center justify-center" style={{ width: BERTH_W }}>
+                            <div key={col} className="flex items-center justify-center" style={{ width: bW }}>
                                 <Text className="text-xs text-gray-400">{col}</Text>
                             </div>
                         ))}
                     </div>
                     <div style={{ width: AISLE_W }} />
-                    <div className="flex items-center justify-center" style={{ width: BERTH_W }}>
+                    <div className="flex items-center justify-center" style={{ width: bW }}>
                         <Text className="text-xs text-gray-400">C</Text>
                     </div>
                 </div>
                 <Flex vertical gap={8}>
                     {rows.map(([rowNum, rowSeats]) => (
-                        <div key={rowNum} className="flex items-center" style={{ gap: 8 }}>
-                            <div className="flex" style={{ gap: 8 }}>
+                        <div key={rowNum} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                            <div style={{ display: 'flex', gap: 8 }}>
                                 {(['a', 'b'] as const).map(col => {
                                     const seat = rowSeats[col];
-                                    return seat ? (
-                                        <SeatBerth
-                                            key={col}
-                                            seat={seat}
-                                            isSelected={selectedIds.has(seat.id)}
-                                            isFiltered={priceFilter !== null && seat.price !== priceFilter}
-                                            onToggle={onToggle}
-                                        />
-                                    ) : (
-                                        <div key={col} style={{ width: BERTH_W, height: BERTH_H }} />
-                                    );
+                                    if (!seat) return <div key={col} style={{ width: bW, height: bH }} />;
+                                    const isSel  = selectedIds.has(seat.id);
+                                    const isFilt = priceFilter !== null && seat.price !== priceFilter;
+                                    if (seatStyle === 'sleeper') return <SleeperBerth key={col} seat={seat} isSelected={isSel} isFiltered={isFilt} onToggle={onToggle} />;
+                                    if (seatStyle === 'seater')  return <SeaterBerth  key={col} seat={seat} isSelected={isSel} isFiltered={isFilt} onToggle={onToggle} />;
+                                    return <SeatBerth key={col} seat={seat} isSelected={isSel} isFiltered={isFilt} onToggle={onToggle} />;
                                 })}
                             </div>
-                            <div className="flex items-center justify-center flex-shrink-0" style={{ width: AISLE_W, height: BERTH_H }}>
-                                <div className="h-full w-px border-l border-dashed border-gray-200" />
+                            <div style={{ width: AISLE_W, alignSelf: 'stretch', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                <div style={{ width: 1, height: '100%', borderLeft: '1px dashed #E8E8E8' }} />
                             </div>
-                            {rowSeats.c ? (
-                                <SeatBerth
-                                    seat={rowSeats.c}
-                                    isSelected={selectedIds.has(rowSeats.c.id)}
-                                    isFiltered={priceFilter !== null && rowSeats.c.price !== priceFilter}
-                                    onToggle={onToggle}
-                                />
-                            ) : (
-                                <div style={{ width: BERTH_W, height: BERTH_H }} />
-                            )}
+                            {(() => {
+                                const seat = rowSeats.c;
+                                if (!seat) return <div style={{ width: bW, height: bH }} />;
+                                const isSel  = selectedIds.has(seat.id);
+                                const isFilt = priceFilter !== null && seat.price !== priceFilter;
+                                if (seatStyle === 'sleeper') return <SleeperBerth seat={seat} isSelected={isSel} isFiltered={isFilt} onToggle={onToggle} />;
+                                if (seatStyle === 'seater')  return <SeaterBerth  seat={seat} isSelected={isSel} isFiltered={isFilt} onToggle={onToggle} />;
+                                return <SeatBerth seat={seat} isSelected={isSel} isFiltered={isFilt} onToggle={onToggle} />;
+                            })()}
                         </div>
                     ))}
                 </Flex>
@@ -363,6 +471,9 @@ const BusTicketSeatSelection = () => {
     const source      = routeState.source      ?? 'Bengaluru';
     const destination = routeState.destination ?? 'Chennai';
     const date        = routeState.date        ?? 'Today';
+
+    const busTypeStr = ((bus?.busType ?? '') as string).toLowerCase();
+    const seatStyle: SeatStyle = busTypeStr.includes('sleeper') ? 'sleeper' : busTypeStr.includes('seater') ? 'seater' : 'default';
 
     const [selectedIds,      setSelectedIds]      = useState<Set<string>>(new Set());
     const [priceFilter,      setPriceFilter]      = useState<number | null>(null);
@@ -594,10 +705,11 @@ const BusTicketSeatSelection = () => {
             </div>
 
             {/* ══ 3-COLUMN LAYOUT ══ */}
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 20, width: '100%', maxWidth: 1300 }}>
 
-                {/* ── Column 1: Seat Map (40%) ── */}
-                <div style={{ width: '40%', flexShrink: 0, backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 8, padding: 16 }}>
+                {/* ── Column 1: Seat Map (35%) ── */}
+                <div style={{ flex: '0 0 35%', backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 8, padding: 16 }}>
 
                     {/* Price tier filter */}
                     <Flex gap={8} align="center" style={{ marginBottom: 12 }} wrap="wrap">
@@ -635,15 +747,21 @@ const BusTicketSeatSelection = () => {
 
                     {/* Seat legend */}
                     <Flex gap={10} wrap="wrap" style={{ marginBottom: 16 }}>
-                        {[
-                            { label: 'Available', bg: '#FFFFFF', border: '#D9D9D9' },
-                            { label: 'Booked',    bg: '#F5F5F5', border: '#D9D9D9' },
-                            { label: 'Selected',  bg: '#FFF1F0', border: P          },
-                            { label: 'Female',    bg: '#FFF0F6', border: '#FFADD2'  },
-                            { label: 'Male',      bg: '#F0F5FF', border: '#ADC6FF'  },
-                        ].map(item => (
+                        {(seatStyle !== 'default' ? [
+                            { label: 'Available', bg: '#FFFFFF', border: '#52C41A', bw: '2px' },
+                            { label: 'Sold',      bg: '#F0F0F0', border: '#D9D9D9', bw: '1px' },
+                            { label: 'Selected',  bg: '#52C41A', border: '#52C41A', bw: '2px' },
+                            { label: 'Female',    bg: '#FFF0F6', border: '#FFADD2', bw: '1px' },
+                            { label: 'Male',      bg: '#F0F5FF', border: '#ADC6FF', bw: '1px' },
+                        ] : [
+                            { label: 'Available', bg: '#FFFFFF', border: '#D9D9D9', bw: '1px' },
+                            { label: 'Booked',    bg: '#F5F5F5', border: '#D9D9D9', bw: '1px' },
+                            { label: 'Selected',  bg: '#FFF1F0', border: P,         bw: '1px' },
+                            { label: 'Female',    bg: '#FFF0F6', border: '#FFADD2', bw: '1px' },
+                            { label: 'Male',      bg: '#F0F5FF', border: '#ADC6FF', bw: '1px' },
+                        ]).map(item => (
                             <Flex key={item.label} align="center" gap={5}>
-                                <div style={{ width: 18, height: 18, backgroundColor: item.bg, border: `1px solid ${item.border}`, borderRadius: 4 }} />
+                                <div style={{ width: 18, height: 18, backgroundColor: item.bg, border: `${item.bw} solid ${item.border}`, borderRadius: 4 }} />
                                 <Text style={{ fontSize: 12, color: HLP }}>{item.label}</Text>
                             </Flex>
                         ))}
@@ -651,13 +769,13 @@ const BusTicketSeatSelection = () => {
 
                     {/* Deck sections — side by side */}
                     <div style={{ display: 'flex', flexDirection: 'row', gap: 24, alignItems: 'flex-start' }}>
-                        <DeckSection deck="lower" selectedIds={selectedIds} priceFilter={priceFilter} onToggle={handleToggle} />
-                        <DeckSection deck="upper" selectedIds={selectedIds} priceFilter={priceFilter} onToggle={handleToggle} />
+                        <DeckSection deck="lower" selectedIds={selectedIds} priceFilter={priceFilter} onToggle={handleToggle} seatStyle={seatStyle} />
+                        <DeckSection deck="upper" selectedIds={selectedIds} priceFilter={priceFilter} onToggle={handleToggle} seatStyle={seatStyle} />
                     </div>
                 </div>
 
-                {/* ── Column 2: Details Card (30%) ── */}
-                <div style={{ width: '30%', flexShrink: 0, backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 8 }}>
+                {/* ── Column 2: Details Card (35%) ── */}
+                <div style={{ flex: '0 0 35%', backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 8 }}>
                     <Tabs
                         items={detailsTabs}
                         size="small"
@@ -666,8 +784,8 @@ const BusTicketSeatSelection = () => {
                     />
                 </div>
 
-                {/* ── Column 3: Booking Summary (20%) ── */}
-                <div style={{ width: '20%', flexShrink: 0, position: 'sticky', top: 24, backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 8, padding: 20 }}>
+                {/* ── Column 3: Booking Summary (25%) ── */}
+                <div style={{ flex: '0 0 25%', marginLeft: 'auto', position: 'sticky', top: 24, backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 8, padding: 20 }}>
 
                     {/* Section label */}
                     <Text style={{ fontSize: 11, fontWeight: 600, color: HLP, textTransform: 'uppercase', letterSpacing: 0.5, display: 'block' }}>
@@ -748,6 +866,7 @@ const BusTicketSeatSelection = () => {
                         </Text>
                     )}
                 </div>
+            </div>
             </div>
         </div>
     );
