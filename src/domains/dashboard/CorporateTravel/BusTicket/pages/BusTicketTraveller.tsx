@@ -427,12 +427,12 @@ const BusTicketTraveller = () => {
                 Traveller Details
             </Title>
 
-            <Row gutter={[20, 20]} align="top">
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 20, padding: '0 24px', width: '100%' }}>
 
                 {/* ══════════════════════════════════
                     LEFT COLUMN — Seat cards + contact
                 ══════════════════════════════════ */}
-                <Col xs={24} md={16}>
+                <div style={{ flex: '0 0 55%' }}>
                     <Flex vertical gap={16}>
 
                         {/* Per-seat traveller cards */}
@@ -493,13 +493,15 @@ const BusTicketTraveller = () => {
                             </Row>
                         </div>
                     </Flex>
-                </Col>
+                </div>
+
+                {/* ── Spacer ── */}
+                <div style={{ flex: 1 }} />
 
                 {/* ══════════════════════════════════
                     RIGHT COLUMN — Terms + Proceed
                 ══════════════════════════════════ */}
-                <Col xs={24} md={8}>
-                    <div className="sticky top-4">
+                <div style={{ flex: '0 0 30%', position: 'sticky', top: 24 }}>
                         <div
                             className="bg-white p-5"
                             style={{ border: '1px solid #E8E8E8', borderRadius: 12 }}
@@ -559,9 +561,8 @@ const BusTicketTraveller = () => {
                                 </Text>
                             )}
                         </div>
-                    </div>
-                </Col>
-            </Row>
+                </div>
+            </div>
         </Flex>
     );
 };
