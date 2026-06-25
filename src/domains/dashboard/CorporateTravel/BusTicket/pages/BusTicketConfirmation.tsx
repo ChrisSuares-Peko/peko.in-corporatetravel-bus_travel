@@ -137,7 +137,8 @@ const BusTicketConfirmation = () => {
                 }
             `}</style>
 
-            <Flex vertical gap={16}>
+            <div style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '24px 0' }}>
+            <div style={{ width: '70%', maxWidth: '70%', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
                 {/* ── Breadcrumb-style title (hidden on print) ── */}
                 <div className="no-print">
@@ -410,7 +411,8 @@ const BusTicketConfirmation = () => {
                     </Button>
                 </Flex>
 
-            </Flex>
+            </div>
+            </div>
         </>
     );
 };
