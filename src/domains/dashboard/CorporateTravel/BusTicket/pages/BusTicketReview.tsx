@@ -202,13 +202,17 @@ const BusTicketReview = () => {
     const gst        = Math.round(baseFare * 0.05);
     const grandTotal = baseFare + gst;
 
+    // ── Fare break-up display values ──
+    const fareBaseFare = Math.round(totalAmount * 0.85 * 100) / 100;
+
     // ── Journey dates ──
     const boardingDate = formatDate(date);
     const dropDate     = nextDayDate(date);
 
     // ── Countdown timer ──
-    const [timeLeft, setTimeLeft]         = useState(INITIAL_SECONDS);
+    const [timeLeft, setTimeLeft]             = useState(INITIAL_SECONDS);
     const [sessionExpired, setSessionExpired] = useState(false);
+    const [fareOpen, setFareOpen]             = useState(false);
     const expiredFiredRef                  = useRef(false);
 
     useEffect(() => {
@@ -489,53 +493,44 @@ const BusTicketReview = () => {
                             </Button>
 
                             {/* Fare break-up */}
-                            <Collapse
-                                ghost
-                                expandIconPosition="start"
-                                items={[
-                                    {
-                                        key: 'fare',
-                                        label: (
-                                            <Text className="text-sm" style={{ color: '#FF4F4F' }}>
-                                                View fare break-up
-                                            </Text>
-                                        ),
-                                        children: (
-                                            <Flex vertical gap={8} className="pb-1">
-                                                {[
-                                                    { label: 'Base fare',  value: `₹${baseFare.toLocaleString()}` },
-                                                    { label: 'GST (5%)',   value: `₹${gst.toLocaleString()}` },
-                                                ].map(row => (
-                                                    <Flex
-                                                        key={row.label}
-                                                        justify="space-between"
-                                                        align="center"
-                                                    >
-                                                        <Text className="text-gray-500 text-sm">
-                                                            {row.label}
-                                                        </Text>
-                                                        <Text className="text-sm text-gray-700">
-                                                            {row.value}
-                                                        </Text>
-                                                    </Flex>
-                                                ))}
-                                                <Divider className="my-1" />
-                                                <Flex justify="space-between" align="center">
-                                                    <Text className="font-semibold text-sm text-gray-700">
-                                                        Total
-                                                    </Text>
-                                                    <Text
-                                                        className="font-bold text-sm"
-                                                        style={{ color: '#FF4F4F' }}
-                                                    >
-                                                        ₹{grandTotal.toLocaleString()}
-                                                    </Text>
+                            <div>
+                                <Flex
+                                    align="center"
+                                    gap={4}
+                                    onClick={() => setFareOpen(o => !o)}
+                                    style={{ cursor: 'pointer' }}
+                                >
+                                    <Text style={{ fontSize: 13, color: '#FF4F4F' }}>
+                                        {fareOpen ? 'v' : '>'} View fare break-up
+                                    </Text>
+                                </Flex>
+
+                                {fareOpen && (
+                                    <div style={{ marginTop: 12 }}>
+                                        {[
+                                            { label: 'Base fare',     value: `₹${fareBaseFare.toLocaleString()}` },
+                                            { label: 'Platform fees', value: '₹49.00'                            },
+                                            { label: 'GST (18%)',     value: '₹8.82'                             },
+                                        ].map((row, i, arr) => (
+                                            <div key={row.label}>
+                                                <Flex justify="space-between" align="center" style={{ padding: '10px 0' }}>
+                                                    <Text style={{ fontSize: 13, color: '#171717' }}>{row.label}</Text>
+                                                    <Text style={{ fontSize: 13, fontWeight: 600, color: '#171717' }}>{row.value}</Text>
                                                 </Flex>
+                                                {i < arr.length - 1 && <Divider style={{ margin: 0, borderColor: '#F0F0F0' }} />}
+                                            </div>
+                                        ))}
+                                        <Divider style={{ margin: '4px 0 0', borderColor: '#F0F0F0' }} />
+                                        <Flex justify="space-between" align="flex-start" style={{ paddingTop: 10 }}>
+                                            <Text style={{ fontSize: 14, fontWeight: 600, color: '#171717' }}>Total</Text>
+                                            <Flex vertical align="flex-end" gap={2}>
+                                                <Text style={{ fontSize: 14, fontWeight: 700, color: '#FF4F4F' }}>₹{grandTotal.toLocaleString()}</Text>
+                                                <Text style={{ fontSize: 11, color: '#8C8C8C' }}>Incl. taxes &amp; fees</Text>
                                             </Flex>
-                                        ),
-                                    },
-                                ]}
-                            />
+                                        </Flex>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </Col>
