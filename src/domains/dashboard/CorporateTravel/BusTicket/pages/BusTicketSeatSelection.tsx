@@ -168,7 +168,7 @@ const DeckSection = ({
 
     return (
         <Flex vertical gap={8}>
-            <Text style={{ fontSize: 11, fontWeight: 600, color: HLP, textTransform: 'uppercase', letterSpacing: 1 }}>
+            <Text style={{ fontSize: 11, fontWeight: 600, color: HLP, textTransform: 'uppercase', letterSpacing: 0.5 }}>
                 {isLower ? 'Lower Deck' : 'Upper Deck'}
             </Text>
             <div
@@ -308,7 +308,7 @@ const StopList = ({
 }: {
     points: StopPoint[]; selected: string | null; onSelect: (id: string) => void;
 }) => (
-    <div style={{ overflowY: 'auto', maxHeight: 380 }}>
+    <div style={{ overflowY: 'auto', maxHeight: 560 }}>
         {points.map((pt, idx) => (
             <div key={pt.id}>
                 <div
@@ -500,7 +500,7 @@ const BusTicketSeatSelection = () => {
     );
 
     const policyTab = (
-        <div style={{ padding: 16, overflowY: 'auto', maxHeight: 380 }}>
+        <div style={{ padding: 16, overflowY: 'auto', maxHeight: 560 }}>
             <Text style={{ fontSize: 14, fontWeight: 600, color: TXT, display: 'block', marginBottom: 12 }}>
                 Travel Policy
             </Text>
@@ -556,19 +556,11 @@ const BusTicketSeatSelection = () => {
         { key: 'policy',    label: 'Policy',     children: policyTab    },
     ];
 
-    // ── Validation hint ───────────────────────────────────────────────────────
-
-    const missingItems = [
-        ...(selectedIds.size === 0 ? ['seat'] : []),
-        ...(selectedBoarding === null ? ['boarding point'] : []),
-        ...(selectedDrop     === null ? ['drop point']     : []),
-    ];
-
     return (
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: 24 }}>
+        <div style={{ width: '100%', padding: 24 }}>
 
             {/* ══ HEADER CARD ══ */}
-            <div style={{ backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 8, padding: '16px 20px', marginBottom: 16 }}>
+            <div style={{ backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 8, padding: '12px 20px', marginBottom: 16 }}>
                 <Flex align="center" gap={12}>
                     <div
                         onClick={() => navigate(-1)}
@@ -582,15 +574,15 @@ const BusTicketSeatSelection = () => {
                         <ArrowLeftIcon size={18} color={TXT} />
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                        <Text style={{ fontSize: 16, fontWeight: 700, color: TXT, display: 'block', lineHeight: 1.3 }}>
+                        <Text style={{ fontSize: 16, fontWeight: 600, color: TXT, display: 'block', lineHeight: 1.3 }}>
                             {source} → {destination}
                         </Text>
-                        <Text style={{ fontSize: 13, color: HLP }}>
+                        <Text style={{ fontSize: 12, color: HLP }}>
                             {date} · {busTime(bus?.departure) ?? '10:30 PM'} – {busTime(bus?.arrival) ?? '05:20 AM'}
                         </Text>
                     </div>
                     <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                        <Text style={{ fontSize: 13, fontWeight: 600, color: TXT, display: 'block' }}>
+                        <Text style={{ fontSize: 15, fontWeight: 600, color: TXT, display: 'block' }}>
                             {bus?.operator ?? 'Parveen Travels'}
                         </Text>
                         <Text style={{ fontSize: 12, color: HLP, display: 'block' }}>
@@ -603,8 +595,8 @@ const BusTicketSeatSelection = () => {
             {/* ══ 3-COLUMN LAYOUT ══ */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 20 }}>
 
-                {/* ── Column 1: Seat Map (420px) ── */}
-                <div style={{ width: 420, flexShrink: 0, backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 8, padding: 16 }}>
+                {/* ── Column 1: Seat Map (380px) ── */}
+                <div style={{ width: 380, flexShrink: 0, backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 8, padding: 16 }}>
 
                     {/* Price tier filter */}
                     <Flex gap={8} align="center" style={{ marginBottom: 12 }} wrap="wrap">
@@ -657,16 +649,14 @@ const BusTicketSeatSelection = () => {
                     </Flex>
 
                     {/* Deck sections */}
-                    <div style={{ overflowX: 'auto' }}>
-                        <Flex gap={32} align="flex-start" style={{ flexWrap: 'wrap' }}>
-                            <DeckSection deck="lower" selectedIds={selectedIds} priceFilter={priceFilter} onToggle={handleToggle} />
-                            <DeckSection deck="upper" selectedIds={selectedIds} priceFilter={priceFilter} onToggle={handleToggle} />
-                        </Flex>
-                    </div>
+                    <Flex vertical gap={24}>
+                        <DeckSection deck="lower" selectedIds={selectedIds} priceFilter={priceFilter} onToggle={handleToggle} />
+                        <DeckSection deck="upper" selectedIds={selectedIds} priceFilter={priceFilter} onToggle={handleToggle} />
+                    </Flex>
                 </div>
 
                 {/* ── Column 2: Details Card (flex: 1) ── */}
-                <div style={{ flex: 1, minWidth: 0, maxHeight: 460, overflow: 'hidden', backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 8 }}>
+                <div style={{ flex: 1, minWidth: 0, backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 8 }}>
                     <Tabs
                         items={detailsTabs}
                         size="small"
@@ -675,8 +665,8 @@ const BusTicketSeatSelection = () => {
                     />
                 </div>
 
-                {/* ── Column 3: Booking Summary (200px) ── */}
-                <div style={{ width: 200, flexShrink: 0, position: 'sticky', top: 24, backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 8, padding: 16 }}>
+                {/* ── Column 3: Booking Summary (240px) ── */}
+                <div style={{ width: 240, flexShrink: 0, position: 'sticky', top: 24, backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 8, padding: 16 }}>
 
                         {/* Section label */}
                         <Text style={{ fontSize: 11, fontWeight: 600, color: HLP, textTransform: 'uppercase', letterSpacing: 0.5, display: 'block', marginBottom: 16 }}>
@@ -686,7 +676,7 @@ const BusTicketSeatSelection = () => {
                         {/* Total amount */}
                         <Flex vertical gap={2} style={{ marginBottom: 4 }}>
                             <Text style={{ fontSize: 12, color: HLP }}>Total Amount</Text>
-                            <Text style={{ fontSize: 28, fontWeight: 700, color: totalAmount > 0 ? P : '#D9D9D9', lineHeight: 1.1 }}>
+                            <Text style={{ fontSize: 24, fontWeight: 700, color: totalAmount > 0 ? P : '#D9D9D9', lineHeight: 1.1 }}>
                                 {totalAmount > 0 ? `₹${totalAmount.toLocaleString()}` : '₹0'}
                             </Text>
                         </Flex>
@@ -696,13 +686,13 @@ const BusTicketSeatSelection = () => {
                         {/* Summary rows */}
                         <Flex vertical gap={10} style={{ marginBottom: 16 }}>
                             <Flex vertical gap={2}>
-                                <Text style={{ fontSize: 11, color: HLP }}>Seat(s)</Text>
+                                <Text style={{ fontSize: 12, color: HLP }}>Seat(s)</Text>
                                 <Text style={{ fontSize: 13, fontWeight: 500, color: selectedIds.size > 0 ? TXT : '#BFBFBF' }}>
                                     {selectedLabels || '—'}
                                 </Text>
                             </Flex>
                             <Flex vertical gap={2}>
-                                <Text style={{ fontSize: 11, color: HLP }}>Boarding Point</Text>
+                                <Text style={{ fontSize: 12, color: HLP }}>Boarding Point</Text>
                                 {boardingPt ? (
                                     <>
                                         <Text style={{ fontSize: 13, fontWeight: 600, color: TXT, display: 'block' }}>{boardingPt.name}</Text>
@@ -713,7 +703,7 @@ const BusTicketSeatSelection = () => {
                                 )}
                             </Flex>
                             <Flex vertical gap={2}>
-                                <Text style={{ fontSize: 11, color: HLP }}>Drop Point</Text>
+                                <Text style={{ fontSize: 12, color: HLP }}>Drop Point</Text>
                                 {dropPt ? (
                                     <>
                                         <Text style={{ fontSize: 13, fontWeight: 600, color: TXT, display: 'block' }}>{dropPt.name}</Text>
@@ -733,15 +723,18 @@ const BusTicketSeatSelection = () => {
                             danger={canProceed}
                             disabled={!canProceed}
                             onClick={handleProceed}
-                            style={{ borderRadius: 8, fontWeight: 600, height: 48 }}
+                            style={{
+                                borderRadius: 8, fontWeight: 600, height: 48,
+                                ...(canProceed ? {} : { backgroundColor: '#F5F5F5', color: '#BFBFBF', borderColor: '#F0F0F0' }),
+                            }}
                         >
                             Proceed
                         </Button>
 
                         {/* Validation hint */}
-                        {missingItems.length > 0 && (
-                            <Text style={{ fontSize: 11, color: HLP, display: 'block', textAlign: 'center', marginTop: 8, lineHeight: 1.5 }}>
-                                Select {missingItems.join(', ')} to continue
+                        {!canProceed && (
+                            <Text style={{ fontSize: 11, color: HLP, display: 'block', textAlign: 'center', marginTop: 8, lineHeight: 1.5, fontStyle: 'italic' }}>
+                                Select seat, boarding point, drop point to continue
                             </Text>
                         )}
                 </div>
