@@ -308,28 +308,29 @@ const StopList = ({
 }: {
     points: StopPoint[]; selected: string | null; onSelect: (id: string) => void;
 }) => (
-    <div style={{ overflowY: 'auto', maxHeight: 560 }}>
+    <div style={{ overflowY: 'auto', maxHeight: 480 }}>
         {points.map((pt, idx) => (
             <div key={pt.id}>
                 <div
                     onClick={() => onSelect(pt.id)}
                     style={{
                         display: 'flex', alignItems: 'flex-start', gap: 10,
-                        padding: '12px 16px', cursor: 'pointer',
+                        padding: '10px 16px', cursor: 'pointer',
                         backgroundColor: selected === pt.id ? '#FFF1F0' : undefined,
+                        borderRadius: selected === pt.id ? 4 : undefined,
                         transition: 'background-color 0.15s',
                     }}
                 >
-                    <Radio checked={selected === pt.id} style={{ marginTop: 3, pointerEvents: 'none', flexShrink: 0 }} />
+                    <Radio checked={selected === pt.id} style={{ marginTop: 2, pointerEvents: 'none', flexShrink: 0 }} />
                     <div style={{ flex: 1, minWidth: 0 }}>
-                        <Text style={{ fontSize: 14, fontWeight: 600, color: TXT, display: 'block' }}>
+                        <Text style={{ fontSize: 13, fontWeight: 600, color: TXT, display: 'block' }}>
                             {pt.name}
                         </Text>
-                        <Text style={{ fontSize: 13, color: P, display: 'block', marginTop: 2 }}>
+                        <Text style={{ fontSize: 12, color: P, display: 'block', marginTop: 2 }}>
                             {pt.time}, {pt.date}
                         </Text>
                         {pt.landmark && (
-                            <Text style={{ fontSize: 12, color: HLP, display: 'block', marginTop: 2, fontWeight: 300, lineHeight: 1.5 }}>
+                            <Text style={{ fontSize: 11, color: HLP, display: 'block', marginTop: 2, fontWeight: 300, lineHeight: 1.5 }}>
                                 {pt.landmark}
                             </Text>
                         )}
@@ -595,8 +596,8 @@ const BusTicketSeatSelection = () => {
             {/* ══ 3-COLUMN LAYOUT ══ */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 20 }}>
 
-                {/* ── Column 1: Seat Map (380px) ── */}
-                <div style={{ width: 380, flexShrink: 0, backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 8, padding: 16 }}>
+                {/* ── Column 1: Seat Map (40%) ── */}
+                <div style={{ width: '40%', flexShrink: 0, backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 8, padding: 16 }}>
 
                     {/* Price tier filter */}
                     <Flex gap={8} align="center" style={{ marginBottom: 12 }} wrap="wrap">
@@ -648,15 +649,15 @@ const BusTicketSeatSelection = () => {
                         ))}
                     </Flex>
 
-                    {/* Deck sections */}
-                    <Flex vertical gap={24}>
+                    {/* Deck sections — side by side */}
+                    <div style={{ display: 'flex', flexDirection: 'row', gap: 24, alignItems: 'flex-start' }}>
                         <DeckSection deck="lower" selectedIds={selectedIds} priceFilter={priceFilter} onToggle={handleToggle} />
                         <DeckSection deck="upper" selectedIds={selectedIds} priceFilter={priceFilter} onToggle={handleToggle} />
-                    </Flex>
+                    </div>
                 </div>
 
-                {/* ── Column 2: Details Card (flex: 1) ── */}
-                <div style={{ flex: 1, minWidth: 0, backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 8 }}>
+                {/* ── Column 2: Details Card (30%) ── */}
+                <div style={{ width: '30%', flexShrink: 0, backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 8 }}>
                     <Tabs
                         items={detailsTabs}
                         size="small"
@@ -665,78 +666,87 @@ const BusTicketSeatSelection = () => {
                     />
                 </div>
 
-                {/* ── Column 3: Booking Summary (240px) ── */}
-                <div style={{ width: 240, flexShrink: 0, position: 'sticky', top: 24, backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 8, padding: 16 }}>
+                {/* ── Column 3: Booking Summary (20%) ── */}
+                <div style={{ width: '20%', flexShrink: 0, position: 'sticky', top: 24, backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 8, padding: 20 }}>
 
-                        {/* Section label */}
-                        <Text style={{ fontSize: 11, fontWeight: 600, color: HLP, textTransform: 'uppercase', letterSpacing: 0.5, display: 'block', marginBottom: 16 }}>
-                            Booking Summary
+                    {/* Section label */}
+                    <Text style={{ fontSize: 11, fontWeight: 600, color: HLP, textTransform: 'uppercase', letterSpacing: 0.5, display: 'block' }}>
+                        Booking Summary
+                    </Text>
+
+                    <Divider style={{ margin: '12px 0' }} />
+
+                    {/* Total amount */}
+                    <Flex vertical gap={4}>
+                        <Text style={{ fontSize: 12, color: HLP }}>Total Amount</Text>
+                        <Text style={{ fontSize: 26, fontWeight: 700, color: totalAmount > 0 ? P : '#D9D9D9', lineHeight: 1.1 }}>
+                            {totalAmount > 0 ? `₹${totalAmount.toLocaleString()}` : '₹0'}
                         </Text>
+                    </Flex>
 
-                        {/* Total amount */}
-                        <Flex vertical gap={2} style={{ marginBottom: 4 }}>
-                            <Text style={{ fontSize: 12, color: HLP }}>Total Amount</Text>
-                            <Text style={{ fontSize: 24, fontWeight: 700, color: totalAmount > 0 ? P : '#D9D9D9', lineHeight: 1.1 }}>
-                                {totalAmount > 0 ? `₹${totalAmount.toLocaleString()}` : '₹0'}
-                            </Text>
-                        </Flex>
+                    <Divider style={{ margin: '12px 0' }} />
 
-                        <Divider style={{ margin: '12px 0' }} />
+                    {/* Seat(s) */}
+                    <Flex vertical gap={4}>
+                        <Text style={{ fontSize: 12, color: HLP }}>Seat(s)</Text>
+                        <Text style={{ fontSize: 13, color: selectedIds.size > 0 ? TXT : '#BFBFBF' }}>
+                            {selectedLabels || '—'}
+                        </Text>
+                    </Flex>
 
-                        {/* Summary rows */}
-                        <Flex vertical gap={10} style={{ marginBottom: 16 }}>
-                            <Flex vertical gap={2}>
-                                <Text style={{ fontSize: 12, color: HLP }}>Seat(s)</Text>
-                                <Text style={{ fontSize: 13, fontWeight: 500, color: selectedIds.size > 0 ? TXT : '#BFBFBF' }}>
-                                    {selectedLabels || '—'}
-                                </Text>
-                            </Flex>
-                            <Flex vertical gap={2}>
-                                <Text style={{ fontSize: 12, color: HLP }}>Boarding Point</Text>
-                                {boardingPt ? (
-                                    <>
-                                        <Text style={{ fontSize: 13, fontWeight: 600, color: TXT, display: 'block' }}>{boardingPt.name}</Text>
-                                        <Text style={{ fontSize: 12, color: P, display: 'block' }}>{boardingPt.time}</Text>
-                                    </>
-                                ) : (
-                                    <Text style={{ fontSize: 12, color: HLP, fontStyle: 'italic' }}>Please select boarding point</Text>
-                                )}
-                            </Flex>
-                            <Flex vertical gap={2}>
-                                <Text style={{ fontSize: 12, color: HLP }}>Drop Point</Text>
-                                {dropPt ? (
-                                    <>
-                                        <Text style={{ fontSize: 13, fontWeight: 600, color: TXT, display: 'block' }}>{dropPt.name}</Text>
-                                        <Text style={{ fontSize: 12, color: P, display: 'block' }}>{dropPt.time}</Text>
-                                    </>
-                                ) : (
-                                    <Text style={{ fontSize: 12, color: HLP, fontStyle: 'italic' }}>Please select drop point</Text>
-                                )}
-                            </Flex>
-                        </Flex>
+                    <Divider style={{ margin: '12px 0' }} />
 
-                        {/* Proceed button */}
-                        <Button
-                            block
-                            size="large"
-                            type={canProceed ? 'primary' : 'default'}
-                            danger={canProceed}
-                            disabled={!canProceed}
-                            onClick={handleProceed}
-                            style={{
-                                borderRadius: 8, fontWeight: 600, height: 48,
-                                ...(canProceed ? {} : { backgroundColor: '#F5F5F5', color: '#BFBFBF', borderColor: '#F0F0F0' }),
-                            }}
-                        >
-                            Proceed
-                        </Button>
-
-                        {/* Validation hint */}
-                        {!canProceed && (
-                            <Text style={{ fontSize: 11, color: HLP, display: 'block', textAlign: 'center', marginTop: 8, lineHeight: 1.5, fontStyle: 'italic' }}>
-                                Select seat, boarding point, drop point to continue
-                            </Text>
+                    {/* Boarding Point */}
+                    <Flex vertical gap={4}>
+                        <Text style={{ fontSize: 12, color: HLP }}>Boarding Point</Text>
+                        {boardingPt ? (
+                            <>
+                                <Text style={{ fontSize: 13, fontWeight: 600, color: TXT, display: 'block' }}>{boardingPt.name}</Text>
+                                <Text style={{ fontSize: 12, color: P, display: 'block' }}>{boardingPt.time}</Text>
+                            </>
+                        ) : (
+                            <Text style={{ fontSize: 12, color: HLP, fontStyle: 'italic' }}>Please select boarding point</Text>
                         )}
+                    </Flex>
+
+                    <Divider style={{ margin: '12px 0' }} />
+
+                    {/* Drop Point */}
+                    <Flex vertical gap={4}>
+                        <Text style={{ fontSize: 12, color: HLP }}>Drop Point</Text>
+                        {dropPt ? (
+                            <>
+                                <Text style={{ fontSize: 13, fontWeight: 600, color: TXT, display: 'block' }}>{dropPt.name}</Text>
+                                <Text style={{ fontSize: 12, color: P, display: 'block' }}>{dropPt.time}</Text>
+                            </>
+                        ) : (
+                            <Text style={{ fontSize: 12, color: HLP, fontStyle: 'italic' }}>Please select drop point</Text>
+                        )}
+                    </Flex>
+
+                    <Divider style={{ margin: '12px 0' }} />
+
+                    {/* Proceed button */}
+                    <Button
+                        block
+                        type={canProceed ? 'primary' : 'default'}
+                        danger={canProceed}
+                        disabled={!canProceed}
+                        onClick={handleProceed}
+                        style={{
+                            borderRadius: 6, fontWeight: 600, height: 44,
+                            ...(canProceed ? {} : { backgroundColor: '#F5F5F5', color: '#BFBFBF', borderColor: '#F0F0F0' }),
+                        }}
+                    >
+                        Proceed
+                    </Button>
+
+                    {/* Validation hint */}
+                    {!canProceed && (
+                        <Text style={{ fontSize: 11, color: HLP, display: 'block', textAlign: 'center', marginTop: 8, lineHeight: 1.5, fontStyle: 'italic' }}>
+                            Select seat, boarding point, drop point to continue
+                        </Text>
+                    )}
                 </div>
             </div>
         </div>
