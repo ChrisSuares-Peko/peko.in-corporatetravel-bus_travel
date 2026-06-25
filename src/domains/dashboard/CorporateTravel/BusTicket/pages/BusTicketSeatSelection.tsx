@@ -705,8 +705,7 @@ const BusTicketSeatSelection = () => {
             </div>
 
             {/* ══ 3-COLUMN LAYOUT ══ */}
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 20, width: '100%', maxWidth: 1300 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 20, padding: '0 24px', width: '100%' }}>
 
                 {/* ── Column 1: Seat Map (35%) ── */}
                 <div style={{ flex: '0 0 35%', backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 8, padding: 16 }}>
@@ -774,8 +773,8 @@ const BusTicketSeatSelection = () => {
                     </div>
                 </div>
 
-                {/* ── Column 2: Details Card (35%) ── */}
-                <div style={{ flex: '0 0 35%', backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 8 }}>
+                {/* ── Column 2: Details Card (40%) ── */}
+                <div style={{ flex: '0 0 40%', backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 8 }}>
                     <Tabs
                         items={detailsTabs}
                         size="small"
@@ -784,8 +783,11 @@ const BusTicketSeatSelection = () => {
                     />
                 </div>
 
+                {/* ── Spacer ── */}
+                <div style={{ flex: 1 }} />
+
                 {/* ── Column 3: Booking Summary (25%) ── */}
-                <div style={{ flex: '0 0 25%', marginLeft: 'auto', position: 'sticky', top: 24, backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 8, padding: 20 }}>
+                <div style={{ flex: '0 0 25%', position: 'sticky', top: 24, backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`, borderRadius: 8, padding: 20 }}>
 
                     {/* Section label */}
                     <Text style={{ fontSize: 11, fontWeight: 600, color: HLP, textTransform: 'uppercase', letterSpacing: 0.5, display: 'block' }}>
@@ -866,7 +868,6 @@ const BusTicketSeatSelection = () => {
                         </Text>
                     )}
                 </div>
-            </div>
             </div>
         </div>
     );
