@@ -238,7 +238,7 @@ const BusTicketReview = () => {
 
     // ── Proceed to Payment ──
     const handleProceed = () => {
-        navigate('/corporate-travel/bus-ticket/payment', {
+        navigate('/corporate-travel/bus-ticket/confirmation', {
             state: { ...rs, grandTotal },
         });
     };
