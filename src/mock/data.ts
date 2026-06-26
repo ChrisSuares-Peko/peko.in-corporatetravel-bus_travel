@@ -396,6 +396,167 @@ export const mockEsimPackages: any[] = [];
 // Visa eligibility and requirements results
 export const mockVisaResults: any[] = [];
 
+// ─────────────────────────────────────────────
+// Bus Bookings (for Manage Bookings page)
+// ─────────────────────────────────────────────
+
+export interface BusBookingEntry {
+    id: string;
+    status: 'upcoming' | 'past' | 'cancelled';
+    pnr: string;
+    confirmationNumber: string;
+    bookingDate: string;
+    source: string;
+    sourceCode: string;
+    destination: string;
+    destinationCode: string;
+    date: string;
+    arrivalDate: string;
+    bus: {
+        operator: string;
+        busType: string;
+        departure: string;
+        arrival: string;
+        duration: string;
+    };
+    boardingPoint: string;
+    dropPoint: string;
+    stops: string;
+    selectedSeats: Array<{ id: string; label: string; deck: 'lower' | 'upper'; price: number }>;
+    travellerDetails: Array<{ seatId: string; name: string; age: string; gender: string }>;
+    totalAmount: number;
+    grandTotal: number;
+}
+
+export const mockBusBookings: BusBookingEntry[] = [
+    {
+        id: 'BOOKING001',
+        status: 'upcoming',
+        pnr: 'BLR3MX',
+        confirmationNumber: '47823591',
+        bookingDate: '23 Jun 2026',
+        source: 'Bengaluru',
+        sourceCode: 'BLR',
+        destination: 'Chennai',
+        destinationCode: 'MAA',
+        date: '28 Jun',
+        arrivalDate: '29 Jun',
+        bus: {
+            operator: 'Parveen Travels',
+            busType: 'Bharat Benz A/C Sleeper (2+1)',
+            departure: '10:30 PM',
+            arrival:   '05:20 AM',
+            duration:  '6h 50m',
+        },
+        boardingPoint: 'Silk Board',
+        dropPoint: 'Koyambedu',
+        stops: 'Non Stop',
+        selectedSeats: [
+            { id: 'L1', label: 'L1', deck: 'lower', price: 950 },
+        ],
+        travellerDetails: [
+            { seatId: 'L1', name: 'John Smith', age: '34', gender: 'Male' },
+        ],
+        totalAmount: 950,
+        grandTotal:  1007,
+    },
+    {
+        id: 'BOOKING002',
+        status: 'upcoming',
+        pnr: 'MUM9KT',
+        confirmationNumber: '63041827',
+        bookingDate: '24 Jun 2026',
+        source: 'Mumbai',
+        sourceCode: 'BOM',
+        destination: 'Pune',
+        destinationCode: 'PNQ',
+        date: '02 Jul',
+        arrivalDate: '02 Jul',
+        bus: {
+            operator: 'Orange Travels',
+            busType: 'Volvo B11R A/C Sleeper Cum Seater',
+            departure: '08:00 AM',
+            arrival:   '11:30 AM',
+            duration:  '3h 30m',
+        },
+        boardingPoint: 'Dadar',
+        dropPoint: 'Shivajinagar',
+        stops: 'Non Stop',
+        selectedSeats: [
+            { id: 'L3', label: 'L3', deck: 'lower', price: 600 },
+            { id: 'U2', label: 'U2', deck: 'upper', price: 550 },
+        ],
+        travellerDetails: [
+            { seatId: 'L3', name: 'Priya Sharma', age: '29', gender: 'Female' },
+            { seatId: 'U2', name: 'Rajan Mehta',  age: '32', gender: 'Male'   },
+        ],
+        totalAmount: 1150,
+        grandTotal:  1207,
+    },
+    {
+        id: 'BOOKING003',
+        status: 'past',
+        pnr: 'HYD7WQ',
+        confirmationNumber: '29384756',
+        bookingDate: '08 Jun 2026',
+        source: 'Hyderabad',
+        sourceCode: 'HYD',
+        destination: 'Bengaluru',
+        destinationCode: 'BLR',
+        date: '10 Jun',
+        arrivalDate: '11 Jun',
+        bus: {
+            operator: 'VRL Travels',
+            busType: 'Volvo 9600 A/C Multi Axle Semi Sleeper',
+            departure: '08:00 PM',
+            arrival:   '03:45 AM',
+            duration:  '7h 45m',
+        },
+        boardingPoint: 'Ameerpet',
+        dropPoint: 'Majestic',
+        stops: 'Non Stop',
+        selectedSeats: [
+            { id: 'L5', label: 'L5', deck: 'lower', price: 900 },
+        ],
+        travellerDetails: [
+            { seatId: 'L5', name: 'Arjun Kapoor', age: '27', gender: 'Male' },
+        ],
+        totalAmount: 900,
+        grandTotal:  957,
+    },
+    {
+        id: 'BOOKING004',
+        status: 'cancelled',
+        pnr: 'CHE2PD',
+        confirmationNumber: '81239047',
+        bookingDate: '15 May 2026',
+        source: 'Chennai',
+        sourceCode: 'MAA',
+        destination: 'Coimbatore',
+        destinationCode: 'CBE',
+        date: '22 May',
+        arrivalDate: '22 May',
+        bus: {
+            operator: 'KSRTC Karnataka',
+            busType: 'A/C Seater / Sleeper (2+1)',
+            departure: '06:30 AM',
+            arrival:   '12:45 PM',
+            duration:  '6h 15m',
+        },
+        boardingPoint: 'Chennai CMBT',
+        dropPoint: 'Gandhipuram',
+        stops: '1 Stop',
+        selectedSeats: [
+            { id: 'U4', label: 'U4', deck: 'upper', price: 720 },
+        ],
+        travellerDetails: [
+            { seatId: 'U4', name: 'Deepa Nair', age: '31', gender: 'Female' },
+        ],
+        totalAmount: 720,
+        grandTotal:  777,
+    },
+];
+
 // User's existing bookings (flights, hotels, eSIM, bus)
 export const mockBookings: any[] = [];
 

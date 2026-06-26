@@ -27,15 +27,23 @@ const BusTicketPayment = lazy(
 const BusTicketConfirmation = lazy(
     () => import('@domains/dashboard/CorporateTravel/BusTicket/pages/BusTicketConfirmation')
 );
+const BusTicketPaymentSuccess = lazy(
+    () => import('@domains/dashboard/CorporateTravel/BusTicket/pages/BusTicketPaymentSuccess')
+);
+const BusTicketManageBookings = lazy(
+    () => import('@domains/dashboard/CorporateTravel/BusTicket/pages/BusTicketManageBookings')
+);
 
 export const busTicketRoutes = [
-    { index: true,           element: <BusTicketSearch /> },
-    { path: 'searching',     element: <BusTicketSearching /> },
-    { path: 'results',       element: <BusTicketResults /> },
-    { path: 'seats',         element: <BusTicketSeatSelection /> },
-    { path: 'boarding',      element: <BusTicketBoarding /> },
-    { path: 'traveller',     element: <BusTicketTraveller /> },
-    { path: 'review',        element: <BusTicketReview /> },
-    { path: 'payment',       element: <BusTicketPayment /> },
-    { path: 'confirmation',  element: <BusTicketConfirmation /> },
+    { index: true,              element: <BusTicketSearch /> },
+    { path: 'searching',        element: <BusTicketSearching /> },
+    { path: 'results',          element: <BusTicketResults /> },
+    { path: 'seats',            element: <BusTicketSeatSelection /> },
+    { path: 'boarding',         element: <BusTicketBoarding /> },
+    { path: 'traveller',        element: <BusTicketTraveller /> },
+    { path: 'review',           element: <BusTicketReview /> },
+    { path: 'payment',          element: <BusTicketPayment /> },
+    { path: 'confirmation',     element: <BusTicketConfirmation /> },
+    { path: 'payment-success',  element: <BusTicketPaymentSuccess /> },
+    { path: 'manage-bookings',  element: <BusTicketManageBookings /> },
 ];

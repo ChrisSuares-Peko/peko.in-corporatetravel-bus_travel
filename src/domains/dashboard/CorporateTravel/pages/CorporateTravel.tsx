@@ -580,6 +580,7 @@ const MANAGE_LINKS: Record<string, string> = {
     '1': links[1] ?? '#',
     '2': links[2] ?? '#',
     '3': links[3] ?? '#',
+    '5': '/corporate-travel/bus-ticket/manage-bookings',
 };
 
 // ─── Main Component ────────────────────────────────────────────────────────────
