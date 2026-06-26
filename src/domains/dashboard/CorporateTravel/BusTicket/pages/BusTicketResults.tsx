@@ -8,8 +8,6 @@ import {
     BusAmenity, BusResultEntry, BusSlot, BusType, mockBusResults,
 } from '@src/mock/data';
 
-import BoardingDropDrawer from '../components/BoardingDropDrawer';
-import PoliciesDrawer from '../components/PoliciesDrawer';
 import {
     ArrowLeftIcon, BedIcon, ChargingIcon, FilmIcon,
     LocationIcon, PhoneIcon, SearchIcon, ShieldCheckIcon, SwapHorizIcon,
@@ -193,9 +191,6 @@ const BusCard = ({
     bus: BusResultEntry;
     onViewSeats: (bus: BusResultEntry) => void;
 }) => {
-    const [boardingOpen, setBoardingOpen] = useState(false);
-    const [policiesOpen, setPoliciesOpen] = useState(false);
-
     return (
         <>
             <div
@@ -329,38 +324,7 @@ const BusCard = ({
                     </Flex>
                 </div>
 
-                {/* Bottom row */}
-                <div style={{
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    marginTop: 12, paddingTop: 10,
-                    borderTop: '1px solid #F5F5F5',
-                }}>
-                    <Flex gap={0} align="center">
-                        <Text
-                            onClick={() => setBoardingOpen(true)}
-                            style={{ fontSize: 12, color: P, cursor: 'pointer' }}
-                        >
-                            Boarding &amp; Drop
-                        </Text>
-                        <Text style={{ fontSize: 12, color: BDR, margin: '0 8px' }}>|</Text>
-                        <Text
-                            onClick={() => setPoliciesOpen(true)}
-                            style={{ fontSize: 12, color: P, cursor: 'pointer' }}
-                        >
-                            Policies
-                        </Text>
-                    </Flex>
-                    <Text
-                        onClick={() => setPoliciesOpen(true)}
-                        style={{ fontSize: 12, color: P, cursor: 'pointer' }}
-                    >
-                        Bus Details &rsaquo;
-                    </Text>
-                </div>
             </div>
-
-            <BoardingDropDrawer open={boardingOpen} onClose={() => setBoardingOpen(false)} />
-            <PoliciesDrawer     open={policiesOpen} onClose={() => setPoliciesOpen(false)} />
         </>
     );
 };
