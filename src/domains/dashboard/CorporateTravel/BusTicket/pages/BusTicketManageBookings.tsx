@@ -36,6 +36,7 @@ const BookingCard = ({
 }) => {
     const navigate = useNavigate();
     const [cancelModalOpen, setCancelModalOpen] = useState(false);
+    const [emailPreviewOpen, setEmailPreviewOpen] = useState(false);
 
     const isCancelled = booking.status === 'cancelled';
 
@@ -183,7 +184,111 @@ const BookingCard = ({
                 </Flex>
             </div>
 
+            {/* ── Email preview toggle ── */}
+            <div style={{ borderTop: '1px solid #F5F5F5', paddingTop: 10, marginTop: 10 }}>
+                <Text
+                    onClick={() => setEmailPreviewOpen(o => !o)}
+                    style={{ fontSize: 12, color: HLP, cursor: 'pointer', userSelect: 'none' as const }}
+                >
+                    {emailPreviewOpen ? '▲ Hide email preview' : '▼ View email preview'}
+                </Text>
+            </div>
+
         </div>
+
+        {/* ── Email Preview ── */}
+        {emailPreviewOpen && (
+            <div style={{ width: '100%', backgroundColor: '#F0F0F0', padding: '32px 0' }}>
+                <div style={{
+                    backgroundColor: '#FFFFFF',
+                    border: '1px solid #E8E8E8',
+                    borderRadius: 0,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                    overflow: 'hidden',
+                    width: '100%',
+                }}>
+                    {/* Email header */}
+                    <div style={{ backgroundColor: '#000000', padding: '24px 32px', textAlign: 'center' as const }}>
+                        <Text style={{ fontSize: 22, fontWeight: 700, color: '#FFFFFF' }}>Peko</Text>
+                    </div>
+
+                    {/* Email body */}
+                    <div style={{ backgroundColor: '#000000', padding: 32 }}>
+                        <Text style={{ fontSize: 20, fontWeight: 700, color: '#FFFFFF', display: 'block', textAlign: 'center' as const, marginBottom: 16 }}>
+                            Your booking is confirmed.
+                        </Text>
+
+                        <div style={{ borderTop: '1px dashed #444444', margin: '0 0 16px' }} />
+
+                        <Text style={{ fontSize: 16, fontWeight: 600, color: '#FFFFFF', display: 'block', textAlign: 'center' as const, marginBottom: 6 }}>
+                            {booking.source} → {booking.destination}
+                        </Text>
+                        <Text style={{ fontSize: 13, color: '#CCCCCC', display: 'block', textAlign: 'center' as const, marginBottom: 16 }}>
+                            {booking.date}&nbsp;·&nbsp;PNR: {booking.pnr}
+                        </Text>
+
+                        <div style={{ borderTop: '1px dashed #444444', margin: '0 0 16px' }} />
+
+                        <Text style={{ fontSize: 13, color: P, display: 'block', textAlign: 'center' as const, marginBottom: 2 }}>
+                            {booking.bus.operator}
+                        </Text>
+                        <Text style={{ fontSize: 13, color: P, display: 'block', textAlign: 'center' as const, marginBottom: 16 }}>
+                            {booking.bus.busType}
+                        </Text>
+
+                        <Text style={{ fontSize: 14, color: '#FFFFFF', display: 'block', textAlign: 'center' as const, marginBottom: 4 }}>
+                            {booking.boardingPoint}&nbsp; {booking.bus.departure} &nbsp;🚌&nbsp; {booking.bus.arrival} &nbsp;{booking.dropPoint}
+                        </Text>
+                        <Text style={{ fontSize: 12, color: '#CCCCCC', display: 'block', textAlign: 'center' as const, marginBottom: 16 }}>
+                            {booking.date} — {booking.arrivalDate}
+                        </Text>
+
+                        <div style={{ borderTop: '1px dashed #444444', margin: '0 0 16px' }} />
+
+                        <Text style={{ fontSize: 11, fontWeight: 600, color: '#8C8C8C', display: 'block', textAlign: 'center' as const, textTransform: 'uppercase' as const, letterSpacing: 1, marginBottom: 10 }}>
+                            Travellers
+                        </Text>
+                        {((booking as any).travellerDetails ?? []).map((t: any, i: number) => (
+                            <Text key={i} style={{ fontSize: 13, color: '#FFFFFF', display: 'block', textAlign: 'center' as const, marginBottom: 4 }}>
+                                {t.name}&nbsp;—&nbsp;{t.gender}, {t.age} yrs&nbsp;·&nbsp;Seat {t.seatId}
+                            </Text>
+                        ))}
+
+                        <div style={{ borderTop: '1px dashed #444444', margin: '16px 0' }} />
+
+                        <Flex justify="center" style={{ marginBottom: 20 }}>
+                            <button style={{
+                                backgroundColor: P, color: '#ffffff', border: 'none',
+                                borderRadius: 4, padding: '10px 28px',
+                                fontSize: 14, fontWeight: 600, cursor: 'pointer',
+                            }}>
+                                Manage Booking
+                            </button>
+                        </Flex>
+
+                        <Text style={{ fontSize: 13, color: '#CCCCCC', display: 'block', textAlign: 'center' as const, marginBottom: 4 }}>
+                            Thank you for choosing Peko. For support, contact us at support@peko.one
+                        </Text>
+                        <Text style={{ fontSize: 13, color: '#FFFFFF', display: 'block', textAlign: 'center' as const }}>
+                            Best Regards, Team Peko
+                        </Text>
+                    </div>
+
+                    {/* Email footer */}
+                    <div style={{ backgroundColor: '#1A1A1A', padding: '16px 32px' }}>
+                        <Text style={{ fontSize: 11, color: '#8C8C8C', display: 'block', textAlign: 'center' as const, marginBottom: 4 }}>
+                            This email was sent to you from company email address
+                        </Text>
+                        <Text style={{ fontSize: 11, color: '#8C8C8C', display: 'block', textAlign: 'center' as const }}>
+                            Privacy Policy&nbsp;|&nbsp;Terms of Service&nbsp;|&nbsp;Unsubscribe
+                        </Text>
+                        <Text style={{ fontSize: 11, color: P, display: 'block', textAlign: 'center' as const, marginTop: 6 }}>
+                            www.peko.one
+                        </Text>
+                    </div>
+                </div>
+            </div>
+        )}
 
         <Modal
             open={cancelModalOpen}
