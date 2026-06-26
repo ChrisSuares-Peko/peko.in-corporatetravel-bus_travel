@@ -560,5 +560,25 @@ export const mockBusBookings: BusBookingEntry[] = [
 // User's existing bookings (flights, hotels, eSIM, bus)
 export const mockBookings: any[] = [];
 
+// ─────────────────────────────────────────────
+// Saved Travellers
+// ─────────────────────────────────────────────
+
+export interface SavedTraveller {
+    id: string;
+    name: string;
+    gender: 'Male' | 'Female';
+    age: number;
+    mobile: string;
+    email: string;
+}
+
+export const mockSavedTravellers: SavedTraveller[] = [
+    { id: 'T1', name: 'Sarah Johnson', gender: 'Female', age: 28, mobile: '+917350980296', email: 'sarah.johnson@company.com' },
+    { id: 'T2', name: 'John Smith',    gender: 'Male',   age: 34, mobile: '+917350980297', email: 'john.smith@company.com' },
+    { id: 'T3', name: 'Michael Brown', gender: 'Male',   age: 29, mobile: '+917350980298', email: 'michael.brown@company.com' },
+    { id: 'T4', name: 'Emily Davis',   gender: 'Female', age: 31, mobile: '+917350980299', email: 'emily.davis@company.com' },
+];
+
 // Countries list for origin/destination selectors
 export const mockCountries: any[] = [];

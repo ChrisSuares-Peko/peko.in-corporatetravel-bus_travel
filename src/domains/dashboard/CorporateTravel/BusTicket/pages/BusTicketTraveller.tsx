@@ -12,6 +12,7 @@ import {
     Col,
     Divider,
     Flex,
+    Form,
     Input,
     Radio,
     Row,
@@ -21,6 +22,8 @@ import {
     message,
 } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
+
+import { mockSavedTravellers } from '@src/mock/data';
 
 const { Text, Title } = Typography;
 
@@ -35,42 +38,38 @@ interface SelectedSeat {
     designation?: 'male' | 'female';
 }
 
-interface SavedTraveller {
-    id: string;
-    name: string;
-    age: number;
-    gender: 'Male' | 'Female';
-}
-
 type TravellerFormValues = { name: string; age: string; gender: 'Male' | 'Female' };
+
+type AddNewValues = {
+    title: string;
+    name: string;
+    gender: 'Male' | 'Female';
+    age: string;
+    mobile: string;
+    email: string;
+    idType: string;
+    idNumber: string;
+    address: string;
+};
 
 interface SeatState {
     savedTravellerId: string | null;
     editFormOpen: boolean;
     editValues: TravellerFormValues;
     addNewOpen: boolean;
-    addNewValues: TravellerFormValues;
-    addedTraveller: TravellerFormValues | null;
+    addedTraveller: AddNewValues | null;
 }
 
-// ─── Mock Data ────────────────────────────────────────────────────────────────
-
-const SAVED_TRAVELLERS: SavedTraveller[] = [
-    { id: 'T1', name: 'John Smith',    age: 34, gender: 'Male'   },
-    { id: 'T2', name: 'Sarah Johnson', age: 28, gender: 'Female' },
-    { id: 'T3', name: 'Michael Brown', age: 45, gender: 'Male'   },
-    { id: 'T4', name: 'Emily Davis',   age: 32, gender: 'Female' },
-];
+// ─── Constants ────────────────────────────────────────────────────────────────
 
 const EMPTY_FORM: TravellerFormValues = { name: '', age: '', gender: 'Male' };
 
-// Fallback shown when no route state (direct URL navigation during development)
 const FALLBACK_SEATS: SelectedSeat[] = [
     { id: 'L1', label: 'L1', deck: 'lower', price: 950, originalPrice: 1200 },
     { id: 'U5', label: 'U5', deck: 'upper', price: 850, originalPrice: 1050 },
 ];
 
-// ─── Inline Traveller Form ────────────────────────────────────────────────────
+// ─── Inline Edit Form ─────────────────────────────────────────────────────────
 
 const TravellerForm = ({
     values,
@@ -144,6 +143,166 @@ const TravellerForm = ({
     </div>
 );
 
+// ─── Add New Traveller Form ───────────────────────────────────────────────────
+
+const AddNewTravellerForm = ({ onConfirm }: { onConfirm: (values: AddNewValues) => void }) => {
+    const [form] = Form.useForm<AddNewValues>();
+
+    const handleAdd = async () => {
+        try {
+            const values = await form.validateFields();
+            onConfirm(values);
+            form.resetFields();
+        } catch {
+            // inline validation errors shown by Form
+        }
+    };
+
+    return (
+        <div style={{ paddingTop: 16, borderTop: '1px solid #F5F5F5', marginTop: 12 }}>
+            <Form form={form} layout="vertical" size="middle" requiredMark={false}>
+
+                {/* Row 1: Title + Full Name */}
+                <Row gutter={[12, 0]}>
+                    <Col xs={24} sm={8}>
+                        <Form.Item
+                            name="title"
+                            label={<Text style={{ fontSize: 12, color: '#8C8C8C' }}>Title</Text>}
+                            rules={[{ required: true, message: 'Please select a title' }]}
+                        >
+                            <Select
+                                placeholder="Title"
+                                options={[
+                                    { label: 'Mr', value: 'Mr' },
+                                    { label: 'Mrs', value: 'Mrs' },
+                                    { label: 'Ms', value: 'Ms' },
+                                    { label: 'Dr', value: 'Dr' },
+                                ]}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col xs={24} sm={16}>
+                        <Form.Item
+                            name="name"
+                            label={<Text style={{ fontSize: 12, color: '#8C8C8C' }}>Full Name</Text>}
+                            rules={[{ required: true, message: "Please enter the traveller's full name" }]}
+                        >
+                            <Input placeholder="Enter full name" />
+                        </Form.Item>
+                    </Col>
+                </Row>
+
+                {/* Row 2: Gender + Age */}
+                <Row gutter={[12, 0]}>
+                    <Col xs={24} sm={14}>
+                        <Form.Item
+                            name="gender"
+                            label={<Text style={{ fontSize: 12, color: '#8C8C8C' }}>Gender</Text>}
+                            initialValue="Male"
+                        >
+                            <Radio.Group>
+                                <Radio value="Male">Male</Radio>
+                                <Radio value="Female">Female</Radio>
+                            </Radio.Group>
+                        </Form.Item>
+                    </Col>
+                    <Col xs={24} sm={10}>
+                        <Form.Item
+                            name="age"
+                            label={<Text style={{ fontSize: 12, color: '#8C8C8C' }}>Age</Text>}
+                        >
+                            <Input type="number" placeholder="Enter age" min={1} max={120} />
+                        </Form.Item>
+                    </Col>
+                </Row>
+
+                {/* Row 3: Mobile + Email */}
+                <Row gutter={[12, 0]}>
+                    <Col xs={24} sm={12}>
+                        <Form.Item
+                            name="mobile"
+                            label={<Text style={{ fontSize: 12, color: '#8C8C8C' }}>Mobile</Text>}
+                            rules={[{ required: true, message: 'Please enter a valid mobile number' }]}
+                        >
+                            <Input
+                                placeholder="Enter mobile number"
+                                prefix={<PhoneOutlined style={{ color: '#8C8C8C' }} />}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col xs={24} sm={12}>
+                        <Form.Item
+                            name="email"
+                            label={<Text style={{ fontSize: 12, color: '#8C8C8C' }}>Email</Text>}
+                            rules={[
+                                { required: true, message: 'Please enter a valid email address' },
+                                { type: 'email', message: 'Please enter a valid email address' },
+                            ]}
+                        >
+                            <Input
+                                placeholder="Enter email address"
+                                prefix={<MailOutlined style={{ color: '#8C8C8C' }} />}
+                            />
+                        </Form.Item>
+                    </Col>
+                </Row>
+
+                {/* Row 4: ID Type + ID Number */}
+                <Row gutter={[12, 0]}>
+                    <Col xs={24} sm={10}>
+                        <Form.Item
+                            name="idType"
+                            label={<Text style={{ fontSize: 12, color: '#8C8C8C' }}>ID Type</Text>}
+                            rules={[{ required: true, message: 'Please select an ID type and enter the number' }]}
+                        >
+                            <Select
+                                placeholder="Select ID type"
+                                options={[
+                                    { label: 'Aadhaar Card',     value: 'Aadhaar Card'     },
+                                    { label: 'Passport',         value: 'Passport'         },
+                                    { label: 'PAN Card',         value: 'PAN Card'         },
+                                    { label: 'Driving Licence',  value: 'Driving Licence'  },
+                                    { label: 'Voter ID',         value: 'Voter ID'         },
+                                ]}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col xs={24} sm={14}>
+                        <Form.Item
+                            name="idNumber"
+                            label={<Text style={{ fontSize: 12, color: '#8C8C8C' }}>ID Number</Text>}
+                            rules={[{ required: true, message: 'Please select an ID type and enter the number' }]}
+                        >
+                            <Input placeholder="Enter ID number" />
+                        </Form.Item>
+                    </Col>
+                </Row>
+
+                {/* Row 5: Address (full width) */}
+                <Row gutter={[12, 0]}>
+                    <Col xs={24}>
+                        <Form.Item
+                            name="address"
+                            label={<Text style={{ fontSize: 12, color: '#8C8C8C' }}>Address</Text>}
+                        >
+                            <Input.TextArea placeholder="Enter full address" rows={2} />
+                        </Form.Item>
+                    </Col>
+                </Row>
+            </Form>
+
+            <Flex justify="flex-end" style={{ marginTop: 4 }}>
+                <Button
+                    onClick={handleAdd}
+                    style={{ backgroundColor: '#FF4F4F', borderColor: '#FF4F4F', color: '#fff', borderRadius: 6, fontWeight: 600 }}
+                >
+                    Add Traveller
+                </Button>
+            </Flex>
+        </div>
+    );
+};
+
 // ─── Seat Card ────────────────────────────────────────────────────────────────
 
 const SeatCard = ({
@@ -158,10 +317,10 @@ const SeatCard = ({
     onStateChange: (updates: Partial<SeatState>) => void;
 }) => {
     const isPrimary = index === 0;
-    const selectedTraveller = SAVED_TRAVELLERS.find(t => t.id === state.savedTravellerId);
+    const selectedTraveller = mockSavedTravellers.find(t => t.id === state.savedTravellerId);
 
     const handleSelectSaved = (travellerId: string | null) => {
-        const t = SAVED_TRAVELLERS.find(tt => tt.id === travellerId);
+        const t = mockSavedTravellers.find(tt => tt.id === travellerId);
         onStateChange({
             savedTravellerId: travellerId,
             addedTraveller: null,
@@ -173,20 +332,16 @@ const SeatCard = ({
         });
     };
 
-    const handleConfirmAddNew = () => {
-        if (!state.addNewValues.name.trim() || !state.addNewValues.age) return;
+    const handleConfirmAddNew = (values: AddNewValues) => {
         onStateChange({
-            addedTraveller: { ...state.addNewValues },
+            addedTraveller: values,
             savedTravellerId: null,
             addNewOpen: false,
         });
     };
 
     const handleChangeAddedTraveller = () => {
-        onStateChange({
-            addedTraveller: null,
-            addNewValues: EMPTY_FORM,
-        });
+        onStateChange({ addedTraveller: null });
     };
 
     return (
@@ -247,43 +402,80 @@ const SeatCard = ({
                     </Flex>
                 ) : (
                     /* ── Saved traveller dropdown ── */
-                    <Flex align="center" gap={12} className="flex-wrap sm:flex-nowrap">
-                        <Select
-                            value={state.savedTravellerId}
-                            onChange={handleSelectSaved}
-                            placeholder="Select a traveller"
-                            size="large"
-                            className="w-full"
-                            options={SAVED_TRAVELLERS.map(t => ({
-                                label: t.name,
-                                value: t.id,
-                            }))}
-                            allowClear
-                            onClear={() => handleSelectSaved(null)}
-                        />
-                        {selectedTraveller && (
-                            <Text
-                                onClick={() =>
-                                    onStateChange({
-                                        editFormOpen: !state.editFormOpen,
-                                        addNewOpen: false,
-                                    })
-                                }
-                                className="text-sm cursor-pointer whitespace-nowrap select-none flex-shrink-0" style={{ color: '#FF4F4F' }}
-                            >
-                                {state.editFormOpen ? 'Close' : 'Edit traveller'}
-                            </Text>
-                        )}
-                    </Flex>
-                )}
+                    <>
+                        <Flex align="center" gap={12} className="flex-wrap sm:flex-nowrap">
+                            <Select
+                                value={state.savedTravellerId}
+                                onChange={handleSelectSaved}
+                                placeholder="Select a traveller"
+                                size="large"
+                                className="w-full"
+                                options={mockSavedTravellers.map(t => ({
+                                    label: t.name,
+                                    value: t.id,
+                                }))}
+                                allowClear
+                                onClear={() => handleSelectSaved(null)}
+                            />
+                            {selectedTraveller && (
+                                <Text
+                                    onClick={() =>
+                                        onStateChange({
+                                            editFormOpen: !state.editFormOpen,
+                                            addNewOpen: false,
+                                        })
+                                    }
+                                    className="text-sm cursor-pointer whitespace-nowrap select-none flex-shrink-0"
+                                    style={{ color: '#FF4F4F' }}
+                                >
+                                    {state.editFormOpen ? 'Close' : 'Edit traveller'}
+                                </Text>
+                            )}
+                        </Flex>
 
-                {/* Inline Edit Form */}
-                {state.editFormOpen && selectedTraveller && (
-                    <TravellerForm
-                        values={state.editValues}
-                        onChange={v => onStateChange({ editValues: v })}
-                        showConfirm={false}
-                    />
+                        {/* Traveller details info row */}
+                        {selectedTraveller && (
+                            <div style={{
+                                backgroundColor: '#F5F5F5',
+                                borderRadius: 8,
+                                padding: 12,
+                                marginTop: 8,
+                                display: 'flex',
+                                gap: 24,
+                                alignItems: 'flex-start',
+                                flexWrap: 'wrap',
+                            }}>
+                                <Text style={{ fontSize: 13, fontWeight: 600, color: '#171717' }}>
+                                    {selectedTraveller.name}
+                                </Text>
+                                <div>
+                                    <Text style={{ fontSize: 12, color: '#8C8C8C', display: 'block' }}>Gender</Text>
+                                    <Text style={{ fontSize: 13, color: '#171717' }}>{selectedTraveller.gender}</Text>
+                                </div>
+                                <div>
+                                    <Text style={{ fontSize: 12, color: '#8C8C8C', display: 'block' }}>Age</Text>
+                                    <Text style={{ fontSize: 13, color: '#171717' }}>{selectedTraveller.age}</Text>
+                                </div>
+                                <div>
+                                    <Text style={{ fontSize: 12, color: '#8C8C8C', display: 'block' }}>Mobile</Text>
+                                    <Text style={{ fontSize: 13, color: '#171717' }}>{selectedTraveller.mobile}</Text>
+                                </div>
+                                <div>
+                                    <Text style={{ fontSize: 12, color: '#8C8C8C', display: 'block' }}>Email</Text>
+                                    <Text style={{ fontSize: 13, color: '#171717' }}>{selectedTraveller.email}</Text>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Inline Edit Form */}
+                        {state.editFormOpen && selectedTraveller && (
+                            <TravellerForm
+                                values={state.editValues}
+                                onChange={v => onStateChange({ editValues: v })}
+                                showConfirm={false}
+                            />
+                        )}
+                    </>
                 )}
             </div>
 
@@ -318,13 +510,7 @@ const SeatCard = ({
 
                         {/* Inline Add New Form */}
                         {state.addNewOpen && (
-                            <TravellerForm
-                                values={state.addNewValues}
-                                onChange={v => onStateChange({ addNewValues: v })}
-                                onConfirm={handleConfirmAddNew}
-                                confirmLabel="Add Traveller"
-                                showConfirm
-                            />
+                            <AddNewTravellerForm onConfirm={handleConfirmAddNew} />
                         )}
                     </div>
                 </>
@@ -354,7 +540,6 @@ const BusTicketTraveller = () => {
                     editFormOpen: false,
                     editValues: EMPTY_FORM,
                     addNewOpen: false,
-                    addNewValues: EMPTY_FORM,
                     addedTraveller: null,
                 },
             ])
@@ -364,6 +549,10 @@ const BusTicketTraveller = () => {
     // ── Contact Details ──
     const [mobile, setMobile] = useState('+917350980296');
     const [email, setEmail] = useState('chrissuares@yahoo.com');
+
+    // ── GST ──
+    const [gstChecked, setGstChecked] = useState(false);
+    const [gstValues, setGstValues] = useState({ regName: '', gstId: '', email: '', address: '' });
 
     // ── Terms ──
     const [termsAccepted, setTermsAccepted] = useState(false);
@@ -399,7 +588,7 @@ const BusTicketTraveller = () => {
             if (s.addedTraveller) {
                 return { seatId: seat.id, ...s.addedTraveller };
             }
-            const saved = SAVED_TRAVELLERS.find(t => t.id === s.savedTravellerId);
+            const saved = mockSavedTravellers.find(t => t.id === s.savedTravellerId);
             return {
                 seatId: seat.id,
                 name: saved?.name ?? '',
@@ -491,6 +680,82 @@ const BusTicketTraveller = () => {
                                     />
                                 </Col>
                             </Row>
+                        </div>
+
+                        {/* GST Number Card */}
+                        <div
+                            className="bg-white"
+                            style={{ border: '1px solid #E8E8E8', borderRadius: 12, overflow: 'hidden' }}
+                        >
+                            <div style={{ padding: '16px 20px' }}>
+                                <Flex justify="space-between" align="center">
+                                    <Checkbox
+                                        checked={gstChecked}
+                                        onChange={e => {
+                                            setGstChecked(e.target.checked);
+                                            if (!e.target.checked) {
+                                                setGstValues({ regName: '', gstId: '', email: '', address: '' });
+                                            }
+                                        }}
+                                    >
+                                        <Text style={{ fontSize: 14, fontWeight: 600, color: '#171717' }}>
+                                            I have a GST Number
+                                        </Text>
+                                    </Checkbox>
+                                    <Tag color="default">Optional</Tag>
+                                </Flex>
+                            </div>
+
+                            {gstChecked && (
+                                <div style={{
+                                    backgroundColor: '#FFF9F0',
+                                    borderTop: '1px solid #F0F0F0',
+                                    padding: '12px 20px 16px',
+                                }}>
+                                    <Row gutter={[12, 12]}>
+                                        <Col xs={24} sm={12}>
+                                            <Text style={{ fontSize: 12, color: '#8C8C8C', display: 'block', marginBottom: 4 }}>
+                                                Registration Name
+                                            </Text>
+                                            <Input
+                                                value={gstValues.regName}
+                                                onChange={e => setGstValues(v => ({ ...v, regName: e.target.value }))}
+                                                placeholder="Enter registered business name"
+                                            />
+                                        </Col>
+                                        <Col xs={24} sm={12}>
+                                            <Text style={{ fontSize: 12, color: '#8C8C8C', display: 'block', marginBottom: 4 }}>
+                                                GST ID
+                                            </Text>
+                                            <Input
+                                                value={gstValues.gstId}
+                                                onChange={e => setGstValues(v => ({ ...v, gstId: e.target.value }))}
+                                                placeholder="Enter GST number"
+                                            />
+                                        </Col>
+                                        <Col xs={24} sm={12}>
+                                            <Text style={{ fontSize: 12, color: '#8C8C8C', display: 'block', marginBottom: 4 }}>
+                                                Email ID
+                                            </Text>
+                                            <Input
+                                                value={gstValues.email}
+                                                onChange={e => setGstValues(v => ({ ...v, email: e.target.value }))}
+                                                placeholder="Enter registered email"
+                                            />
+                                        </Col>
+                                        <Col xs={24} sm={12}>
+                                            <Text style={{ fontSize: 12, color: '#8C8C8C', display: 'block', marginBottom: 4 }}>
+                                                Address
+                                            </Text>
+                                            <Input
+                                                value={gstValues.address}
+                                                onChange={e => setGstValues(v => ({ ...v, address: e.target.value }))}
+                                                placeholder="Enter registered address"
+                                            />
+                                        </Col>
+                                    </Row>
+                                </div>
+                            )}
                         </div>
                     </Flex>
                 </div>
