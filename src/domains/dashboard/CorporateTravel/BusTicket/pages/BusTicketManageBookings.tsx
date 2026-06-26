@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { Button, Flex, Pagination, Tabs, Tag, Typography, message } from 'antd';
+import { Button, Flex, Modal, Pagination, Tabs, Tag, Typography, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
 import { mockBusBookings, type BusBookingEntry } from '@src/mock/data';
@@ -27,12 +27,26 @@ const HelpCircleIcon = () => (
 
 // ─── Booking Card ─────────────────────────────────────────────────────────────
 
-const BookingCard = ({ booking }: { booking: BusBookingEntry }) => {
+const BookingCard = ({
+    booking,
+    onCancel,
+}: {
+    booking: BusBookingEntry;
+    onCancel: (id: string) => void;
+}) => {
     const navigate = useNavigate();
+    const [cancelModalOpen, setCancelModalOpen] = useState(false);
 
     const isCancelled = booking.status === 'cancelled';
 
+    const handleConfirmCancel = () => {
+        setCancelModalOpen(false);
+        message.success('Your ticket has been cancelled successfully');
+        onCancel(booking.id);
+    };
+
     return (
+        <>
         <div style={{
             backgroundColor: '#FFFFFF', border: `1px solid ${BDR}`,
             borderRadius: 8, padding: '20px 24px',
@@ -117,25 +131,37 @@ const BookingCard = ({ booking }: { booking: BusBookingEntry }) => {
                 {/* Right: CTAs */}
                 <Flex vertical gap={8} style={{ minWidth: 164, flexShrink: 0 }}>
                     <Button
-                        onClick={() =>
-                            navigate('/corporate-travel/bus-ticket/confirmation', { state: booking })
-                        }
+                        block
+                        onClick={() => navigate('/corporate-travel/bus-ticket/confirmation', { state: booking })}
                         style={{
                             backgroundColor: P, borderColor: P,
                             color: '#fff', fontWeight: 600, borderRadius: 6, height: 40,
                         }}
                     >
-                        Download Booking
+                        Download Ticket
                     </Button>
                     <Button
-                        onClick={() => void message.info('Coming soon')}
+                        block
+                        onClick={() => navigate('/corporate-travel/bus-ticket/confirmation', { state: booking })}
                         style={{
                             backgroundColor: '#fff', borderColor: P,
-                            color: P, borderRadius: 6, height: 40,
+                            color: P, fontWeight: 600, borderRadius: 6, height: 40,
                         }}
                     >
-                        View / Manage Booking
+                        View Ticket
                     </Button>
+                    {!isCancelled && (
+                        <Button
+                            block
+                            onClick={() => setCancelModalOpen(true)}
+                            style={{
+                                backgroundColor: '#fff', borderColor: '#D9D9D9',
+                                color: P, fontWeight: 500, borderRadius: 6, height: 40,
+                            }}
+                        >
+                            Cancel Ticket
+                        </Button>
+                    )}
                 </Flex>
 
             </Flex>
@@ -158,17 +184,50 @@ const BookingCard = ({ booking }: { booking: BusBookingEntry }) => {
             </div>
 
         </div>
+
+        <Modal
+            open={cancelModalOpen}
+            title="Cancel Ticket"
+            onCancel={() => setCancelModalOpen(false)}
+            footer={[
+                <Button key="back" onClick={() => setCancelModalOpen(false)}>
+                    Go Back
+                </Button>,
+                <Button
+                    key="confirm"
+                    onClick={handleConfirmCancel}
+                    style={{ backgroundColor: P, borderColor: P, color: '#fff' }}
+                >
+                    Yes, Cancel
+                </Button>,
+            ]}
+        >
+            <Text style={{ fontSize: 14, color: '#595959' }}>
+                Are you sure you want to cancel this ticket? Cancellation charges may apply as per the bus operator's policy.
+            </Text>
+        </Modal>
+        </>
     );
 };
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 const BusTicketManageBookings = () => {
-    const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
+    const [activeTab, setActiveTab]     = useState<'upcoming' | 'past'>('upcoming');
+    const [cancelledIds, setCancelledIds] = useState<string[]>([]);
 
-    const upcomingList = mockBusBookings.filter(b => b.status === 'upcoming');
-    const pastList     = mockBusBookings.filter(b => b.status === 'past' || b.status === 'cancelled');
-    const displayed    = activeTab === 'upcoming' ? upcomingList : pastList;
+    const handleCancel = (id: string) => {
+        setCancelledIds(prev => [...prev, id]);
+        setActiveTab('past');
+    };
+
+    const upcomingList = mockBusBookings.filter(b =>
+        b.status === 'upcoming' && !cancelledIds.includes(b.id)
+    );
+    const pastList = mockBusBookings
+        .filter(b => b.status === 'past' || b.status === 'cancelled' || cancelledIds.includes(b.id))
+        .map(b => cancelledIds.includes(b.id) ? { ...b, status: 'cancelled' as const } : b);
+    const displayed = activeTab === 'upcoming' ? upcomingList : pastList;
 
     return (
         <>
@@ -178,7 +237,7 @@ const BusTicketManageBookings = () => {
                 .bus-manage-tabs .ant-tabs-tab:hover .ant-tabs-tab-btn { color: #FF4F4F !important; }
             `}</style>
 
-            <Flex vertical gap={20} style={{ padding: '0 24px 40px' }}>
+            <Flex vertical gap={20} style={{ width: '100%', padding: '0 15% 40px' }}>
 
                 {/* ── Header row ── */}
                 <Flex justify="space-between" align="flex-start">
@@ -217,7 +276,7 @@ const BusTicketManageBookings = () => {
                 {/* ── Booking cards ── */}
                 <Flex vertical gap={16}>
                     {displayed.length > 0
-                        ? displayed.map(b => <BookingCard key={b.id} booking={b} />)
+                        ? displayed.map(b => <BookingCard key={b.id} booking={b} onCancel={handleCancel} />)
                         : (
                             <div style={{ textAlign: 'center', padding: 48 }}>
                                 <Text style={{ fontSize: 14, color: HLP }}>No bookings found.</Text>
