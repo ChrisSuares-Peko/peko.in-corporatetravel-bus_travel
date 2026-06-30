@@ -27,6 +27,9 @@ const BusTicketPayment = lazy(
 const BusTicketConfirmation = lazy(
     () => import('@domains/dashboard/CorporateTravel/BusTicket/pages/BusTicketConfirmation')
 );
+const BusTicketPaymentReview = lazy(
+    () => import('@domains/dashboard/CorporateTravel/BusTicket/pages/BusTicketPaymentReview')
+);
 const BusTicketPaymentSuccess = lazy(
     () => import('@domains/dashboard/CorporateTravel/BusTicket/pages/BusTicketPaymentSuccess')
 );
@@ -42,6 +45,7 @@ export const busTicketRoutes = [
     { path: 'boarding',         element: <BusTicketBoarding /> },
     { path: 'traveller',        element: <BusTicketTraveller /> },
     { path: 'review',           element: <BusTicketReview /> },
+    { path: 'payment-review',   element: <BusTicketPaymentReview /> },
     { path: 'payment',          element: <BusTicketPayment /> },
     { path: 'confirmation',     element: <BusTicketConfirmation /> },
     { path: 'payment-success',  element: <BusTicketPaymentSuccess /> },
